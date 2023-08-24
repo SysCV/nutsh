@@ -1,0 +1,8 @@
+version: v1
+plugins:
+  - plugin: es
+    opt:
+      - target=ts
+      - import_extension=.ts
+    path: ../app/frontend/node_modules/.bin/protoc-gen-es
+    out: ../app/frontend/src/proto

@@ -1,0 +1,12 @@
+# Ignore everything
+**
+
+# Allow files and directories
+!/go.mod
+!/go.sum
+!/go.work
+!/go.work.sum
+!/module/sam
+!/proto
+!/task
+!/Taskfile.yaml

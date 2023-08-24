@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "./node_modules/gts/",
+    "plugin:react/jsx-runtime"
+  ],
+  "plugins": ["react-hooks"],
+  "rules": {
+    "react-hooks/rules-of-hooks": "error", 
+    "react-hooks/exhaustive-deps": "warn"
+  }
+}

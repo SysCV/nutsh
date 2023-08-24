@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "target": "es2015",
+      "lib": [
+        "dom",
+        "dom.iterable",
+        "esnext"
+      ],
+      "allowSyntheticDefaultImports": true,
+      "strict": true,
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+    }
+}

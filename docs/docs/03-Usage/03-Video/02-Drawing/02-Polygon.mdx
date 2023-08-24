@@ -1,0 +1,68 @@
+import Image from "@site/src/components/Image";
+import VideoPlayer from "@site/src/components/VideoPlayer";
+
+<Image src="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/image/demo_polygon.png" />
+
+A polygon is a connected series of line segments in which the first vertex coincides with the last one. It is useful to lineate the boundary of an object.
+Furthermore, edges can be turned into Bézier curves to better depict curved lines like car tires.
+
+To draw a polygon, follow these steps:
+
+- Press <kbd>P</kbd> or select the "_Polygon_" tool from the sidebar.
+- Click on the canvas to set the first vertex of the polygon.
+- Continue clicking to position further vertices.
+- Press <kbd>Enter</kbd> to confirm.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/polygon_intro.mp4" />
+
+## Undo and Redo
+
+When drawing a polygon, you can press <kbd>Cmd/Ctrl</kbd> <kbd>Z</kbd> to undo, or press <kbd>Cmd/Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd> to redo.
+
+:::note
+The keyboard shortcuts <kbd>Cmd/Ctrl</kbd> <kbd>Z</kbd> and <kbd>Cmd/Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd> serve two roles.
+When used in the middle of drawing a polygon, as documented here, they will undo and redo the drawing, respectively.
+On the other hand, if you are not in the process of drawing, these shortcuts will [undo and redo](/Usage/Video/Panel#undo-and-redo) modifications to the entire annotation.
+:::
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/polygon_undo_redo.mp4" />
+
+## Bézier Curve
+
+You can convert a line segment into a [cubic Bézier curve](https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Higher-order_curves) to outline curved objects like tires.
+
+<Image src="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/image/demo_bezier_curve.png" />
+
+Behind the scenes, a cubic Bézier curve consists of four points, as demonstrated in the following diagram:
+
+- P0 is the _start point_.
+- P1 is the _first control point_.
+- P2 is the _second control point_.
+- P3 is the _end point_.
+
+<Image src="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/image/bezier_curve.jpg" />
+
+Follow these steps to turn an edge into a Bézier curve:
+
+- Right-click on the _end vertex_ of the edge you want to convert into a Bézier curve.
+- Select "_Turn to Bézier Vertex_," which will use this vertex as the _end point_ of the Bézier curve.
+- Drag the newly appeared dashed control handles to adjust the two control points.
+
+To rollback, simply right-click again and select "_Turn to Normal Vertex_".
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/video/polygon_bezier_curve.mp4" />
+
+## Slice Clone
+
+When two polygons need to share some edges, such as when outlining two overlapping cars,
+manually clicking on every vertex in the common edge can be tedious and inaccurate.
+Instead, we can directly duplicate a section from one polygon to another by following these steps:
+
+- Press and hold <kbd>Q</kbd>.
+- Click on the starting vertex of the slice you want to clone.
+- Click on any waypoint (in order to determine the slice's orientation).
+- Click on the ending vertex of the desired slice.
+
+This will add to the drawing polygon an exact copy of the edges between the starting and ending vertices from the cloning polygon.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/slice_clone.mp4" />

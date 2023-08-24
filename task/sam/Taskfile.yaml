@@ -1,0 +1,20 @@
+version: "3"
+
+includes:
+  container: container.yaml
+
+tasks:
+  start:
+    cmds:
+      - go run main.go start
+    dir: module/sam
+
+  build:
+    cmds:
+      - CGO_ENABLED=0 go build -o ../../build/nutsh-sam -trimpath main.go
+    dir: module/sam
+
+  run:
+    cmds:
+      - go run main.go {{.CLI_ARGS}}
+    dir: module/sam

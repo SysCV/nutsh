@@ -1,0 +1,8 @@
+go 1.19
+
+use (
+	./
+	./module/sam
+	./cmd/sam
+	./cmd/convert
+)

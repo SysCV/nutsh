@@ -1,0 +1,48 @@
+version: "3"
+
+tasks:
+  start:
+    cmds:
+      - npm start
+    dir: app/frontend
+
+  build:
+    cmds:
+      - npm run build
+    dir: app/frontend
+
+  build-dev:
+    cmds:
+      - npm run build-dev
+    dir: app/frontend
+
+  install:
+    cmds:
+      - npm install {{.CLI_ARGS}}
+    dir: app/frontend
+
+  lint:
+    cmds:
+      - npm run lint
+    dir: app/frontend
+
+  fmt:
+    cmds:
+      - npm run fmt
+    dir: app/frontend
+
+  openapi:
+    cmds:
+      - rm -rf src/openapi/nutsh
+      - |
+        npx openapi-typescript-codegen \
+          --input ../../openapi/gen/nutsh.json \
+          --output src/openapi/nutsh \
+          --useOptions \
+          --name NutshClient \
+    dir: app/frontend
+
+  test:
+    cmds:
+      - npm run test -- --watchAll=false
+    dir: app/frontend

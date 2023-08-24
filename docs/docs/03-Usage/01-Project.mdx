@@ -1,0 +1,108 @@
+import VideoPlayer from "@site/src/components/VideoPlayer";
+
+A project is a space where you can organize your [resources](/Usage/Resource) and define the specifics of your annotation tasks.
+
+## Creation
+
+To organize your resources, you need to create a project. If there are no projects, you'll find an "_Add Project_" button in the center of the screen. If projects exist, look for an "_Add_" button in the top left corner. Click the appropriate button and fill out the form to create a new project.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/create_projects.mp4" />
+
+### Advanced Configuration
+
+The default configuration is sufficient for simple tasks, such as when your annotation project requires only drawing boxes or masks. For more complex needs, such as assigning labels to entities, advanced configuration options are available. Currently, a project [specification](#specification) can be supplied to extend labelling options for entities.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/advanced_project_creation.mp4" />
+
+## Management
+
+Managing projects, including searching, updating, and deleting, is straightforward through the interface.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/manage_projects.mp4" />
+
+## Serialization
+
+For the purposes of exchange, a project can be serialized. In addition to the official [nutsh serialization format](/Serialization), more formats will be supported in due course.
+
+### Import and Export
+
+The serialized project is saved in a JSON file that can be used for importing and exporting.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/serialize_projects.mp4" />
+
+### Manual Import
+
+If the serialized data is particularly large, it may not be possible to import it directly through the browser. This could be due to several factors. For instance, the memory limit of the browser could be overly restrictive, or the server might be behind a proxy that imposes a size limit on incoming requests. In such situations, the project can be manually imported through the command line.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/manually_import_project.mp4" />
+
+## Specification
+
+Project specifications are represented in JSON, adhering to the schema outlined below.
+
+```typescript
+type Specification = {
+  // An array of Category objects.
+  categories: Category[];
+};
+
+// Each Category represents a specific labeling perspective for entities.
+type Category = {
+  // Unique identifier for the Category, such as `Label` or `Attribute`.
+  name: string;
+
+  // An array of Entry objects.
+  entries: Entry[];
+
+  // Optional. If set to `true`, an entity can be assigned multiple entries from this Category. Defaults to `false`, allowing at most one entry per entity.
+  multiple?: boolean;
+
+  // Optional. If set to `true`, an entity can be assigned different entries on different slices, e.g., video frames. Defaults to `false`, assigning entries globally.
+  slicewise?: boolean;
+};
+
+// Entries represent potential values that can be assigned to an entity within a Category.
+type Entry = {
+  // Unique identifier for the Entry.
+  name: string;
+
+  // Optional. An array of sub-Entries, allowing for hierarchical, tree-like structuring of Category values.
+  subentries?: Entry[];
+};
+```
+
+Here is an example of a project specification represented in the above schema.
+
+```json
+{
+  "categories": [
+    {
+      "name": "Label",
+      "multiple": false,
+      "entries": [
+        {
+          "name": "construction",
+          "subentries": [
+            { "name": "bridge" },
+            { "name": "wall" },
+            {
+              "name": "shop",
+              "subentries": [{ "name": "coffee shop" }, { "name": "toy shop" }]
+            }
+          ]
+        },
+        {
+          "name": "vehicle",
+          "subentries": [{ "name": "bicycle" }, { "name": "bus" }, { "name": "car" }]
+        }
+      ]
+    },
+    {
+      "name": "Attribute",
+      "multiple": true,
+      "slicewise": true,
+      "entries": [{ "name": "crowd" }, { "name": "occluded" }, { "name": "truncated" }, { "name": "unclear" }]
+    }
+  ]
+}
+```

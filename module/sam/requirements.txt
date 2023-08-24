@@ -1,0 +1,12 @@
+black==23.3.0
+pycocotools==2.0.6
+pylint==2.17.2
+opencv-python-headless==4.7.0.72
+numpy==1.24.3
+segment-anything @ git+https://github.com/facebookresearch/segment-anything.git@567662b0fd33ca4b022d94d3b8de896628cd32dd
+typed-argument-parser==1.8.0
+torch==2.0.0
+torchvision==0.15.1
+flask==2.2.3
+onnxruntime==1.14.1
+onnx==1.13.1

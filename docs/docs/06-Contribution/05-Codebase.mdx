@@ -1,0 +1,119 @@
+import Image from "@site/src/components/Image";
+
+Here, we provide a detailed introduction to the codebase, along with all the noteworthy tech stacks used.
+
+### Folder Structure
+
+The project folder is organized as follows:
+
+- `main.go`: The entry point of the final built executable.
+- `app/`: Contains the source code of the core.
+  - `backend/`: Holds the backend code.
+  - `frontend/`: Houses the frontend code.
+  - `storage/`: The storage layer.
+  - `buildtime/`: Constants set during build time.
+  - `action/`: Command line actions defined in `main.go`.
+- `module/`: Contains the source code of decoupled modules.
+  - `sam/`: The [SAM module](/SAM%20Module).
+- `openapi/`: Backend API definitions in [OpenAPI v3.0](https://swagger.io/specification/) and relevant configurations.
+- `proto/`: Schema and service definitions in [Protocol Buffers](https://protobuf.dev/) and relevant configurations.
+- `cmd/`: Command line utilities.
+  - `openapi-gen/`: Generates the API definition JSON.
+  - `sam/`: Interacts with the SAM module for development and testing purposes.
+- `e2e/`: A stand-alone end-to-end testing module using [Cypress](https://www.cypress.io/).
+- `docs/`: Documentation website.
+- `container/`: Configurations for building Docker images.
+- `deploy/`: Sample configurations for deployment.
+- `task/`: Configurations for [Task](https://taskfile.dev/).
+- `Taskfile.yaml`: The root configuration file for various tasks during development.
+
+### Project Architecture
+
+<Image src="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/image/project_structure.svg" />
+
+The high-level architecture of the project is straightforward and comprises the following components:
+
+- A storage system for persistently storing application data.
+- A web application that offers the primary functionalities to users.
+- A server that facilitates communication between the frontend and backend services.
+- Some (optional) decoupled modules that provide additional functionalities.
+
+Of these components, at the time of writing, both the storage and the server are lightweight, primarily serving data persistence purposes. Meanwhile, the bulk of the business and product logic resides in the frontend, which we will delve into in greater detail later.
+
+### Communication
+
+Communication between the frontend and backend occurs via JSON over HTTP. Meanwhile, communication between servers within the backend, such as between the main server and the modules, uses Protocol Buffers over gRPC.
+
+#### HTTP
+
+The HTTP API is defined using [OpenAPI v3.0](https://swagger.io/specification/). From these definitions, boilerplate code for both the client and server is generated. Here's the development workflow:
+
+1. Update the API definitions located in `openapi/nutsh.go`.
+2. Generate the relevant code by executing `task openapi`. Behind the scenes, this will:
+   1. Generate the OpenAPI JSON using `cmd/openapi-gen/`, with the output at `openapi/gen/nutsh.json`.
+   2. Generate the frontend client code using [openapi-typescript-codegen](https://github.com/ferdikoomen/openapi-typescript-codegen).
+   3. Generate the backend server code using [oapi-codegen](https://github.com/deepmap/oapi-codegen).
+
+#### GRPC
+
+For gRPC, the development workflow is:
+
+1. Update the API definitions in the `proto` folder.
+2. Generate the relevant code by executing `task proto`.
+
+### Storage
+
+The storage component is defined through a Go interface, located in `app/storage/storage.go`.
+
+Currently, we only offer a SQLite3 implementation, suitable for initial small-scale usage. You can find the database schema in `app/storage/sqlite3/exec/schema.sql`.
+
+As we move forward, we anticipate implementing more sophisticated solutions like PostgreSQL or AWS S3 based on demand.
+
+## Frontend
+
+The frontend of our platform is built using [React](https://reactjs.org/), with the main entry point located at `app/frontend/src/index.tsx`.
+
+<Image src="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/image/frontend.svg" />
+
+The architecture of the application is in line with modern frontend paradigms:
+
+- A global state serves as the single source of truth for the frontend.
+- The UI is a reflection of this state, dynamically rendering based on its data.
+- Users interact with the UI, causing changes to the state.
+- Any state alteration triggers a UI re-render.
+
+While this high-level philosophy outlines the basics, further considerations are essential due to potential intensive workloads, such as managing thousands of polygons within a single frame. For optimal performance:
+
+- The UI should be compartmentalized into distinct components.
+- Each UI component should be dependent only on a subset of the global state.
+- Only the components affected by a particular state change should undergo re-rendering.
+
+**In essence, it's crucial to design and structure the UI in a way that minimizes unnecessary re-rendering when the state changes.**
+
+To manage our state with this level of granularity, we employ [zustand](https://github.com/pmndrs/zustand).
+
+- While React's native [useState](https://react.dev/reference/react/useState) is available, it's reserved for localized state within individual components. It's advisable to use it only when it's clear that the state in question is truly local and won't be accessed outside of the current component.
+- While [Redux](https://redux.js.org/) is a renowned solution for state management, in our early assessment, it felt somewhat outdated, cumbersome, overly prescriptive, and complex.
+
+### Frontend Folder Structure
+
+The frontend source, located in `app/frontend/src`, is structured as follows:
+
+- `index.tsx`: This is the entry point to the frontend, where global configurations, such as i18n, are established.
+- `App.tsx`: This serves as the root of the application. Business-specific configurations, including [client side routing](https://reactrouter.com/en/main), are initialized here.
+- `page/`: This directory houses the different rendering roots, termed pages. Each is in a one-to-one correspondence with client-side routes, thus aligning with supported URL patterns.
+  - `Layout.tsx`: A foundational component that should encompass all pages.
+- `state/`: Here you'll find the definitions of various states.
+  - `server/`: States related to the API server. The state management here utilizes [react-query](https://github.com/TanStack/query).
+  - `client/`: States associated with the API client, such as CRUD operations for resources.
+  - `image/`: An autonomous state store designated for image downloads.
+  - `annotate/`: This state relates to annotation, the core state of the application.
+    - `annotation.ts`: The actual annotation and all its possible modifications. It functions as the single source of truth, tracking the annotation's evolution. Changes here are monitored and synchronized with the backend.
+    - `render/`: States concerning the rendering and visualization of annotations.
+    - `ui.ts`: States tied to the annotation UI.
+    - `polychain/`, `rectangle/`, and others: These are states relevant to specific annotation types.
+- `component/`: Contains all reusable React components that aren't pages.
+- `common/`: A place for all reusable code that isn't React-specific.
+- `locale/`: This directory contains i18n translations.
+- `test/`: A folder for unit tests.
+- `type/`: Houses type definitions. It leverages [io-ts](https://gcanti.github.io/io-ts/) to facilitate both development-time and runtime checks.

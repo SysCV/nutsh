@@ -1,0 +1,62 @@
+import VideoPlayer from "@site/src/components/VideoPlayer";
+
+We can utilize a machine learning model to aid in segmentation, specifically for the purpose of drawing masks.
+At the present, there is an officially maintained [SAM module](/SAM%20Module) that employs the [Segment Anything Model](https://segment-anything.com/) from Meta AI.
+Plans are underway to allow for the integration of custom models in the future.
+
+## Global Smart Segmentation
+
+We can let the assisting model work on the entire image. To do so:
+
+- Press <kbd>G</kbd> or select the "_Global_" tool under the "_Smart Segment_" tool in the sidebar.
+- Wait for a while for the inferencer to get ready.
+- Once ready, move your mouse around, and objects under the cursor will be segmented in real-time.
+- Click to place a positive point prompt.
+- You can continue clicking to add more positive or negative point prompts.
+- Once ready, press <kbd>Enter</kbd> to confirm.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/global_smart_segmentation.mp4" />
+
+## Local Smart Segmentation
+
+Sometimes, the entire image may be so large that it prevents the assisting model from working satisfactorily on small details.
+To mitigate this issue, you can select a local area and let the model work on this smaller part instead of the whole image.
+This approach may provide finer results. Take the following steps to activate local smart segmentation:
+
+- Press <kbd>S</kbd> or select the "_Local_" tool under the "_Smart Segment_" tool in the sidebar.
+- Click on the canvas and drag to enclose an area to focus on.
+- Press <kbd>Enter</kbd> to confirm the selection.
+- The rest of the process is exactly the same as with global smart segmentation.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/local_smart_segmentation.mp4" />
+
+## Tuning
+
+Predictions from a model may not always be satisfactory.
+If they aren't, it's beneficial to correct the prediction manually and save both the correction and the prediction context for later use,
+such as fine-tuning our model. This can be achieved through smart segmentation tuning.
+
+- Once you have added some point prompts and received the prediction from the model, you can activate the "_Tune_" tool located in the top-left toolbar.
+- Either click on it or press the keyboard shortcut <kbd>T</kbd>.
+- Draw in exactly the same way as you would draw a mask.
+- Once done, press <kbd>Enter</kbd> to confirm.
+
+You may repeat the prediction and tuning process several times.
+All modifications, along with their prediction contexts, will be saved as JSON files in the following directory on the host machine of your nutsh server:
+
+```
+${WORKSPACE}/sample/project_${PID}
+```
+
+You can consult the [SAM Decoder Fine-tuning](/SAM%20Module#fine-tune-the-sam-decoder) documentation as an example to see how to utilize these modification samples.
+
+:::note
+
+As you may notice when you are tuning a prediction, all existing masks will be hidden.
+This helps you focus on providing the correct information for the specific prediction in question.
+As a result, the "_Overwrite_" toggle in the toolbar will be disabled, and the drawing from the tuning will take priority over all others,
+overwriting any existing masks that overlap.
+
+:::
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/tune_smart_segmentation.mp4" />

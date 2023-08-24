@@ -1,0 +1,9 @@
+app/frontend/src/openapi
+app/frontend/src/proto
+app/frontend/node_modules
+app/frontend/build
+openapi/gen
+build
+local
+*.local
+__pycache__

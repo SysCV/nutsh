@@ -1,0 +1,54 @@
+name: Pretest
+
+on: [push, pull_request, workflow_call]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Prepare a dev environment docker image
+        run: |
+          docker build -t project-dev -f container/devel.Dockerfile .
+          docker build -t project-test -f - . << EOF
+            FROM project-dev
+            ADD . /project
+
+            # create an empty file to make `go:embed` happy              
+            RUN cd /project && mkdir app/frontend/build && touch app/frontend/build/test && mkdir docs/build && touch docs/build/test
+
+            # generate code
+            RUN cd /project && task openapi && task proto
+            
+            WORKDIR /project
+          EOF
+      - name: Lint
+        run: docker run project-test task lint
+      - name: Unit test
+        run: docker run project-test task test
+      - name: Build for e2e test
+        run: |
+          docker build -t project-e2e -f - . << EOF
+            FROM project-test
+            RUN task build-dev
+            EXPOSE 3000
+            ENTRYPOINT ["/project/build/nutsh-dev"]
+            CMD ["--port", "3000"]
+          EOF
+      - name: Start the server for e2e test
+        run: |
+          docker compose -f - up -d << EOF
+            version: "3.9"
+            services:
+              server:
+                image: project-e2e
+                ports:
+                  - "3000:3000"
+          EOF
+      - name: Install tools
+        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+      - name: Prepare e2e test
+        run: task e2e:install
+      - name: End-to-end test
+        run: task e2e:run

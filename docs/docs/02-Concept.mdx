@@ -1,0 +1,38 @@
+import Image from "@site/src/components/Image";
+import VideoPlayer from "@site/src/components/VideoPlayer";
+
+This document aims to familiarize you with the fundamental concepts integral to utilizing and understanding our platform effectively.
+
+## Entity
+
+An **entity** within our platform embodies a fragment of truth within a specified context. This context can encompass:
+
+- Images
+- Videos
+- 3D point clouds
+- And more
+
+The truth these entities represent can take various forms, such as:
+
+- A bounding box delineating an object in an image
+- A mask highlighting the extent of an object
+- A label
+- And more
+
+The type of annotation task at hand determines the specific implementation of entities. The platform's primary function is to streamline the creation, modification, deletion, and visualization of these entities within the context of the given task.
+
+### Video
+
+In the realm of videos, an entity can possess a spatial-temporal geometry in addition to local or global labels or attributes.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/video_entity.mp4" />
+
+#### Component
+
+The geometry of an entity in a video is composed of one or more **components**. These represent spatial elements that are [_connected_](https://en.wikipedia.org/wiki/Connected_space). For exmaple, the following illustrates four mask components.
+
+<Image src="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/image/disconnected_space.png" />
+
+Components serve as the basic manipulatable units. An annotation of a car, for instance, can consist of multiple polygons on a given slice when it is partially obscured by another object. Each polygon can be modified and adjusted independently.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/video_entity_component.mp4" />

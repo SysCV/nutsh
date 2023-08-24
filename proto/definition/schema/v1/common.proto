@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package schema.v1;
+
+message GridRect {
+    uint32 x = 1;
+    uint32 y = 2;
+    uint32 width = 3;
+    uint32 height = 4;
+}
+
+message GridSize {
+    uint32 width = 1;
+    uint32 height = 2;
+}

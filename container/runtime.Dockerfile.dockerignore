@@ -1,0 +1,10 @@
+app/frontend/src/openapi
+app/frontend/node_modules
+app/frontend/build
+openapi/gen
+proto/gen
+module
+build
+*.local
+go.work
+go.work.sum

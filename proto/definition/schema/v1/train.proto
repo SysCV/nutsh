@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+import "schema/v1/common.proto";
+
+package schema.v1;
+
+message PointPrompt {
+    float x = 1;
+    float y = 2;
+    bool is_positive = 3;
+}
+
+message Mask {
+    // COCO uses a customized algorithm to encode RLE count array. However, since it is quite dominated in AI community
+    // as a standard, we respect its convention to make downstream work easier.
+    // https://github.com/cocodataset/cocoapi/blob/8c9bcc3cf640524c4c20a9c40e89cb6a2f2fa0e9/PythonAPI/pycocotools/mask.py
+    // Note that the mask is in column-major order.
+    string coco_encoded_rle = 1;
+
+    // The size of the mask.
+    schema.v1.GridSize size = 2;
+}
+
+message SegmentationInput {
+    schema.v1.GridRect crop = 1;
+}
+
+message SegmentationPrompt {
+    repeated PointPrompt point_prompts = 1;
+}
+
+message SegmentationOutput {
+    Mask mask = 1;
+}
+
+message SegmentationSample {
+    SegmentationInput input = 1;
+    SegmentationPrompt prompt = 2;
+    SegmentationOutput output = 3;
+}
+
+message Sample {
+    string image_url = 1;
+
+    // Only one of the following fields should be filled.
+    SegmentationSample segmentation = 2;
+}

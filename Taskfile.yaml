@@ -1,0 +1,70 @@
+version: "3"
+
+dotenv: [".env.local"]
+
+vars:
+  DEFAULT_BUILD_COMMIT_IDENTIFIER:
+    # The default length of the short hash is not gauranteed to be 8, typically 7 in fact.
+    # To match github `CI_COMMIT_SHORT_SHA` which is 8 characters long, we manually set `--short=8`.
+    sh: git rev-parse --short=8 HEAD 2>/dev/null || true
+  DEFAULT_BUILD_COMMIT_TIME:
+    sh: git log -1 --format=%cd --date=iso-strict 2>/dev/null || true
+  BUILD_COMMIT_IDENTIFIER: "{{ .BUILD_COMMIT_IDENTIFIER | default .DEFAULT_BUILD_COMMIT_IDENTIFIER }}"
+  BUILD_COMMIT_TIME: "{{ .BUILD_COMMIT_TIME | default .DEFAULT_BUILD_COMMIT_TIME }}"
+  BUILD_VERSION: "{{ .BUILD_VERSION | default .BUILD_COMMIT_IDENTIFIER }}"
+
+includes:
+  frontend: task/frontend.yaml
+  backend: task/backend.yaml
+  e2e: task/e2e.yaml
+  container: task/container.yaml
+  deploy: task/deploy.yaml
+  proto: task/proto.yaml
+  docs: task/docs.yaml
+  sam: task/sam
+
+tasks:
+  openapi:
+    cmds:
+      - rm -rf openapi/gen
+      - mkdir -p openapi/gen
+      - go run cmd/openapi-gen/*.go --output openapi/gen/nutsh.json
+      - task: backend:openapi
+      - task: frontend:openapi
+
+  proto:
+    cmds:
+      - rm -rf proto/gen
+      - rm -rf app/frontend/src/proto
+      - task: proto:schema
+      - task: proto:service
+
+  build:
+    cmds:
+      - rm -f build/nutsh
+      - task: frontend:build
+      - task: docs:build
+      - task: backend:build
+
+  build-dev:
+    cmds:
+      - rm -f build/nutsh-dev
+      - task: frontend:build-dev
+      - task: backend:build
+      - mv build/nutsh build/nutsh-dev
+
+  fmt:
+    cmds:
+      - task: frontend:fmt
+      - task: e2e:fmt
+      - go fmt ./...
+
+  lint:
+    cmds:
+      - task: frontend:lint
+      - task: e2e:lint
+
+  test:
+    cmds:
+      - task: backend:test
+      - task: frontend:test

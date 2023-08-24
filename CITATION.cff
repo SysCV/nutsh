@@ -1,0 +1,17 @@
+# This CITATION.cff file was generated with cffinit.
+
+cff-version: 1.2.0
+title: "nutsh: A Platform for Visual Learning from Human Feedback"
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Xu
+    family-names: Han
+  - given-names: Fisher
+    family-names: Yu
+repository-code: "https://github.com/SysCV/nutsh"
+url: "https://nutsh.ai"
+license: Apache-2.0
+version: 0.1.0

@@ -1,0 +1,31 @@
+{
+  "categories": [
+    {
+      "name": "Label",
+      "multiple": false,
+      "entries": [
+        {
+          "name": "construction",
+          "subentries": [
+            {"name": "bridge"},
+            {"name": "wall"},
+            {
+              "name": "shop",
+              "subentries": [{"name": "coffee shop"}, {"name": "toy shop"}]
+            }
+          ]
+        },
+        {
+          "name": "vehicle",
+          "subentries": [{"name": "bicycle"}, {"name": "bus"}, {"name": "car"}]
+        }
+      ]
+    },
+    {
+      "name": "Attribute",
+      "multiple": true,
+      "slicewise": true,
+      "entries": [{"name": "crowd"}, {"name": "occluded"}, {"name": "truncated"}, {"name": "unclear"}]
+    }
+  ]
+}

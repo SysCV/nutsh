@@ -1,0 +1,52 @@
+version: "3"
+
+tasks:
+  devel:
+    preconditions:
+      - test {{ .REGISTRY_HOST }} != ''
+      - test {{ .REGISTRY_REPO }} != ''
+      - test {{ .BUILD_COMMIT_IDENTIFIER }} != ''
+    cmds:
+      - |
+        docker build \
+          --network host \
+          --rm \
+          -t {{ .REGISTRY_HOST }}/{{ .REGISTRY_REPO }}:devel-sam-{{ .BUILD_COMMIT_IDENTIFIER }} \
+          --build-arg REGISTRY_HOST="{{ .REGISTRY_HOST }}" \
+          --build-arg REGISTRY_REPO="{{ .REGISTRY_REPO }}" \
+          -f devel.Dockerfile \
+          ../..
+    dir: container/sam
+
+  runtime3rd:
+    preconditions:
+      - test {{ .REGISTRY_HOST }} != ''
+      - test {{ .REGISTRY_REPO }} != ''
+      - test {{ .BUILD_COMMIT_IDENTIFIER }} != ''
+    cmds:
+      - |
+        docker build \
+          --network host \
+          --rm \
+          -t {{ .REGISTRY_HOST }}/{{ .REGISTRY_REPO }}:runtime3rd-sam-{{ .BUILD_COMMIT_IDENTIFIER }} \
+          -f runtime3rd.Dockerfile \
+          ../..
+    dir: container/sam
+
+  runtime:
+    preconditions:
+      - test {{ .REGISTRY_HOST }} != ''
+      - test {{ .REGISTRY_REPO }} != ''
+      - test {{ .BUILD_COMMIT_IDENTIFIER }} != ''
+    cmds:
+      - |
+        docker build \
+          --rm \
+          --network=none \
+          -t {{ .REGISTRY_HOST }}/{{ .REGISTRY_REPO }}:runtime-sam-{{ .BUILD_COMMIT_IDENTIFIER }} \
+          --build-arg REGISTRY_HOST="{{ .REGISTRY_HOST }}" \
+          --build-arg REGISTRY_REPO="{{ .REGISTRY_REPO }}" \
+          --build-arg BUILD_COMMIT_IDENTIFIER="{{ .BUILD_COMMIT_IDENTIFIER }}" \
+          -f runtime.Dockerfile \
+          ../..
+    dir: container/sam

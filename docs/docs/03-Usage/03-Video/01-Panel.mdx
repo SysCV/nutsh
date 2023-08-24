@@ -1,0 +1,159 @@
+import VideoPlayer from "@site/src/components/VideoPlayer";
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/video_panel_overview.mp4" />
+
+## Viewport
+
+You can readily zoom or pan the canvas either through the user interface or by using keyboard shortcuts.
+The latter is especially useful when you're in the midst of drawing.
+Essentially, the moment you press and hold the <kbd>Option/Alt</kbd>, you activate the transformation mode.
+In this mode, all your mouse movements directly facilitate canvas transformations.
+Simply drag to pan and scroll the wheel to zoom.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/viewport_manipulation.mp4" />
+
+## Undo and Redo
+
+The entire annotation history is tracked.
+At any time, you can navigate through it using undo or redo.
+The keyboard shortcut is <kbd>Cmd/Ctrl</kbd> <kbd>Z</kbd> and <kbd>Cmd/Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd> respectively.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/undo_and_redo.mp4" />
+
+## Entity Selection
+
+Some actions require you to select one or more entities first. This can be easily accomplished directly on the canvas.
+
+- To select a single entity, simply click on one of its components.
+- To select multiple entities, there are two methods:
+  - hold the <kbd>Cmd/Ctrl</kbd> and click on components of the desired entities;
+  - hold the <kbd>Cmd/Ctrl</kbd> and drag a box to encompass for each desired entity at least one of its component.
+
+Remember, batch selecting by dragging will always reset the current selection to the ones currently enclosed.
+To add to the existing selection rather than resetting it, hold <kbd>Shift</kbd>.
+
+:::note
+Selecting a mask component can be a bit tricky, because unlike polygons or rectangles,
+directly clicking on a mask will initiate the editing process. To simply select it without editing, use the multiple selection method:
+hold down the <kbd>Cmd/Ctrl</kbd> and click, or drag a box to enclose it.
+:::
+
+:::note
+
+When batch selecting by dragging, a component is only considered enclosed when it's entirely within the selection box.
+
+:::
+
+You can always press <kbd>Esc</kbd> to clear the selection.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/entity_selection.mp4" />
+
+## Operations with Entity Selection
+
+After selecting one or more entities, the following operations can be performed:
+
+- Invert Selection <kbd>I</kbd> : This operation allows you to select all entities that are not currently selected within the frame.
+- Hide Others <kbd>H</kbd> : Using this operation will make all entities, except for your current selection, invisible.
+- Focus <kbd>F</kbd> : This operation adjusts the viewport of the canvas to center on the selected entities.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/operations_with_entity_selection.mp4" />
+
+## Entity Manipulation
+
+Given that an annotation comprises several [entities](/Concept#video),
+each containing one or more [components](/Concept#component),
+it's crucial to allow manipulation among them.
+Below are all the possible manipulations.
+
+### Shifting Components and Entities
+
+There may be times when slight adjustments to the positions of components are necessary,
+such as following interpolation or after copy-pasting.
+
+To move a single component, follow these steps:
+
+- Hover your mouse over the component you wish to move.
+- Click and hold the left mouse button.
+- Drag the component to its desired position.
+
+Occasionally, an entity might consist of multiple components,
+or you may need to shift multiple entities at the same time.
+Instead of moving each component one by one, you can shift them all at once:
+
+- Select all the entities you wish to move.
+- Press and hold <kbd>Shift</kbd>.
+- Click and drag in any blank area on the canvas.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/shift_components_and_entities.mp4" />
+
+### Transferring a Component
+
+There may be instances where you need to move a component from its current entity to another.
+This can occur if, for example, you accidentally draw a component to the wrong entity.
+To transfer a component, follow these steps
+
+- Right-click on the component you wish to transfer.
+- Select "_Transfer_" from the context menu that appears.
+- Click on the destination entity.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/transfer_component.mp4" />
+
+### Detaching a Component
+
+There may be situations where,
+rather than reassigning a component to an existing entity,
+it would be necessary to create a new entity from that specific component.
+Here's how you can achieve this:
+
+- Right-click on the component in question.
+- Select "_Detach_" from the contextual menu.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/detach_component.mp4" />
+
+### Deleting a Component
+
+If you wish to remove a single component from an entity, follow the steps below:
+
+- Right-click on the component you want to remove.
+- From the context menu, select 'Delete'.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/delete_component.mp4" />
+
+### Copying Entities
+
+This feature allows for copying entities from one frame and pasting them onto another.
+This can prove helpful, especially when one needs to replicate drawn entities across multiple frames with minor variations.
+To copy one or more entities, follow these steps:
+
+- Select the desired entities.
+- Press <kbd>Cmd/Ctrl</kbd> <kbd>C</kbd> or right-click anywhere on the canvas and select "_Copy_".
+- Navigate to the destination frame.
+- Press <kbd>Cmd/Ctrl</kbd> <kbd>V</kbd> or right-click anywhere on the canvas and select "_Paste_".
+
+All components of the copied entities will be replicated onto the target frame.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/copy_entities.mp4" />
+
+### Clearing Entities in a Frame
+
+If you wish to remove all components of some entities in a particular frame, follow these steps:
+
+- Select the desired entities.
+- Right-click on a blank area of the canvas.
+- Click "_Clear_".
+
+This action does not affect their components in other frames.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/clear_entities.mp4" />
+
+### Purging Entities
+
+If you need to remove some entities entirely, not just from a single frame, follow these steps:
+
+- Select the desired entities.
+- Right-click on a blank area of the canvas.
+- Click "_Purge_".
+
+This will completely remove the selected entities from the annotation.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/purge_entities.mp4" />

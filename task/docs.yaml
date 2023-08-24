@@ -1,0 +1,18 @@
+version: "3"
+
+tasks:
+  # You can run `START_TITLE="Demo" task build` to build with custom start button title.
+  start:
+    cmds:
+      - npm run start
+    dir: docs
+
+  build:
+    cmds:
+      - npm run build
+    dir: docs
+
+  install:
+    cmds:
+      - npm install {{.CLI_ARGS}}
+    dir: docs

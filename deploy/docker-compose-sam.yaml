@@ -1,0 +1,27 @@
+version: "2.3"
+services:
+  app:
+    image: ${REGISTRY_HOST}/${REGISTRY_REPO}:runtime-${APP_RUNTIME_TAG}
+    ports:
+      - "12346:12346"
+    volumes:
+      - ./local:/local
+    container_name: nutsh.app
+    environment:
+      - NUTSH_ONLINE_SEGMENTATION=sam:12345
+
+  sam:
+    image: ${REGISTRY_HOST}/${REGISTRY_REPO}:runtime-sam-${SAM_RUNTIME_TAG}
+    runtime: nvidia
+    container_name: nutsh.sam
+    environment:
+      - NUTSH_SAM_DEVICE=${SAM_DEVICE}
+      - NUTSH_SAM_MODEL_TYPE=${SAM_ENCODER_TYPE}
+      - NUTSH_SAM_MODEL_CHECKPOINT=/model/sam_${SAM_ENCODER_TYPE}.pth
+      - NUTSH_SAM_DECODER_PATH=/model/sam_${SAM_ENCODER_TYPE}_decoder_quantized.onnx
+    volumes:
+      - ${SAM_MODEL_CHECKPOINT_HOST}:/model/sam_${SAM_ENCODER_TYPE}.pth
+
+networks:
+  default:
+    name: nutsh

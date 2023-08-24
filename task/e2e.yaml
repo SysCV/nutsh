@@ -1,0 +1,27 @@
+version: "3"
+
+tasks:
+  install:
+    cmds:
+      - npm install {{.CLI_ARGS}}
+    dir: e2e
+
+  lint:
+    cmds:
+      - npm run lint
+    dir: e2e
+
+  fmt:
+    cmds:
+      - npm run fmt
+    dir: e2e
+
+  run:
+    cmds:
+      - npm run cypress:run
+    dir: e2e
+
+  open:
+    cmds:
+      - npm run cypress:open
+    dir: e2e

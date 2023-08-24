@@ -1,0 +1,15 @@
+version: "3"
+
+tasks:
+  service:
+    cmds:
+      - buf generate --template buf.gen.service.yaml definition
+    dir: proto
+  schema:
+    cmds:
+      - buf generate --template buf.gen.schema.yaml --path definition/schema definition
+    dir: proto
+  lint:
+    cmds:
+      - buf lint definition
+    dir: proto

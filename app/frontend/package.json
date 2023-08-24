@@ -1,0 +1,111 @@
+{
+  "//": [
+    "At the time of writing `antd` version 5.7.0 requires exactly `@types/react` version 18.0.33, therefore this version is hard-coded. Re-examine it in the future.",
+    "https://github.com/ant-design/ant-design/issues/42767#issuecomment-1597881385"
+  ],
+  "name": "nutsh",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "dependencies": {
+    "@ant-design/colors": "^6.0.0",
+    "@ant-design/icons": "^5.0.1",
+    "@emotion/react": "^11.10.4",
+    "@fortawesome/free-solid-svg-icons": "^6.3.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@react-hook/window-size": "^3.1.1",
+    "@tanstack/react-query": "^4.14.1",
+    "antd": "^5.7.3",
+    "crypto-js": "^4.1.1",
+    "deep-equal": "^2.1.0",
+    "fp-ts": "^2.13.1",
+    "geometric": "^2.5.0",
+    "immer": "^9.0.19",
+    "io-ts": "^2.2.19",
+    "json-merge-patch": "^1.0.2",
+    "lodash": "^4.17.21",
+    "nanoevents": "^7.0.1",
+    "npyjs": "^0.4.0",
+    "onnxruntime-web": "^1.14.0",
+    "polylabel": "^1.1.0",
+    "rc-select": "^14.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hotkeys-hook": "^4.4.0",
+    "react-intl-universal": "^2.6.15",
+    "react-router-dom": "^6.4.2",
+    "react-scripts": "5.0.1",
+    "react-window": "^1.8.8",
+    "ts-key-enum": "^2.0.12",
+    "typescript": "^5.1.6",
+    "uuid": "^9.0.0",
+    "zundo": "^2.0.0-beta.5",
+    "zustand": "^4.1.4"
+  },
+  "overrides": {
+    "react-scripts": {
+      "typescript": "^5"
+    }
+  },
+  "scripts": {
+    "start": "REACT_APP_DEV=true REACT_APP_WARN_DEV=false DANGEROUSLY_DISABLE_HOST_CHECK=true craco start",
+    "build": "craco build",
+    "build-dev": "REACT_APP_DEV=true craco build",
+    "test": "craco test",
+    "lint": "gts lint",
+    "fmt": "gts fix && prettier --write src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "proxy": "http://localhost:12346",
+  "devDependencies": {
+    "@bufbuild/buf": "^1.15.0-1",
+    "@bufbuild/protobuf": "^1.2.0",
+    "@bufbuild/protoc-gen-es": "^1.2.0",
+    "@craco/craco": "^7.1.0",
+    "@tanstack/eslint-plugin-query": "^4.14.2",
+    "@tanstack/react-query-devtools": "^4.14.1",
+    "@types/crypto-js": "^4.1.1",
+    "@types/deep-equal": "^1.0.1",
+    "@types/geometric": "^2.2.0",
+    "@types/jest": "^29.5.0",
+    "@types/json-merge-patch": "^0.0.8",
+    "@types/lodash": "^4.14.194",
+    "@types/node": "^16.11.65",
+    "@types/polylabel": "^1.0.5",
+    "@types/react": "18.0.33",
+    "@types/react-dom": "^18.0.6",
+    "@types/react-window": "^1.8.5",
+    "@types/uuid": "^8.3.4",
+    "@types/wicg-file-system-access": "^2020.9.6",
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
+    "@typescript-eslint/parser": "^5.40.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "eslint": "^8.25.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "gts": "^3.1.1",
+    "openapi-typescript-codegen": "^0.23.0",
+    "prettier": "2.7.1"
+  }
+}

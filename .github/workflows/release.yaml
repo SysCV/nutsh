@@ -1,0 +1,97 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]"
+      - "v[0-9]+.[0-9]+.[0-9]+-alpha"
+      - "v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+"
+
+jobs:
+  pretest:
+    uses: ./.github/workflows/pretest.yaml
+  binary_release:
+    runs-on: ubuntu-latest
+    needs: [pretest]
+    steps:
+      - name: check out code
+        uses: actions/checkout@v3
+      - name: prepare
+        run: |
+          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+          mkdir ~/build
+      - name: build devel
+        env:
+          REGISTRY_HOST: local
+          REGISTRY_REPO: nutsh
+          BUILD_COMMIT_IDENTIFIER: release
+        run: task container:devel
+      - name: build runtimes
+        run: |
+          docker build -t local/nutsh:runtime-release -f - . << EOF
+            FROM local/nutsh:devel-release
+            ADD . /project
+            WORKDIR /project
+            RUN \
+              task openapi && \
+              task proto && \
+              task frontend:build && \
+              task docs:build
+            RUN \
+              GOOS=linux GOARCH=amd64 task backend:build && mv build/nutsh build/nutsh-Linux-x86_64 && \
+              GOOS=linux GOARCH=arm64 task backend:build && mv build/nutsh build/nutsh-Linux-arm64 && \
+              GOOS=darwin GOARCH=amd64 task backend:build && mv build/nutsh build/nutsh-Darwin-x86_64 && \
+              GOOS=darwin GOARCH=arm64 task backend:build && mv build/nutsh build/nutsh-Darwin-arm64
+            RUN \
+              GOOS=linux GOARCH=amd64 task sam:build && mv build/nutsh-sam build/nutsh-sam-Linux-x86_64 && \
+              GOOS=linux GOARCH=arm64 task sam:build && mv build/nutsh-sam build/nutsh-sam-Linux-arm64 && \
+              GOOS=darwin GOARCH=amd64 task sam:build && mv build/nutsh-sam build/nutsh-sam-Darwin-x86_64 && \
+              GOOS=darwin GOARCH=arm64 task sam:build && mv build/nutsh-sam build/nutsh-sam-Darwin-arm64
+          EOF
+          docker run --rm --entrypoint tar local/nutsh:runtime-release cC /project/build . | tar xvC ~/build
+      - name: create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -x
+          assets=()
+          for asset in ~/build/*; do
+            assets+=("-a" "$asset")
+          done
+          tag_name="${GITHUB_REF##*/}"
+          prerelease=""
+          if [[ $GITHUB_REF =~ -alpha ]]; then prerelease="-p"; fi
+          hub release create "${assets[@]}" ${prerelease} -m "$tag_name" --draft "$tag_name"
+  container_release:
+    runs-on: ubuntu-latest
+    needs: [pretest]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Prepare environment
+        run: |
+          echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          echo "REGISTRY=ghcr.io" >>${GITHUB_ENV}
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+      - name: Build image
+        env:
+          REGISTRY_HOST: ${{ env.REGISTRY }}
+          REGISTRY_REPO: ${{ env.IMAGE_NAME }}
+          BUILD_COMMIT_IDENTIFIER: ${{ env.RELEASE_TAG }}
+        run: |
+          task container:devel
+          task container:runtime
+          task sam:container:devel
+          task sam:container:runtime3rd
+          task sam:container:runtime
+      - name: Log in to the container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:runtime-${{ env.RELEASE_TAG }}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:runtime-sam-${{ env.RELEASE_TAG }}

@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+import "schema/v1/common.proto";
+
+package service.v1;
+
+service OnlineSegmentationService {
+    rpc Introspect(IntrospectRequest) returns (IntrospectResponse) {}
+    rpc EmbedImage(EmbedImageRequest) returns (EmbedImageResponse) {}
+    rpc GetDecoder(GetDecoderRequest) returns (GetDecoderResponse) {}
+}
+
+message IntrospectRequest {
+}
+
+message IntrospectResponse {
+    // The UUID of the decoder.
+    string decoder_uuid = 1;
+
+    // A script in JavaScript describing how to consturct input to the decoder.
+    // TODO(hxu): make the requirement of the script self-explanatory. 
+    string decoder_feed_js = 3;
+}
+
+
+message EmbedImageRequest {
+    // The binary of an image encoded in an arbitrary format supported by the `imread` method of OpenCV.
+    // https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56
+    bytes original_image = 1;
+
+    // The UUID of the decoder the embedding is expected to feed.
+    string decoder_uuid = 2;
+
+    // An optional cropping.
+    schema.v1.GridRect crop = 3;
+}
+
+message EmbedImageResponse {
+    // The embedded image stored in `.npy` format, i.e. the binary persistence of numpy.
+    // https://numpy.org/doc/stable/reference/generated/numpy.save.html
+    bytes embedded_image_npy = 1;
+}
+
+message GetDecoderRequest {
+}
+
+message GetDecoderResponse {
+    // The decoder model in ONNX format to run in the browser using ONNX Runtime Web.
+    bytes decoder_onnx = 1;
+
+    // An identifer of the decoder.
+    string uuid = 2;
+}
+

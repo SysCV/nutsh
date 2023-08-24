@@ -1,0 +1,28 @@
+version: "3"
+
+vars:
+  LDFLAGS: |-
+    -X nutsh/app/buildtime.CommitIdentifier={{ .BUILD_COMMIT_IDENTIFIER }}
+    -X nutsh/app/buildtime.CommitTime={{ .BUILD_COMMIT_TIME }}
+    -X nutsh/app/buildtime.Version={{ .BUILD_VERSION }}
+
+tasks:
+  start:
+    env:
+      DEBUG: true
+    cmds:
+      - go run -ldflags "{{ .LDFLAGS }}" *.go  {{.CLI_ARGS}}
+
+  build:
+    cmds:
+      - CGO_ENABLED=0 go build -ldflags "{{ .LDFLAGS }}" -o build/nutsh -trimpath main.go
+
+  openapi:
+    cmds:
+      - mkdir gen/nutshapi
+      - oapi-codegen --config nutsh-oapi.yaml gen/nutsh.json > gen/nutshapi/openapi.go
+    dir: openapi
+
+  test:
+    cmds:
+      - go test -cover ./...

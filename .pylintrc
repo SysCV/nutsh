@@ -1,0 +1,19 @@
+[TYPECHECK]
+
+# List of members which are set dynamically and missed by Pylint inference
+# system, and so shouldn't trigger E1101 when accessed.
+generated-members=numpy.*, torch.*, cv2.*
+
+[MASTER]
+disable=
+    C0103, # invalid-name
+    C0114, # missing-module-docstring
+    C0115, # missing-class-docstring
+    C0116, # missing-function-docstring
+    R0914, # too-many-locals
+    R0902, # too-many-instance-attributes
+    R0901, # Too many ancestors
+    R0801, # Similar lines
+
+[FORMAT]
+max-line-length = 120

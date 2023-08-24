@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  app:
+    image: ${REGISTRY_HOST}/${REGISTRY_REPO}:runtime-${APP_RUNTIME_TAG}
+    ports:
+      - "12346:12346"
+    volumes:
+      - ./local:/local
+    container_name: nutsh.app
+
+networks:
+  default:
+    name: nutsh

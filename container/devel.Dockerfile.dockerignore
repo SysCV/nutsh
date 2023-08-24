@@ -1,0 +1,16 @@
+# Ignore everything
+**
+
+# Allow files and directories
+!/go.mod
+!/go.sum
+!/app/frontend/package.json
+!/app/frontend/package-lock.json
+!/docs/package.json
+!/docs/package-lock.json
+!/cmd
+!/openapi
+!/task
+!/Taskfile.yaml
+!/e2e/package.json
+!/e2e/package-lock.json

@@ -1,0 +1,22 @@
+import Image from "@site/src/components/Image";
+import VideoPlayer from "@site/src/components/VideoPlayer";
+
+<Image src="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/image/demo_polyline.png" />
+
+A polyline is a sequence of points, where line segments are drawn between consecutive points.
+To draw a polyline, follow these steps:
+
+- Press <kbd>L</kbd> or select the "_Polyline_" tool from the sidebar.
+- Click on the canvas to set the first vertex of the polygon.
+- Continue clicking to position further vertices.
+- Press <kbd>Enter</kbd> to confirm.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/polyline_intro.mp4" />
+
+Polygons and polylines are collectively referred to as [polygonal chains](https://en.wikipedia.org/wiki/Polygonal_chain).
+Polygons are closed shapes, while polylines are not. As a result, they share a common set of manipulations.
+You may refer to the documentation for polygons for the following operations on polylines:
+
+- [Undo and Redo](Polygon#undo-and-redo)
+- [Bézier Curve](Polygon#bézier-curve)
+- [Slice Clone](Polygon#slice-clone)
