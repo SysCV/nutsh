@@ -47,7 +47,7 @@ eval "$(curl -sSL nutsh.ai/install)"
 
 # Quick Overview
 
-https://github.com/SysCV/nutsh/assets/1113875/024ce405-0670-433f-a595-913fd90f769b
+https://github.com/SysCV/nutsh/assets/1113875/55925677-57ff-4870-b853-d67c80517eb7
 
 # Diverse Annotations and Versatile Scenarios
 
@@ -55,25 +55,25 @@ https://github.com/SysCV/nutsh/assets/1113875/024ce405-0670-433f-a595-913fd90f76
 
 In addition to standard polygon operations, Bézier curves are supported, enabling precise annotations of curved objects, such as tires.
 
-https://github.com/SysCV/nutsh/assets/1113875/e54417d9-531a-4c09-b5f2-ab079b7cf839
+https://github.com/SysCV/nutsh/assets/1113875/594139a8-b5ad-47d7-a87b-01a5eb699ae5
 
 ## Drawing masks
 
 Create masks with pixel-level accuracy, ensuring a perfect fit with no gaps or overlaps.
 
-https://github.com/SysCV/nutsh/assets/1113875/63c82054-bad1-4ccb-a671-d4ae93c829fa
+https://github.com/SysCV/nutsh/assets/1113875/c9977bd7-7700-4f71-97ba-6a2bd2084db5
 
 ## Tracking Objects
 
 Especially useful when annotating videos, the platform offers an effortless way to track objects across frames.
 
-https://github.com/SysCV/nutsh/assets/1113875/b8dba949-711d-4297-9393-dafc8d813245
+https://github.com/SysCV/nutsh/assets/1113875/849b0017-88a9-41a5-b415-bd11475e9e0e
 
 ## Linking Object Parts
 
-Objects obscured by others, resulting in fragmented representation, can easily be linked to form a cohesive annotation.
+Objects obscured by others, resulting in fragmented representation, can easily be linked to form a cohesive annotation
 
-https://github.com/SysCV/nutsh/assets/1113875/c4dc0456-6006-4ac0-abb2-abafe0c88743
+https://github.com/SysCV/nutsh/assets/1113875/f94b0ac2-4c3b-4513-ac92-b3cb531c41f4
 
 # Convenient Shortcuts
 
@@ -83,13 +83,13 @@ The platform incorporates various shortcuts, streamlining the annotation process
 
 For polygons sharing a common edge segment, one can be cloned for the other, ensuring a seamless fit without any gaps or overlaps.
 
-https://github.com/SysCV/nutsh/assets/1113875/daaca148-cb02-463c-84dd-c9ff041213ff
+https://github.com/SysCV/nutsh/assets/1113875/b13ebac0-921d-4ad4-96fb-9bc33669143c
 
 ## Interpolation
 
 Given two annotations of the same type on both a start and an end frame, heuristic interpolation can automatically generate all intermediate annotations.
 
-https://github.com/SysCV/nutsh/assets/1113875/c4128330-1713-4276-9ae7-aa31080d9d2f
+https://github.com/SysCV/nutsh/assets/1113875/6d625d24-b824-4107-9e70-4685c8dc38d9
 
 # Model-Assisted Segmentation
 
@@ -101,20 +101,20 @@ For instance, our [SAM module](https://nutsh.ai/docs/sam) taps into the [Segment
 
 Leverage deep learning models to perform segmentation tasks across entire images, aiding the segmentation process.
 
-https://github.com/SysCV/nutsh/assets/1113875/e3434baa-e156-4d6d-999e-0d0a117a1b28
+https://github.com/SysCV/nutsh/assets/1113875/c64913d8-6422-40b4-bb4b-8e35f86f9af1
 
 ## Local Smart Segmentation
 
 Direct your attention to specific regions of an image and request the model to generate segmentation predictions for that particular section.
 Such localized predictions often yield more detailed segmentations.
 
-https://github.com/SysCV/nutsh/assets/1113875/3570752d-3b98-4a3f-adf5-66a6b50616ac
+https://github.com/SysCV/nutsh/assets/1113875/b486d6ac-a462-4d6b-aecd-d992055855a9
 
 # Learning from Human Feedback
 
 In addition to utilizing prompts for refining predictions, users can make subsequent adjustments to these predictions. By gathering these modifications, you can train a model that's fine-tuned to your specific needs. Our SAM module comes equipped with features that assist in [fine-tuning the SAM decoder](https://nutsh.ai/docs/SAM%20Module#sam-decoder-fine-tuning) seamlessly.
 
-https://github.com/SysCV/nutsh/assets/1113875/79d8c583-a1d3-4097-b6b4-810df7e6d7a1
+https://github.com/SysCV/nutsh/assets/1113875/2f9c8765-e1bf-4c6d-8e64-91724ac088a3
 
 # Next Steps
 
