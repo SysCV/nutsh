@@ -9,6 +9,12 @@
     ·
     <a href="https://github.com/SysCV/nutsh/discussions">Discussion</a>
   </p>
+
+
+
+https://github.com/SysCV/nutsh/assets/1063562/3e453f9a-df79-42fd-b629-cdc76fe8249d
+
+
   
 `nutsh` is a platform designed for visual learning through human feedback. With a user-friendly interface and API, it supports a range of visual modalities, diverse human input methods, and learning mechanisms based on human feedback.
 
