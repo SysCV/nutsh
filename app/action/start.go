@@ -24,7 +24,8 @@ func Start(ctx context.Context) error {
 		zap.String("workspace", StorageOption.Workspace),
 		zap.Int("port", StartOption.Port),
 		zap.Bool("readonly", StartOption.Readonly),
-		zap.String("online_segmentation", StartOption.OnlineSegmentation),
+		zap.String("online_segmentation", StartOption.OnlineSegmentationAddr),
+		zap.String("track", StartOption.TrackAddr),
 	)
 
 	// server
@@ -111,11 +112,12 @@ func createServer() (nutshapi.ServerInterface, func(), error) {
 		backend.WithVideoStorage(db.VideoStorage()),
 		backend.WithPublicStorage(localfs.NewPublic(publicDir(), publicUrlPrefix)),
 		backend.WithSampleStorage(localfs.NewSample(sampleDir())),
-		backend.WithOnlineSegmentationServerAddr(StartOption.OnlineSegmentation),
+		backend.WithOnlineSegmentationServerAddr(StartOption.OnlineSegmentationAddr),
 		backend.WithDataDir(StartOption.DataDir),
 		backend.WithConfig(&nutshapi.Config{
 			Readonly:                  StartOption.Readonly,
-			OnlineSegmentationEnabled: StartOption.OnlineSegmentation != "",
+			OnlineSegmentationEnabled: StartOption.OnlineSegmentationAddr != "",
+			TrackEnabled:              StartOption.TrackAddr != "",
 		}),
 	)
 

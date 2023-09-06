@@ -7,10 +7,11 @@ import {ExclamationCircleOutlined} from '@ant-design/icons';
 import {css} from '@emotion/react';
 import {getComponent, useStore as useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {ComponentId, EntityId, PolychainComponent} from 'type/annotation';
+import {ComponentId, EntityId, MaskComponent, PolychainComponent} from 'type/annotation';
 
 import {Action, useComponentActions, useEntityActions} from './menu/common';
 import {useActions as usePolychainActions} from './menu/polychain';
+import {useActions as useMaskActions} from './menu/mask';
 
 export const ContextMenuMask: FC<{style?: CSSProperties}> = ({style}) => {
   const contextMenuClient = useRenderStore(s => s.mouse.contextMenuClient);
@@ -145,10 +146,14 @@ const ContextMenuDropdown: FC<Props> = props => {
 
   if (eid && cid) {
     // component-related dropdown
-    if (c?.type === 'polychain') {
-      return <PolyDropdown eid={eid} cid={cid} c={c} {...props} />;
+    switch (c?.type) {
+      case 'polychain':
+        return <PolyDropdown eid={eid} cid={cid} c={c} {...props} />;
+      case 'mask':
+        return <MaskDropdown eid={eid} cid={cid} c={c} {...props} />;
+      default:
+        return <ComponentDropdown eid={eid} cid={cid} {...props} />;
     }
-    return <ComponentDropdown eid={eid} cid={cid} {...props} />;
   }
 
   // entity-related dropdown
@@ -167,6 +172,13 @@ type ComponentDropdownProps = {
 
 const PolyDropdown: FC<Props & ComponentDropdownProps & {c: PolychainComponent}> = ({eid, cid, c, ...props}) => {
   const ps = usePolychainActions(c);
+  const cs = useComponentActions(eid, cid);
+  const actions: Action[] = ps.length > 0 ? [...ps, {title: '' /* a divider */}, ...cs] : cs;
+  return <ActionDropdown actions={actions} {...props} />;
+};
+
+const MaskDropdown: FC<Props & ComponentDropdownProps & {c: MaskComponent}> = ({eid, cid, c, ...props}) => {
+  const ps = useMaskActions(c);
   const cs = useComponentActions(eid, cid);
   const actions: Action[] = ps.length > 0 ? [...ps, {title: '' /* a divider */}, ...cs] : cs;
   return <ActionDropdown actions={actions} {...props} />;

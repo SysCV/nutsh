@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "schema/v1/train.proto";
+
+package service.v1;
+
+service TrackService {
+    rpc Track(TrackRequest) returns (TrackResponse) {}
+}
+
+message TrackRequest {
+    string first_image_url = 1;
+
+    // The mask should cover the entire area of the first image.
+    schema.v1.Mask first_image_mask = 2;
+
+    // All subsequent images should have the same size as the first one.
+    repeated string subsequent_image_urls = 3;
+}
+
+message TrackResponse {
+    repeated schema.v1.Mask subsequent_image_masks = 1;
+}

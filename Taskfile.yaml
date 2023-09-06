@@ -22,6 +22,7 @@ includes:
   proto: task/proto.yaml
   docs: task/docs.yaml
   sam: task/sam
+  track: task/track
 
 tasks:
   openapi:

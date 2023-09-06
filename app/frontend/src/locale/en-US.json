@@ -144,6 +144,9 @@
     "turn_to_normal_vertex": "Turn to Normal Vertex",
     "delete_point": "Delete Vertex",
 
+    "auto_track": "Auto Track",
+    "auto_track_disabled": "Auto tracking is not enabled",
+
     "form_new_entity": "Detach",
     "transfer_component": "Transfer",
     "delete_hovering_component": "Delete",
