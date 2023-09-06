@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,17 +12,21 @@ import (
 	"runtime"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	schemav1 "nutsh/proto/gen/schema/v1"
 	servicev1 "nutsh/proto/gen/service/v1"
 )
 
 func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*servicev1.TrackResponse, error) {
+	workspace := s.options.workspace
+
 	// download all images
-	saveDir := filepath.Join(s.options.workspace, "images")
+	saveDir := filepath.Join(workspace, "images")
 	if err := os.MkdirAll(saveDir, 0755); err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -30,9 +35,44 @@ func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*serv
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	fmt.Println(imPaths)
+
+	// save a task
+	taskPath, err := s.createTask(ctx, imPaths, req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	zap.L().Info("created a track task", zap.String("path", taskPath))
 
 	return nil, status.Error(codes.Unimplemented, "not implemented")
+}
+
+func (s *mServer) createTask(ctx context.Context, imPaths []string, req *servicev1.TrackRequest) (string, error) {
+	workspace := s.options.workspace
+	task := struct {
+		FirstImagePath       string         `json:"first_image_path"`
+		SubsequentImagePaths []string       `json:"subsequent_image_paths"`
+		FirstImageMask       *schemav1.Mask `json:"first_image_mask"`
+	}{
+		FirstImagePath:       imPaths[len(imPaths)-1],
+		SubsequentImagePaths: imPaths[:len(imPaths)-1],
+		FirstImageMask:       req.FirstImageMask,
+	}
+	taskId := uuid.NewString()
+	taskPath := filepath.Join(workspace, "tasks", taskId+".json")
+	if err := os.MkdirAll(filepath.Dir(taskPath), 0755); err != nil {
+		return "", errors.WithStack(err)
+	}
+	taskFile, err := os.Create(taskPath)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	defer taskFile.Close()
+
+	if err := json.NewEncoder(taskFile).Encode(&task); err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	return taskPath, nil
 }
 
 func (s *mServer) downloadImages(ctx context.Context, saveDir string, imUrls []string) ([]string, error) {
