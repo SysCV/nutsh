@@ -1,3 +1,4 @@
+import {MaskComponent} from 'type/annotation';
 import create from 'zustand';
 import {immer} from 'zustand/middleware/immer';
 
@@ -9,6 +10,9 @@ export type State = {
 
   mouseClient: [number, number] | undefined;
   setMouseClient: (mouseClient: [number, number] | undefined) => void;
+
+  trackingMask: MaskComponent | undefined;
+  setTrackingMask: (mask: MaskComponent | undefined) => void;
 };
 
 export const useStore = create<State>()(
@@ -24,6 +28,13 @@ export const useStore = create<State>()(
     setMouseClient: (mouseClient: [number, number] | undefined) => {
       set(s => {
         s.mouseClient = mouseClient;
+      });
+    },
+
+    trackingMask: undefined,
+    setTrackingMask: (mask: MaskComponent | undefined) => {
+      set(s => {
+        s.trackingMask = mask;
       });
     },
   }))

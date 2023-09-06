@@ -114,6 +114,7 @@ func createServer() (nutshapi.ServerInterface, func(), error) {
 		backend.WithSampleStorage(localfs.NewSample(sampleDir())),
 		backend.WithOnlineSegmentationServerAddr(StartOption.OnlineSegmentationAddr),
 		backend.WithDataDir(StartOption.DataDir),
+		backend.WithTrackServerAddr(StartOption.TrackAddr),
 		backend.WithConfig(&nutshapi.Config{
 			Readonly:                  StartOption.Readonly,
 			OnlineSegmentationEnabled: StartOption.OnlineSegmentationAddr != "",

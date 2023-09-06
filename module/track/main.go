@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
@@ -15,6 +16,10 @@ import (
 
 func main() {
 	mustSetupLogger()
+
+	homeDir, err := os.UserHomeDir()
+	mustOk(err)
+	defaultWorkspace := filepath.Join(homeDir, ".nutsh", "track-workspace")
 
 	app := &cli.App{
 		Name:  "nutsh-track",
@@ -36,6 +41,12 @@ func main() {
 						Value:   "python",
 						EnvVars: []string{"NUTSH_TRACK_PYTHON"},
 					},
+					&cli.StringFlag{
+						Name:    "workspace",
+						Usage:   "path to a directory for storing working data",
+						Value:   defaultWorkspace,
+						EnvVars: []string{"NUTSH_TRACK_WORKSPACE"},
+					},
 				},
 				Action: runStart,
 			},
@@ -48,6 +59,7 @@ func main() {
 func runStart(ctx *cli.Context) error {
 	ser, teardown := server.New(
 		server.WithPython(ctx.String("python")),
+		server.WithWorkspace(ctx.String("workspace")),
 	)
 	defer teardown()
 

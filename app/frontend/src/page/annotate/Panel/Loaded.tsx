@@ -14,6 +14,7 @@ import {leftSidebarWidth, statusBarHeight, sliderHeight, rightSidebarWidth} from
 import {ActionBar} from 'component/panel/ActionBar';
 import {EntityBar} from 'component/panel/EntityBar';
 import {Canvas} from './Canvas';
+import {TrackOverlay} from 'component/panel/TrackOverlay';
 
 export const PanelLoaded: FC<{
   video: Video;
@@ -43,6 +44,7 @@ export const PanelLoaded: FC<{
         background: 'black',
         width: winWidth,
         height: winHeight - UI.navbarHeight,
+        position: 'relative',
       }}
     >
       <div style={{display: 'flex', flexDirection: 'row', height: '100%'}}>
@@ -70,6 +72,9 @@ export const PanelLoaded: FC<{
           }}
         />
       </div>
+      <TrackOverlay
+        style={{background: 'black', position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}}
+      />
       <SyncingDisableInteractionMask />
       <MonitorAnnotation videoId={video.id} />
     </div>

@@ -146,6 +146,7 @@
 
     "auto_track": "Auto Track",
     "auto_track_disabled": "Auto tracking is not enabled",
+    "auto_track_unapplicable_last_slice": "Can not auto tracking objects on the last slice",
 
     "form_new_entity": "Detach",
     "transfer_component": "Transfer",

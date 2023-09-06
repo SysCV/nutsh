@@ -706,13 +706,11 @@ func NewNutsh() *openapi3.T {
 				"Mask": &openapi3.SchemaRef{
 					Value: &openapi3.Schema{
 						Type:     openapi3.TypeObject,
-						Required: []string{"coco_encoded_rle", "x", "y", "w", "h"},
+						Required: []string{"coco_encoded_rle", "width", "height"},
 						Properties: openapi3.Schemas{
 							"coco_encoded_rle": builder.PrimitiveSchemaRef(openapi3.TypeString),
-							"x":                builder.PrimitiveSchemaRef(openapi3.TypeInteger),
-							"y":                builder.PrimitiveSchemaRef(openapi3.TypeInteger),
-							"w":                builder.PrimitiveSchemaRef(openapi3.TypeInteger),
-							"h":                builder.PrimitiveSchemaRef(openapi3.TypeInteger),
+							"width":            builder.PrimitiveSchemaRef(openapi3.TypeInteger),
+							"height":           builder.PrimitiveSchemaRef(openapi3.TypeInteger),
 						},
 					},
 				},
