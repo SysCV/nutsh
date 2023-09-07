@@ -31,7 +31,11 @@ function ActiveTrackOverlay({
   const addComponents = useAnnoStore(s => s.addComponents);
 
   const {isLoading} = useQuery({
-    queryKey: [],
+    // prevent cache
+    queryKey: [uuidv4()],
+    retry: false,
+    cacheTime: 0,
+
     queryFn: () => {
       const {rle, offset} = ctx.mask;
       const {
@@ -74,17 +78,22 @@ function ActiveTrackOverlay({
 
       setTracking(undefined);
     },
+    onError: () => {
+      setTracking(undefined);
+    },
   });
 
   return (
     <div {...props}>
-      <Spin spinning={isLoading} />
+      <div style={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+        <Spin spinning={isLoading} />
+      </div>
     </div>
   );
 }
 
 function normalizeUrl(str: string): string {
-  if (str.startsWith('')) {
+  if (str.startsWith('/')) {
     return `${window.location.protocol}//${window.location.host}${str}`;
   }
   return str;
