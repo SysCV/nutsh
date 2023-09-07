@@ -42,10 +42,22 @@ func main() {
 						EnvVars: []string{"NUTSH_TRACK_PYTHON"},
 					},
 					&cli.StringFlag{
+						Name:     "main",
+						Usage:    "path to the entry of the script",
+						Required: true,
+						EnvVars:  []string{"NUTSH_TRACK_MAIN"},
+					},
+					&cli.StringFlag{
 						Name:    "workspace",
 						Usage:   "path to a directory for storing working data",
 						Value:   defaultWorkspace,
 						EnvVars: []string{"NUTSH_TRACK_WORKSPACE"},
+					},
+					&cli.IntFlag{
+						Name:    "gpu",
+						Usage:   "id of the GPU to use",
+						Value:   0,
+						EnvVars: []string{"NUTSH_TRACK_GPU_ID"},
 					},
 				},
 				Action: runStart,
@@ -58,8 +70,10 @@ func main() {
 
 func runStart(ctx *cli.Context) error {
 	ser, teardown := server.New(
-		server.WithPython(ctx.String("python")),
+		server.WithPythonBin(ctx.String("python")),
+		server.WithScriptMain(ctx.String("main")),
 		server.WithWorkspace(ctx.String("workspace")),
+		server.WithGpuId(ctx.Int("gpu")),
 	)
 	defer teardown()
 

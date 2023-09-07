@@ -46,8 +46,8 @@ func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*serv
 
 	// call Python
 	resultPath := taskPath + ".result.json"
-	err = common.RunPython(ctx, s.options.pythonBin,
-		"--device", opt.device,
+	err = common.RunPython(ctx, s.options.pythonBin, s.options.scriptMain,
+		"--gpu", fmt.Sprintf("%d", opt.gpuId),
 		"--input", taskPath,
 		"--output", resultPath,
 	)
