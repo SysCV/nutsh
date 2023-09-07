@@ -4,9 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"net"
-	"nutsh/module/sam/common"
-	"nutsh/module/sam/server"
-	servicev1 "nutsh/proto/gen/service/v1"
 	"os"
 	"path/filepath"
 
@@ -14,6 +11,10 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+
+	"nutsh/module/common"
+	"nutsh/module/sam/server"
+	servicev1 "nutsh/proto/gen/service/v1"
 )
 
 //go:embed script/*

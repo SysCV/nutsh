@@ -6,14 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"nutsh/module/sam/common"
-	servicev1 "nutsh/proto/gen/service/v1"
 	"os"
 	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+
+	"nutsh/module/common"
+	servicev1 "nutsh/proto/gen/service/v1"
 )
 
 func (s *mServer) EmbedImage(ctx context.Context, req *servicev1.EmbedImageRequest) (*servicev1.EmbedImageResponse, error) {

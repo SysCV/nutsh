@@ -178,7 +178,7 @@ const PolyDropdown: FC<Props & ComponentDropdownProps & {c: PolychainComponent}>
 };
 
 const MaskDropdown: FC<Props & ComponentDropdownProps & {c: MaskComponent}> = ({eid, cid, c, ...props}) => {
-  const ps = useMaskActions(c);
+  const ps = useMaskActions(c, eid);
   const cs = useComponentActions(eid, cid);
   const actions: Action[] = ps.length > 0 ? [...ps, {title: '' /* a divider */}, ...cs] : cs;
   return <ActionDropdown actions={actions} {...props} />;

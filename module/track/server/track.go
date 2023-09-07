@@ -15,15 +15,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
+	"nutsh/module/common"
 	schemav1 "nutsh/proto/gen/schema/v1"
 	servicev1 "nutsh/proto/gen/service/v1"
 )
 
 func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*servicev1.TrackResponse, error) {
-	workspace := s.options.workspace
+	opt := s.options
+	workspace := opt.workspace
 
 	// download all images
 	saveDir := filepath.Join(workspace, "images")
@@ -41,9 +41,39 @@ func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*serv
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
+	defer os.Remove(taskPath)
 	zap.L().Info("created a track task", zap.String("path", taskPath))
 
-	return nil, status.Error(codes.Unimplemented, "not implemented")
+	// call Python
+	resultPath := taskPath + ".result.json"
+	err = common.RunPython(ctx, s.options.pythonBin,
+		"--device", opt.device,
+		"--input", taskPath,
+		"--output", resultPath,
+	)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer os.Remove(resultPath)
+
+	// load result
+	var result struct {
+		SubsequentImageMasks []*schemav1.Mask `json:"subsequent_image_masks"`
+	}
+
+	f, err := os.Open(resultPath)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer f.Close()
+
+	if err := json.NewDecoder(f).Decode(&result); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return &servicev1.TrackResponse{
+		SubsequentImageMasks: result.SubsequentImageMasks,
+	}, nil
 }
 
 func (s *mServer) createTask(ctx context.Context, imPaths []string, req *servicev1.TrackRequest) (string, error) {

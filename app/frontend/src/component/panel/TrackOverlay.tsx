@@ -1,33 +1,39 @@
 import {useQuery} from '@tanstack/react-query';
-import {expand, rleCountsToStringCOCO} from 'common/algorithm/rle';
+import {v4 as uuidv4} from 'uuid';
+import {expand, rleCountsFromStringCOCO, rleCountsToStringCOCO, shrink} from 'common/algorithm/rle';
 import {NutshClientContext} from 'common/context';
 import {useContext} from 'react';
-import {useStore as useUIStore} from 'state/annotate/ui';
+import {TrackingContext, useStore as useUIStore} from 'state/annotate/ui';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {MaskComponent} from 'type/annotation';
+import {useStore as useAnnoStore} from 'state/annotate/annotation';
 import {Spin} from 'antd';
+import {Component, SliceIndex} from 'type/annotation';
 
 export type Props = React.HTMLAttributes<HTMLDivElement>;
 
 export function TrackOverlay({...props}: Props) {
-  const mask = useUIStore(s => s.trackingMask);
+  const ctx = useUIStore(s => s.tracking);
   const sliceSize = useRenderStore(s => s.sliceSize);
-  return mask && sliceSize ? <ActiveTrackOverlay mask={mask} sliceSize={sliceSize} {...props} /> : null;
+  return ctx && sliceSize ? <ActiveTrackOverlay ctx={ctx} sliceSize={sliceSize} {...props} /> : null;
 }
 
 function ActiveTrackOverlay({
-  mask,
+  ctx,
   sliceSize,
   ...props
-}: {mask: MaskComponent; sliceSize: {width: number; height: number}} & Props) {
+}: {ctx: TrackingContext; sliceSize: {width: number; height: number}} & Props) {
   const client = useContext(NutshClientContext);
 
+  const setTracking = useUIStore(s => s.setTracking);
+  const currentSliceIndex = useRenderStore(s => s.sliceIndex);
   const currentSliceUrl = useRenderStore(s => normalizeUrl(s.sliceUrls[s.sliceIndex]));
   const subsequentSliceUrls = useRenderStore(s => s.sliceUrls.slice(s.sliceIndex + 1).map(normalizeUrl));
+  const addComponents = useAnnoStore(s => s.addComponents);
 
   const {isLoading} = useQuery({
+    queryKey: [],
     queryFn: () => {
-      const {rle, offset} = mask;
+      const {rle, offset} = ctx.mask;
       const {
         counts,
         size: {width, height},
@@ -41,8 +47,32 @@ function ActiveTrackOverlay({
         },
       });
     },
-    onSuccess: resp => {
-      console.log(resp);
+    onSuccess: ({subsequent_frame_masks: masks}) => {
+      const newComponents: {sliceIndex: SliceIndex; component: Component}[] = [];
+      masks.forEach(({coco_encoded_rle, width, height}, idx) => {
+        const counts = rleCountsFromStringCOCO(coco_encoded_rle);
+        const mask = shrink({counts, size: {width, height}});
+        if (!mask) {
+          return;
+        }
+
+        const cid = uuidv4();
+        newComponents.push({
+          sliceIndex: currentSliceIndex + idx + 1,
+          component: {
+            id: cid,
+            type: 'mask',
+            ...mask,
+          },
+        });
+      });
+
+      addComponents({
+        entityId: ctx.entityId,
+        components: newComponents,
+      });
+
+      setTracking(undefined);
     },
   });
 

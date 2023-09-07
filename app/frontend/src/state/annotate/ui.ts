@@ -11,8 +11,8 @@ export type State = {
   mouseClient: [number, number] | undefined;
   setMouseClient: (mouseClient: [number, number] | undefined) => void;
 
-  trackingMask: MaskComponent | undefined;
-  setTrackingMask: (mask: MaskComponent | undefined) => void;
+  tracking: TrackingContext | undefined;
+  setTracking: (ctx: TrackingContext | undefined) => void;
 };
 
 export const useStore = create<State>()(
@@ -31,11 +31,16 @@ export const useStore = create<State>()(
       });
     },
 
-    trackingMask: undefined,
-    setTrackingMask: (mask: MaskComponent | undefined) => {
+    tracking: undefined,
+    setTracking: (ctx: TrackingContext | undefined) => {
       set(s => {
-        s.trackingMask = mask;
+        s.tracking = ctx;
       });
     },
   }))
 );
+
+export type TrackingContext = {
+  entityId: string;
+  mask: MaskComponent;
+};
