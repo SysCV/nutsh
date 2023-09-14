@@ -16,11 +16,10 @@ frame_0002_url
 frame_0003_url
 ...`;
 
-const sampleVideoUrls = `/app/image/example/driving/driving-0000051.jpg
-/app/image/example/driving/driving-0000052.jpg
-/app/image/example/driving/driving-0000053.jpg
-/app/image/example/driving/driving-0000054.jpg
-/app/image/example/driving/driving-0000055.jpg`;
+const sampleVideoUrlHost = 'https://nutsh-public.s3.eu-central-1.amazonaws.com/demo/video/driving';
+const sampleVideoUrls = Array.from({length: 100})
+  .map((_, i) => `${sampleVideoUrlHost}/intersection-${(i + 51).toString().padStart(7, '0')}.jpg`)
+  .join('\n');
 
 const CreateForm = forwardRef<FormInstance, FormProps>((formProps, ref) => {
   const [form] = Form.useForm();
