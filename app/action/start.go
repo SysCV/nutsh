@@ -66,6 +66,12 @@ func Start(ctx context.Context) error {
 	}
 	e.Use(middlewares...)
 
+	// local data
+	if StartOption.DataDir != "" {
+		zap.L().Info("serving local data", zap.String("dir", StartOption.DataDir))
+		e.Static("/local", StartOption.DataDir)
+	}
+
 	// backend
 	s, teardown, err := createServer()
 	if err != nil {

@@ -62,6 +62,12 @@ func main() {
 				EnvVars:     []string{"NUTSH_ONLINE_SEGMENTATION"},
 				Destination: &action.StartOption.OnlineSegmentation,
 			},
+			&cli.StringFlag{
+				Name:        "data-dir",
+				Usage:       "data directory to serve to the frontend",
+				EnvVars:     []string{"NUTSH_DATA_DIR"},
+				Destination: &action.StartOption.DataDir,
+			},
 		},
 		Commands: []*cli.Command{
 			{

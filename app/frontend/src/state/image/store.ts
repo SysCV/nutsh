@@ -4,7 +4,14 @@ import {useQuery, QueryClient} from '@tanstack/react-query';
 const client = new QueryClient();
 const context = createContext<QueryClient | undefined>(client);
 
-const query = (url: string) => {
+const query = (u: string) => {
+  let url = u;
+
+  const localPrefix = 'file://';
+  if (u.startsWith(localPrefix)) {
+    url = `/local/${u.substring(localPrefix.length)}`;
+  }
+
   return {
     queryKey: ['downloadImage', url],
     queryFn: async () => await (await fetch(url)).blob(),
