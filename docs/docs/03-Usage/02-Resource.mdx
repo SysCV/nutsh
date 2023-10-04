@@ -40,8 +40,14 @@ file://video0001/frame0002.jpg
 ...
 ```
 
+:::caution
+
+Always use relative paths. Namely, a local url should never start with `file:///` but only two slashes `file://`.
+
+:::
+
 :::danger
 
-You may use `--data-dir /` to serve files with absolute paths, like `file:///var/data/abc/video0001/frame0001.jpg`, but do note that it exposes security risks for your host machine.
+You may use `--data-dir /` to serve files with absolute paths, like `file://var/data/abc/video0001/frame0001.jpg`, but do note that it exposes security risks for your host machine.
 
 :::
