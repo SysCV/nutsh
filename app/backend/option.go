@@ -16,6 +16,7 @@ type Options struct {
 	config *nutshapi.Config
 
 	onlineSegmentationServerAddr string
+	dataDir                      string
 }
 
 func (o *Options) Validate() error {
@@ -71,5 +72,11 @@ func WithConfig(config *nutshapi.Config) Option {
 func WithOnlineSegmentationServerAddr(addr string) Option {
 	return func(o *Options) {
 		o.onlineSegmentationServerAddr = addr
+	}
+}
+
+func WithDataDir(dir string) Option {
+	return func(o *Options) {
+		o.dataDir = dir
 	}
 }

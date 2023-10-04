@@ -10,7 +10,10 @@ import (
 	"nutsh/openapi/gen/nutshapi"
 	schemav1 "nutsh/proto/gen/schema/v1"
 	servicev1 "nutsh/proto/gen/service/v1"
+	"os"
 	"path"
+	"path/filepath"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
@@ -136,7 +139,7 @@ func (s *mServer) onlineSegmentationEmbed(ctx context.Context, request nutshapi.
 	hasCrop := (w > 0 && h > 0)
 
 	imUrl := request.Params.ImageUrl
-	im, err := downloadImage(ctx, imUrl)
+	im, err := s.loadImage(ctx, imUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -200,6 +203,25 @@ func (s *mServer) onlineSegmentationEmbed(ctx context.Context, request nutshapi.
 	return &nutshapi.GetOnlineSegmentationEmbedding200JSONResponse{
 		EmbeddingUrl: url,
 	}, nil
+}
+
+func (s *mServer) loadImage(ctx context.Context, url string) ([]byte, error) {
+	localPrefix := "file://"
+	if strings.HasPrefix(url, localPrefix) {
+		// the image should be loaded from data dir
+		relPath := strings.TrimPrefix(url, localPrefix)
+		dir := s.options.dataDir
+		if dir == "" {
+			return nil, errors.Errorf("missing data dir to load local image [%s]", relPath)
+		}
+		fpath := filepath.Join(dir, relPath)
+		data, err := os.ReadFile(fpath)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		return data, nil
+	}
+	return downloadImage(ctx, url)
 }
 
 func downloadImage(ctx context.Context, url string) ([]byte, error) {
