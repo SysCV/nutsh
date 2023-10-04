@@ -7,3 +7,41 @@ Resources refer to objects that are to be annotated, such as images, videos, poi
 Through the user interface, you can effortlessly create, search for, update, and delete videos.
 
 <VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/manage_videos.mp4" />
+
+## Loading Local Files
+
+Resource assets are specified by their URLs, e.g. a video is represented by a list of urls of its frames.
+By default, the URL should use the HTTP protocol, which isn't convenient for directly loading local files.
+You can take the following steps to work with local files.
+
+1. Start nutsh with an additional flag `--data-dir [data_dir]` pointing to some directory where your data is located.
+2. Use `file://[rel_path]` as the URL for your resources, which will point to the file at `[data_dir]/[rel_path]` on your local machine.
+
+For instance, if you're working with videos stored in
+
+```
+/var/data/abc
+    - video0001
+        - frame0001.jpg
+        - frame0002.jpg
+        - ...
+    - video0002
+        - frame0001.jpg
+        - frame0002.jpg
+        - ...
+    - ...
+```
+
+Start nutsh with the flag `--data-dir /var/data/abc`, and create your videos with urls like
+
+```
+file://video0001/frame0001.jpg
+file://video0001/frame0002.jpg
+...
+```
+
+:::danger
+
+You may use `--data-dir /` to serve files with absolute paths, like `file:///var/data/abc/video0001/frame0001.jpg`, but do note that it exposes security risks for your host machine.
+
+:::
