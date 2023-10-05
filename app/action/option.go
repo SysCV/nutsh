@@ -13,6 +13,7 @@ var StartOption struct {
 	Port               int
 	Readonly           bool
 	OnlineSegmentation string
+	DataDir            string
 }
 
 var ImportOption struct {

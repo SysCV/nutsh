@@ -66,6 +66,12 @@ func Start(ctx context.Context) error {
 	}
 	e.Use(middlewares...)
 
+	// local data
+	if StartOption.DataDir != "" {
+		zap.L().Info("serving local data", zap.String("dir", StartOption.DataDir))
+		e.Static("/local", StartOption.DataDir)
+	}
+
 	// backend
 	s, teardown, err := createServer()
 	if err != nil {
@@ -105,6 +111,7 @@ func createServer() (nutshapi.ServerInterface, func(), error) {
 		backend.WithPublicStorage(localfs.NewPublic(publicDir(), publicUrlPrefix)),
 		backend.WithSampleStorage(localfs.NewSample(sampleDir())),
 		backend.WithOnlineSegmentationServerAddr(StartOption.OnlineSegmentation),
+		backend.WithDataDir(StartOption.DataDir),
 		backend.WithConfig(&nutshapi.Config{
 			Readonly:                  StartOption.Readonly,
 			OnlineSegmentationEnabled: StartOption.OnlineSegmentation != "",
