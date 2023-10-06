@@ -49,6 +49,10 @@ jobs:
               GOOS=darwin GOARCH=arm64 task sam:build && mv build/nutsh-sam build/nutsh-sam-Darwin-arm64
           EOF
           docker run --rm --entrypoint tar local/nutsh:runtime-release cC /project/build . | tar xvC ~/build
+      - name: install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
       - name: create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
