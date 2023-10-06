@@ -10,14 +10,16 @@ Through the user interface, you can effortlessly create, search for, update, and
 
 ## Loading Local Files
 
-Resource assets are specified by their URLs, e.g. a video is represented by a list of urls of its frames.
-By default, the URL should use the HTTP protocol, which isn't convenient for directly loading local files.
-You can take the following steps to work with local files.
+Resource assets are specified by their URLs. For example, a video is represented by a list of URLs for its frames.
+Usually these URLs use the HTTP protocol, which is not convenient for directly loading local files.
+To work with local files, follow the steps below:
 
-1. Start nutsh with an additional flag `--data-dir [data_dir]` pointing to some directory where your data is located.
-2. Use `file://[rel_path]` as the URL for your resources, which will point to the file at `[data_dir]/[rel_path]` on your local machine.
+1. Start nutsh with an additional flag `--data-dir <data_dir>` pointing to some directory where your data is located.
+2. Identify the [origin](https://web.dev/same-site-same-origin/#origin) of the nutsh website you are visiting, which typically shoud be of the format `http(s)://<host>(:port)`.
+3. Use `<nutsh_origin>/data/<rel_path>` for the file located at `<data_dir>/<rel_path>` on your local machine.
+   - Pay attention to the `data` prefix in the URL before the relative path to your file.
 
-For instance, if you're working with videos stored in
+For instance, if you have videos stored in:
 
 ```
 /var/data/abc
@@ -32,22 +34,24 @@ For instance, if you're working with videos stored in
     - ...
 ```
 
-Start nutsh with the flag `--data-dir /var/data/abc`, and create your videos with urls like
+Start nutsh with the flag `--data-dir /var/data/abc`.
+
+Then, if somehow you visit your deployed nutsh at `https://nutsh.my-instutite.com`, use the following URLs for your data:
 
 ```
-file://video0001/frame0001.jpg
-file://video0001/frame0002.jpg
+https://nutsh.my-instutite.com/data/video0001/frame0001.jpg
+https://nutsh.my-instutite.com/data/video0001/frame0002.jpg
 ...
 ```
 
-:::caution
+:::tip
 
-Always use relative paths. Namely, a local url should never start with `file:///` but only two slashes `file://`.
+You can always enter the URL into the browser's address bar to check if it works.
 
 :::
 
 :::danger
 
-You may use `--data-dir /` to serve files with absolute paths, like `file://var/data/abc/video0001/frame0001.jpg`, but do note that it exposes security risks for your host machine.
+While you can use `--data-dir /` to serve essentially any file, be aware that this exposes significant security risks for your host machine.
 
 :::
