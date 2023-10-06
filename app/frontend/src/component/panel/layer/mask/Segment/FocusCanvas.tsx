@@ -17,7 +17,7 @@ import {NutshClientContext} from 'common/context';
 import {useGetOnlineSegmentationEmbedding} from 'state/server/segmentation';
 import {SizedContainer} from 'component/SizedContainer';
 
-import {Decoder, downloadTensor} from './common';
+import {Decoder, downloadTensor, correctSliceUrl} from './common';
 import {LocalEmbedding, PredictContainer} from './PredictContainer';
 import {ColorPalette} from 'component/panel/entity/display';
 import {SegmentationSample} from 'proto/schema/v1/train_pb';
@@ -200,7 +200,7 @@ const Workspace: FC<HTMLAttributes<HTMLDivElement> & MaskProps & {cropImage: Rec
   const client = useContext(NutshClientContext);
   const sliceUrl = useRenderStore(s => s.sliceUrls[s.sliceIndex]);
   const {isFetching: isEmbedding, data: embedResp} = useGetOnlineSegmentationEmbedding(client, {
-    imageUrl: sliceUrl,
+    imageUrl: correctSliceUrl(sliceUrl),
     decoderUuid: decoder.uuid,
     crop: cropImage,
   });
