@@ -69,7 +69,7 @@ func Start(ctx context.Context) error {
 	// local data
 	if StartOption.DataDir != "" {
 		zap.L().Info("serving local data", zap.String("dir", StartOption.DataDir))
-		e.Static("/local", StartOption.DataDir)
+		e.Static("/data", StartOption.DataDir)
 	}
 
 	// backend

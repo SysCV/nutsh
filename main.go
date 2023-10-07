@@ -64,7 +64,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:        "data-dir",
-				Usage:       "data directory to serve local files under `file://`",
+				Usage:       "data directory to serve local files",
 				EnvVars:     []string{"NUTSH_DATA_DIR"},
 				Destination: &action.StartOption.DataDir,
 			},

@@ -13,7 +13,7 @@ import {useStore as useUIStore} from 'state/annotate/ui';
 import {useStore as useRenderStore} from 'state/annotate/render';
 
 import {useImageContext, useMaskedImageContext, useUpdateMask} from '../common';
-import {Decoder, downloadTensor} from './common';
+import {Decoder, downloadTensor, correctSliceUrl} from './common';
 import {PredictContainer} from './PredictContainer';
 import {SegmentationSample} from 'proto/schema/v1/train_pb';
 import {emitter} from 'event';
@@ -26,7 +26,7 @@ export const WholeCanvas: FC<DivProps & {decoder: Decoder}> = ({decoder, ...divP
   const client = useContext(NutshClientContext);
   const sliceUrl = useRenderStore(s => s.sliceUrls[s.sliceIndex]);
   const {isFetching, data} = useGetOnlineSegmentationEmbedding(client, {
-    imageUrl: sliceUrl,
+    imageUrl: correctSliceUrl(sliceUrl),
     decoderUuid: decoder.uuid,
   });
   if (!data) {
