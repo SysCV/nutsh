@@ -1,6 +1,6 @@
 import intl from 'react-intl-universal';
 import {v4 as uuidv4} from 'uuid';
-import {EntityId, MaskComponent} from 'type/annotation';
+import {Component, EntityId, MaskComponent, SliceIndex} from 'type/annotation';
 import {TrackingContext} from 'state/annotate/ui';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useAnnoStore} from 'state/annotate/annotation';
@@ -20,7 +20,8 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
   const currentSliceIndex = useRenderStore(s => s.sliceIndex);
   const currentSliceUrl = useRenderStore(s => normalizeUrl(s.sliceUrls[s.sliceIndex]));
   const subsequentSliceUrls = useRenderStore(s => s.sliceUrls.slice(s.sliceIndex + 1).map(normalizeUrl));
-  const addComponent = useAnnoStore(s => s.addComponent);
+  const addComponents = useAnnoStore(s => s.addComponents);
+  const commitDraftComponents = useAnnoStore(s => s.commitDraftComponents);
 
   const track = useCallback(
     ({mask}: TrackingContext) => {
@@ -56,11 +57,13 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
             ({value, done} = await reader.read());
             if (done) {
               console.log('stream finished');
+              commitDraftComponents(); // this will save the result to the storage
               return;
             }
 
             // one or more results might be concatecated together
             const resultJsonStrs = splitJSONs(new TextDecoder().decode(value));
+            const newComponents: {sliceIndex: SliceIndex; component: Component}[] = [];
             for (const str of resultJsonStrs) {
               let resultJson: {frame_index: number; mask: Mask};
               try {
@@ -82,23 +85,27 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
               }
 
               const cid = uuidv4();
-              addComponent({
+              newComponents.push({
                 sliceIndex: currentSliceIndex + fidx /* fidx starts at 1*/,
-                entityId: eid,
                 component: {
                   id: cid,
                   type: 'mask',
+                  draft: true, // mark these new components as draft and sync when the streaming is finished
                   ...mask,
                 },
               });
             }
+            addComponents({
+              entityId: eid,
+              components: newComponents,
+            });
           }
         })
         .catch(error => {
           console.error('fetch error:', error);
         });
     },
-    [addComponent, currentSliceIndex, currentSliceUrl, eid, sliceSize, subsequentSliceUrls]
+    [addComponents, commitDraftComponents, currentSliceIndex, currentSliceUrl, eid, sliceSize, subsequentSliceUrls]
   );
 
   return [

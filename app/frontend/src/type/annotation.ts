@@ -78,6 +78,9 @@ const IComponent = t.intersection([
   t.type({
     id: IComponentId,
   }),
+  t.partial({
+    draft: t.boolean,
+  }),
   IComponentDetail,
 ]);
 const IComponentMap = t.record(IComponentId, IComponent);

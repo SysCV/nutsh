@@ -1,7 +1,8 @@
 import {FC, useContext, useEffect} from 'react';
 import * as jsonmergepatch from 'json-merge-patch';
+import {produce} from 'immer';
 
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {deleteAnnotationComponent, useStore as useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {usePatchVideoAnnotation} from 'state/server/annotation';
 
@@ -9,6 +10,7 @@ import {ConfigContext, NutshClientContext} from 'common/context';
 import {ApiError} from 'openapi/nutsh';
 
 import type {Video} from 'openapi/nutsh';
+import {Annotation} from 'type/annotation';
 
 export const MonitorAnnotation: FC<{videoId: Video['id']}> = ({videoId}) => {
   const config = useContext(ConfigContext);
@@ -35,10 +37,14 @@ const SyncAnnotation: FC<{videoId: Video['id']}> = ({videoId}) => {
     return useAnnoStore.subscribe(
       s => s.annotation,
       (curr, prev) => {
-        const mergePatch = jsonmergepatch.generate(prev, curr);
+        const newPrev = produce(prev, removeDraftComponents);
+        const newCurr = produce(curr, removeDraftComponents);
+
+        const mergePatch = jsonmergepatch.generate(newPrev, newCurr);
         if (!mergePatch) {
           return;
         }
+        console.debug('syncing annotation');
 
         if (isSyncing) {
           setSyncError('error.sync.conflict');
@@ -97,3 +103,18 @@ const ForgetEntities: FC = () => {
   }, [forgetEntities]);
   return <></>;
 };
+
+function removeDraftComponents(anno: Annotation): Annotation {
+  return produce(anno, draft => {
+    Object.values(draft.entities).forEach(entity => {
+      Object.entries(entity.geometry.slices).forEach(([sidx, sliceComponents]) => {
+        Object.values(sliceComponents).forEach(component => {
+          if (component.draft) {
+            deleteAnnotationComponent(draft, parseInt(sidx), entity.id, component.id);
+          }
+        });
+      });
+    });
+    return draft;
+  });
+}
