@@ -1,7 +1,7 @@
 import intl from 'react-intl-universal';
 import {v4 as uuidv4} from 'uuid';
 import {Component, EntityId, MaskComponent, SliceIndex} from 'type/annotation';
-import {TrackingContext} from 'state/annotate/ui';
+import {useStore as useUIStore} from 'state/annotate/ui';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useAnnoStore} from 'state/annotate/annotation';
 import {Action} from './common';
@@ -14,7 +14,8 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
   const config = useContext(ConfigContext);
 
   const isLastSlice = useRenderStore(s => s.sliceIndex + 1 === s.sliceUrls.length);
-  // const setTracking = useUIStore(s => s.setTracking);
+  const setTracking = useUIStore(s => s.setTracking);
+  const deleteTracking = useUIStore(s => s.deleteTracking);
 
   const sliceSize = useRenderStore(s => s.sliceSize);
   const currentSliceIndex = useRenderStore(s => s.sliceIndex);
@@ -24,10 +25,11 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
   const commitDraftComponents = useAnnoStore(s => s.commitDraftComponents);
 
   const track = useCallback(
-    ({mask}: TrackingContext) => {
+    (mask: MaskComponent) => {
       if (!sliceSize) {
         return;
       }
+      setTracking(eid, 0);
 
       const {rle, offset} = mask;
       const {
@@ -61,6 +63,9 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
               return;
             }
 
+            const total = req.subsequent_frame_urls.length;
+            let maxFrameIndex = 0;
+
             // one or more results might be concatecated together
             const resultJsonStrs = splitJSONs(new TextDecoder().decode(value));
             const newComponents: {sliceIndex: SliceIndex; component: Component}[] = [];
@@ -77,6 +82,12 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
                 frame_index: fidx,
                 mask: {coco_encoded_rle, width, height},
               } = resultJson;
+
+              if (fidx > maxFrameIndex) {
+                // made progress
+                maxFrameIndex = fidx;
+                setTracking(eid, maxFrameIndex / total);
+              }
 
               const counts = rleCountsFromStringCOCO(coco_encoded_rle);
               const mask = shrink({counts, size: {width, height}});
@@ -103,15 +114,28 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
         })
         .catch(error => {
           console.error('fetch error:', error);
+        })
+        .finally(() => {
+          deleteTracking(eid);
         });
     },
-    [addComponents, commitDraftComponents, currentSliceIndex, currentSliceUrl, eid, sliceSize, subsequentSliceUrls]
+    [
+      addComponents,
+      commitDraftComponents,
+      currentSliceIndex,
+      currentSliceUrl,
+      deleteTracking,
+      eid,
+      setTracking,
+      sliceSize,
+      subsequentSliceUrls,
+    ]
   );
 
   return [
     {
       title: intl.get('menu.auto_track'),
-      fn: () => track({mask, entityId: eid}),
+      fn: () => track(mask),
       disableReason: isLastSlice
         ? intl.get('menu.auto_track_unapplicable_last_slice')
         : !config.track_enabled

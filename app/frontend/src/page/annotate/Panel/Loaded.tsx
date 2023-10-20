@@ -14,7 +14,6 @@ import {leftSidebarWidth, statusBarHeight, sliderHeight, rightSidebarWidth} from
 import {ActionBar} from 'component/panel/ActionBar';
 import {EntityBar} from 'component/panel/EntityBar';
 import {Canvas} from './Canvas';
-import {TrackOverlay} from 'component/panel/TrackOverlay';
 
 export const PanelLoaded: FC<{
   video: Video;
@@ -72,9 +71,6 @@ export const PanelLoaded: FC<{
           }}
         />
       </div>
-      <TrackOverlay
-        style={{background: 'rgba(0,0,0,0.8)', position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}}
-      />
       <SyncingDisableInteractionMask />
       <MonitorAnnotation videoId={video.id} />
     </div>
