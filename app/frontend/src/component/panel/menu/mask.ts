@@ -59,36 +59,39 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
               return;
             }
 
-            const resultJsonStr = new TextDecoder().decode(value);
-            let resultJson: {frame_index: number; mask: Mask};
-            try {
-              resultJson = JSON.parse(resultJsonStr);
-            } catch (e) {
-              console.error('failed to parse mask json', e);
-              continue;
+            // one or more results might be concatecated together
+            const resultJsonStrs = splitJSONs(new TextDecoder().decode(value));
+            for (const str of resultJsonStrs) {
+              let resultJson: {frame_index: number; mask: Mask};
+              try {
+                resultJson = JSON.parse(str);
+              } catch (e) {
+                console.error(`failed to parse mask json: ${str}`, e);
+                continue;
+              }
+
+              const {
+                frame_index: fidx,
+                mask: {coco_encoded_rle, width, height},
+              } = resultJson;
+
+              const counts = rleCountsFromStringCOCO(coco_encoded_rle);
+              const mask = shrink({counts, size: {width, height}});
+              if (!mask) {
+                continue;
+              }
+
+              const cid = uuidv4();
+              addComponent({
+                sliceIndex: currentSliceIndex + fidx /* fidx starts at 1*/,
+                entityId: eid,
+                component: {
+                  id: cid,
+                  type: 'mask',
+                  ...mask,
+                },
+              });
             }
-
-            const {
-              frame_index: fidx,
-              mask: {coco_encoded_rle, width, height},
-            } = resultJson;
-
-            const counts = rleCountsFromStringCOCO(coco_encoded_rle);
-            const mask = shrink({counts, size: {width, height}});
-            if (!mask) {
-              continue;
-            }
-
-            const cid = uuidv4();
-            addComponent({
-              sliceIndex: currentSliceIndex + fidx /* fidx starts at 1*/,
-              entityId: eid,
-              component: {
-                id: cid,
-                type: 'mask',
-                ...mask,
-              },
-            });
           }
         })
         .catch(error => {
@@ -117,4 +120,26 @@ function normalizeUrl(str: string): string {
     return `${window.location.protocol}//${window.location.host}${str}`;
   }
   return str;
+}
+
+function splitJSONs(str: string): string[] {
+  const results = [];
+  let openBraces = 0;
+  let lastCut = 0;
+
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === '{') openBraces++;
+    if (str[i] === '}') openBraces--;
+
+    if (openBraces === 0 && str[i] === '}') {
+      const jsonString = str.slice(lastCut, i + 1);
+      results.push(jsonString.trim());
+      lastCut = i + 1;
+    }
+  }
+  const rest = str.slice(lastCut).trim();
+  if (rest) {
+    results.push(rest);
+  }
+  return results;
 }
