@@ -23,21 +23,7 @@ import (
 
 func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*servicev1.TrackResponse, error) {
 	opt := s.options
-	workspace := opt.workspace
-
-	// download all images
-	saveDir := filepath.Join(workspace, "images")
-	if err := os.MkdirAll(saveDir, 0755); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	imUrls := append(req.SubsequentImageUrls, req.FirstImageUrl)
-	imPaths, err := s.downloadImages(ctx, saveDir, imUrls)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	// save a task
-	taskPath, err := s.createTask(ctx, imPaths, req)
+	taskPath, err := s.prepareTask(ctx, req)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -78,6 +64,30 @@ func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*serv
 	return &servicev1.TrackResponse{
 		SubsequentImageMasks: result.SubsequentImageMasks,
 	}, nil
+}
+
+func (s *mServer) prepareTask(ctx context.Context, req *servicev1.TrackRequest) (string, error) {
+	opt := s.options
+	workspace := opt.workspace
+
+	// download all images
+	saveDir := filepath.Join(workspace, "images")
+	if err := os.MkdirAll(saveDir, 0755); err != nil {
+		return "", errors.WithStack(err)
+	}
+	imUrls := append(req.SubsequentImageUrls, req.FirstImageUrl)
+	imPaths, err := s.downloadImages(ctx, saveDir, imUrls)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	// save a task
+	taskPath, err := s.createTask(ctx, imPaths, req)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	return taskPath, nil
 }
 
 func (s *mServer) createTask(ctx context.Context, imPaths []string, req *servicev1.TrackRequest) (string, error) {

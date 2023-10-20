@@ -6,6 +6,7 @@ package service.v1;
 
 service TrackService {
     rpc Track(TrackRequest) returns (TrackResponse) {}
+    rpc TrackStream(TrackRequest) returns (stream FrameMask) {}
 }
 
 message TrackRequest {
@@ -20,4 +21,9 @@ message TrackRequest {
 
 message TrackResponse {
     repeated schema.v1.Mask subsequent_image_masks = 1;
+}
+
+message FrameMask {
+    uint32 frame_index = 1;
+    schema.v1.Mask mask = 2;
 }

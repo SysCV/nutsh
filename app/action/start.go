@@ -80,7 +80,14 @@ func Start(ctx context.Context) error {
 		return err
 	}
 	defer teardown()
-	nutshapi.RegisterHandlers(e.Group("/api"), s)
+
+	// normal api
+	apiRouter := e.Group("/api")
+	nutshapi.RegisterHandlers(apiRouter, nutshapi.NewStrictHandler(s, nil))
+
+	// stream api
+	streamRouter := apiRouter.Group("/stream")
+	streamRouter.POST("/track", s.TrackStream)
 
 	// public
 	e.Static(publicUrlPrefix, publicDir())
@@ -98,7 +105,7 @@ func Start(ctx context.Context) error {
 	return e.Start(lisAddr)
 }
 
-func createServer() (nutshapi.ServerInterface, func(), error) {
+func createServer() (backend.Server, func(), error) {
 	var opts []backend.Option
 
 	// storage
@@ -128,7 +135,7 @@ func createServer() (nutshapi.ServerInterface, func(), error) {
 		return nil, nil, err
 	}
 
-	return nutshapi.NewStrictHandler(s, nil), func() { db.Close() }, nil
+	return s, func() { db.Close() }, nil
 }
 
 // Enable using `SharedArrayBuffer` to speed up ONNX model inference.

@@ -2,11 +2,15 @@ package backend
 
 import (
 	"context"
+	"encoding/json"
+	"io"
+	"net/http"
 
 	"nutsh/openapi/gen/nutshapi"
 	schemav1 "nutsh/proto/gen/schema/v1"
 	servicev1 "nutsh/proto/gen/service/v1"
 
+	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -23,6 +27,82 @@ func (s *mServer) Track(ctx context.Context, request nutshapi.TrackRequestObject
 }
 
 func (s *mServer) track(ctx context.Context, request nutshapi.TrackRequestObject) (nutshapi.TrackResponseObject, error) {
+	conn, err := s.makeTrackGrpcConnection()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	client := servicev1.NewTrackServiceClient(conn)
+	trackReq := makeTrackGrpcRequest(request)
+	trackResp, err := client.Track(ctx, trackReq)
+	if err != nil {
+		return nil, err
+	}
+
+	var masks []nutshapi.Mask
+	for _, m := range trackResp.GetSubsequentImageMasks() {
+		masks = append(masks, maskProtoToOpenApi(m))
+	}
+
+	return &nutshapi.Track200JSONResponse{
+		SubsequentFrameMasks: masks,
+	}, nil
+}
+
+type FrameMask struct {
+	FrameIndex uint32        `json:"frame_index"`
+	Mask       nutshapi.Mask `json:"mask"`
+}
+
+// For streaming response, check
+// https://echo.labstack.com/docs/cookbook/streaming-response
+func (s *mServer) TrackStream(c echo.Context) error {
+	var body nutshapi.TrackJSONRequestBody
+	if err := c.Bind(&body); err != nil {
+		return errors.WithStack(err)
+	}
+	request := nutshapi.TrackRequestObject{Body: &body}
+
+	conn, err := s.makeTrackGrpcConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := servicev1.NewTrackServiceClient(conn)
+	req := makeTrackGrpcRequest(request)
+	respStream, err := client.TrackStream(c.Request().Context(), req)
+	if err != nil {
+		return err
+	}
+
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	c.Response().WriteHeader(http.StatusOK)
+	enc := json.NewEncoder(c.Response())
+	for {
+		mask, err := respStream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		frameMask := FrameMask{
+			FrameIndex: mask.FrameIndex,
+			Mask:       maskProtoToOpenApi(mask.Mask),
+		}
+		if err := enc.Encode(frameMask); err != nil {
+			return errors.WithStack(err)
+		}
+		c.Response().Flush()
+		zap.L().Info("streamed a mask", zap.Uint32("frame", mask.FrameIndex))
+	}
+	return nil
+}
+
+func (s *mServer) makeTrackGrpcConnection() (*grpc.ClientConn, error) {
 	opts := s.options
 
 	addr := opts.trackServerAddr
@@ -38,12 +118,13 @@ func (s *mServer) track(ctx context.Context, request nutshapi.TrackRequestObject
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer conn.Close()
 
-	client := servicev1.NewTrackServiceClient(conn)
+	return conn, nil
+}
 
+func makeTrackGrpcRequest(request nutshapi.TrackRequestObject) *servicev1.TrackRequest {
 	body := request.Body
-	trackReq := &servicev1.TrackRequest{
+	return &servicev1.TrackRequest{
 		FirstImageUrl:       body.FirstFrameUrl,
 		SubsequentImageUrls: body.SubsequentFrameUrls,
 		FirstImageMask: &schemav1.Mask{
@@ -54,21 +135,12 @@ func (s *mServer) track(ctx context.Context, request nutshapi.TrackRequestObject
 			},
 		},
 	}
-	trackResp, err := client.Track(ctx, trackReq)
-	if err != nil {
-		return nil, err
-	}
+}
 
-	var masks []nutshapi.Mask
-	for _, m := range trackResp.GetSubsequentImageMasks() {
-		masks = append(masks, nutshapi.Mask{
-			CocoEncodedRle: m.CocoEncodedRle,
-			Width:          int(m.Size.Width),
-			Height:         int(m.Size.Height),
-		})
+func maskProtoToOpenApi(m *schemav1.Mask) nutshapi.Mask {
+	return nutshapi.Mask{
+		CocoEncodedRle: m.CocoEncodedRle,
+		Width:          int(m.Size.Width),
+		Height:         int(m.Size.Height),
 	}
-
-	return &nutshapi.Track200JSONResponse{
-		SubsequentFrameMasks: masks,
-	}, nil
 }
