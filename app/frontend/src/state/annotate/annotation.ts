@@ -23,6 +23,7 @@ export type State = {
   setEntityCategory: (input: SetEntityCategoryInput) => void;
   clearEntityCategory: (input: ClearEntityCategoryInput) => void;
   deleteEntities: (input: DeleteEntitiesInput) => void;
+  truncateEntities: (input: TruncateEntitiesInput) => void;
   addComponent: (input: AddComponentInput) => void;
   addComponents: (input: AddComponentsInput) => void;
   transferComponent: (input: TransferComponentInput) => void;
@@ -52,6 +53,11 @@ export type ClearEntityCategoryInput = {
 };
 
 export type DeleteEntitiesInput = {
+  entityIds: EntityId[];
+};
+
+export type TruncateEntitiesInput = {
+  sinceSliceIndex: SliceIndex;
   entityIds: EntityId[];
 };
 
@@ -285,6 +291,22 @@ export const useStore = create<State>()(
 
             entityIds.forEach(eid => {
               delete s.annotation.entities[eid];
+            });
+          });
+        },
+
+        truncateEntities: (input: TruncateEntitiesInput) => {
+          set(s => {
+            const {entityIds, sinceSliceIndex} = input;
+
+            entityIds.forEach(eid => {
+              const slices = s.annotation.entities[eid].geometry.slices;
+              const sidxs = Object.keys(slices).map(s => parseInt(s));
+              for (const sidx of sidxs) {
+                if (sidx >= sinceSliceIndex) {
+                  delete slices[sidx];
+                }
+              }
             });
           });
         },

@@ -58,7 +58,8 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
             ({value, done} = await reader.read());
             if (done) {
               console.log('stream finished');
-              // A global `<CommitDraft />` component will monitor all ongoing drafting and will commit them once there are no more active trackings.
+              // A global `<CommitDraft />` component will monitor all ongoing drafting and will commit them once there
+              // are no more active trackings.
               return;
             }
 
@@ -130,6 +131,8 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
     ]
   );
 
+  // TODO(hxu): For now we use only the focused mask, which might be just one component of the whole entity which may
+  // have more than one component on the current frame. Let's keep that in mind.
   return [
     {
       title: intl.get('menu.auto_track'),
