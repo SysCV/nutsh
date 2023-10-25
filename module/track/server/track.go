@@ -22,7 +22,6 @@ import (
 )
 
 func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*servicev1.TrackResponse, error) {
-	opt := s.options
 	taskPath, err := s.prepareTask(ctx, req)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -35,9 +34,10 @@ func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*serv
 	r := common.PythonRuntime{
 		Dir: filepath.Dir(s.options.scriptMain),
 	}
+	gpuId := s.options.gpuIds.Next()
 	main := filepath.Base(s.options.scriptMain)
 	err = r.RunPython(ctx, s.options.pythonBin, main,
-		"--gpu", fmt.Sprintf("%d", opt.gpuId),
+		"--gpu", fmt.Sprintf("%d", gpuId),
 		"--input", taskPath,
 		"--output", resultPath,
 	)

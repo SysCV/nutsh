@@ -119,8 +119,8 @@ func createServer() (backend.Server, func(), error) {
 		backend.WithVideoStorage(db.VideoStorage()),
 		backend.WithPublicStorage(localfs.NewPublic(publicDir(), publicUrlPrefix)),
 		backend.WithSampleStorage(localfs.NewSample(sampleDir())),
-		backend.WithOnlineSegmentationServerAddr(StartOption.OnlineSegmentationAddr),
 		backend.WithDataDir(StartOption.DataDir),
+		backend.WithOnlineSegmentationServerAddr(StartOption.OnlineSegmentationAddr),
 		backend.WithTrackServerAddr(StartOption.TrackAddr),
 		backend.WithConfig(&nutshapi.Config{
 			Readonly:                  StartOption.Readonly,

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -53,11 +54,11 @@ func main() {
 						Value:   defaultWorkspace,
 						EnvVars: []string{"NUTSH_TRACK_WORKSPACE"},
 					},
-					&cli.IntFlag{
-						Name:    "gpu",
-						Usage:   "id of the GPU to use",
-						Value:   0,
-						EnvVars: []string{"NUTSH_TRACK_GPU_ID"},
+					&cli.IntSliceFlag{
+						Name:    "gpus",
+						Usage:   "gpu ids to run the model",
+						Value:   cli.NewIntSlice(0),
+						EnvVars: []string{"NUTSH_TRACK_GPUS"},
 					},
 				},
 				Action: runStart,
@@ -69,11 +70,16 @@ func main() {
 }
 
 func runStart(ctx *cli.Context) error {
+	gpuIds := ctx.IntSlice("gpus")
+	if len(gpuIds) == 0 {
+		return errors.Errorf("missing gpus")
+	}
+
 	ser, teardown := server.New(
 		server.WithPythonBin(ctx.String("python")),
 		server.WithScriptMain(ctx.String("main")),
 		server.WithWorkspace(ctx.String("workspace")),
-		server.WithGpuId(ctx.Int("gpu")),
+		server.WithGpuIds(gpuIds),
 	)
 	defer teardown()
 

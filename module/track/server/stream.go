@@ -27,9 +27,10 @@ func (s *mServer) TrackStream(req *servicev1.TrackRequest, stream servicev1.Trac
 	zap.L().Info("created a track task", zap.String("path", taskPath))
 
 	// call Python with printing results to stdout
+	gpuId := s.options.gpuIds.Next()
 	main := filepath.Base(opt.scriptMain)
 	cmd := exec.Command(opt.pythonBin, main,
-		"--gpu", fmt.Sprintf("%d", opt.gpuId),
+		"--gpu", fmt.Sprintf("%d", gpuId),
 		"--input", taskPath,
 	)
 	cmd.Dir = filepath.Dir(opt.scriptMain)

@@ -4,7 +4,7 @@ type Options struct {
 	pythonBin  string
 	scriptMain string
 	workspace  string
-	gpuId      int
+	gpuIds     *mGpuPool
 }
 
 type Option func(*Options)
@@ -27,8 +27,8 @@ func WithWorkspace(dir string) Option {
 	}
 }
 
-func WithGpuId(id int) Option {
+func WithGpuIds(ids []int) Option {
 	return func(o *Options) {
-		o.gpuId = id
+		o.gpuIds = &mGpuPool{ids: ids}
 	}
 }
