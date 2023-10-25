@@ -5,6 +5,7 @@ import {produce} from 'immer';
 import {deleteAnnotationComponent, useStore as useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {usePatchVideoAnnotation} from 'state/server/annotation';
+import {useStore as useUIStore} from 'state/annotate/ui';
 
 import {ConfigContext, NutshClientContext} from 'common/context';
 import {ApiError} from 'openapi/nutsh';
@@ -18,6 +19,7 @@ export const MonitorAnnotation: FC<{videoId: Video['id']}> = ({videoId}) => {
     <>
       {!config.readonly && <SyncAnnotation videoId={videoId} />}
       <ForgetEntities />
+      <CommitDraft />
     </>
   );
 };
@@ -101,6 +103,18 @@ const ForgetEntities: FC = () => {
       }
     );
   }, [forgetEntities]);
+  return <></>;
+};
+
+const CommitDraft: FC = () => {
+  const commitDraftComponents = useAnnoStore(s => s.commitDraftComponents);
+  const trackingCount = useUIStore(s => Object.keys(s.tracking).length);
+  useEffect(() => {
+    if (trackingCount === 0) {
+      console.debug('commit draft components');
+      commitDraftComponents();
+    }
+  }, [commitDraftComponents, trackingCount]);
   return <></>;
 };
 

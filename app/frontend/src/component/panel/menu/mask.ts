@@ -22,7 +22,6 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
   const currentSliceUrl = useRenderStore(s => normalizeUrl(s.sliceUrls[s.sliceIndex]));
   const subsequentSliceUrls = useRenderStore(s => s.sliceUrls.slice(s.sliceIndex + 1).map(normalizeUrl));
   const addComponents = useAnnoStore(s => s.addComponents);
-  const commitDraftComponents = useAnnoStore(s => s.commitDraftComponents);
 
   const track = useCallback(
     (mask: MaskComponent) => {
@@ -59,7 +58,7 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
             ({value, done} = await reader.read());
             if (done) {
               console.log('stream finished');
-              commitDraftComponents(); // this will save the result to the storage
+              // A global `<CommitDraft />` component will monitor all ongoing drafting and will commit them once there are no more active trackings.
               return;
             }
 
@@ -121,7 +120,6 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
     },
     [
       addComponents,
-      commitDraftComponents,
       currentSliceIndex,
       currentSliceUrl,
       deleteTracking,
