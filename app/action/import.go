@@ -17,7 +17,7 @@ import (
 
 func Import(ctx context.Context) error {
 	// storage
-	db, err := sqlite3.New(filepath.Join(dabataseDir(), "db.sqlite3"))
+	db, err := sqlite3.New(filepath.Join(databaseDir(), "db.sqlite3"))
 	if err != nil {
 		return err
 	}

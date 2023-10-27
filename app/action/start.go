@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/labstack/echo/v4"
@@ -100,7 +101,7 @@ func createServer() (nutshapi.ServerInterface, func(), error) {
 	var opts []backend.Option
 
 	// storage
-	db, err := sqlite3.New(filepath.Join(dabataseDir(), "db.sqlite3"))
+	db, err := sqlite3.New(filepath.Join(databaseDir(), "db.sqlite3"))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -161,6 +162,12 @@ func sampleDir() string {
 	return filepath.Join(StorageOption.Workspace, "sample")
 }
 
-func dabataseDir() string {
-	return filepath.Join(StorageOption.Workspace, "dabatase")
+func databaseDir() string {
+	// Yeah, `dabatase` it is a typo. which is noticed too late...
+	// To not affecting existing deployment, we introduce the following check temporarily.
+	old := filepath.Join(StorageOption.Workspace, "dabatase")
+	if _, err := os.Stat(old); !os.IsNotExist(err) {
+		return old
+	}
+	return filepath.Join(StorageOption.Workspace, "database")
 }
