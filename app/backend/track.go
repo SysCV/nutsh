@@ -2,9 +2,14 @@ package backend
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"nutsh/openapi/gen/nutshapi"
 	schemav1 "nutsh/proto/gen/schema/v1"
@@ -34,14 +39,18 @@ func (s *mServer) track(ctx context.Context, request nutshapi.TrackRequestObject
 	defer conn.Close()
 
 	client := servicev1.NewTrackServiceClient(conn)
-	trackReq := makeTrackGrpcRequest(request)
-	trackResp, err := client.Track(ctx, trackReq)
+	req, err := s.makeTrackGrpcRequest(request)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.Track(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
 	var masks []nutshapi.Mask
-	for _, m := range trackResp.GetSubsequentImageMasks() {
+	for _, m := range resp.GetSubsequentImageMasks() {
 		masks = append(masks, maskProtoToOpenApi(m))
 	}
 
@@ -58,6 +67,14 @@ type FrameMask struct {
 // For streaming response, check
 // https://echo.labstack.com/docs/cookbook/streaming-response
 func (s *mServer) TrackStream(c echo.Context) error {
+	if err := s.trackStream(c); err != nil {
+		zap.L().Error(err.Error())
+		return err
+	}
+	return nil
+}
+
+func (s *mServer) trackStream(c echo.Context) error {
 	var body nutshapi.TrackJSONRequestBody
 	if err := c.Bind(&body); err != nil {
 		return errors.WithStack(err)
@@ -71,7 +88,11 @@ func (s *mServer) TrackStream(c echo.Context) error {
 	defer conn.Close()
 
 	client := servicev1.NewTrackServiceClient(conn)
-	req := makeTrackGrpcRequest(request)
+	req, err := s.makeTrackGrpcRequest(request)
+	if err != nil {
+		return err
+	}
+
 	respStream, err := client.TrackStream(c.Request().Context(), req)
 	if err != nil {
 		return err
@@ -113,7 +134,6 @@ func (s *mServer) makeTrackGrpcConnection() (*grpc.ClientConn, error) {
 	// call grpc server
 	conn, err := grpc.Dial(addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(16*1024*1024 /* 16M */)),
 	)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -122,11 +142,28 @@ func (s *mServer) makeTrackGrpcConnection() (*grpc.ClientConn, error) {
 	return conn, nil
 }
 
-func makeTrackGrpcRequest(request nutshapi.TrackRequestObject) *servicev1.TrackRequest {
+func (s *mServer) makeTrackGrpcRequest(request nutshapi.TrackRequestObject) (*servicev1.TrackRequest, error) {
 	body := request.Body
+
+	var firstUri string
+	var restUris []string
+
+	if uri, err := s.makeImageUri(body.FirstFrameUrl); err != nil {
+		return nil, err
+	} else {
+		firstUri = uri
+	}
+	for _, url := range body.SubsequentFrameUrls {
+		if uri, err := s.makeImageUri(url); err != nil {
+			return nil, err
+		} else {
+			restUris = append(restUris, uri)
+		}
+	}
+
 	return &servicev1.TrackRequest{
-		FirstImageUrl:       body.FirstFrameUrl,
-		SubsequentImageUrls: body.SubsequentFrameUrls,
+		FirstImageUri:       firstUri,
+		SubsequentImageUris: restUris,
 		FirstImageMask: &schemav1.Mask{
 			CocoEncodedRle: body.FirstFrameMask.CocoEncodedRle,
 			Size: &schemav1.GridSize{
@@ -134,7 +171,33 @@ func makeTrackGrpcRequest(request nutshapi.TrackRequestObject) *servicev1.TrackR
 				Height: uint32(body.FirstFrameMask.Height),
 			},
 		},
+	}, nil
+}
+
+func (s *mServer) makeImageUri(imUrl string) (string, error) {
+	if !strings.HasPrefix(imUrl, dataProtocol) {
+		// regard this image as a remote one.
+		return imUrl, nil
 	}
+
+	// the image should be loaded from the data dir and turned into a base64 uri
+	relPath := strings.TrimPrefix(imUrl, dataProtocol)
+	dir := s.options.dataDir
+	if dir == "" {
+		return "", errors.Errorf("missing data dir to load local image [%s]", relPath)
+	}
+	fpath := filepath.Join(dir, relPath)
+	data, err := os.ReadFile(fpath)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	contentType := http.DetectContentType(data)
+	imBase64 := base64.StdEncoding.EncodeToString(data)
+
+	// the syntax of a data URI can be found at
+	// https://en.wikipedia.org/wiki/Data_URI_scheme#Syntax
+	return fmt.Sprintf("data:%s;base64,%s", contentType, imBase64), nil
 }
 
 func maskProtoToOpenApi(m *schemav1.Mask) nutshapi.Mask {

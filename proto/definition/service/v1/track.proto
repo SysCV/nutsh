@@ -10,13 +10,16 @@ service TrackService {
 }
 
 message TrackRequest {
-    string first_image_url = 1;
+    // The URI of the first image.
+    // It can be either a remote URL in HTTP(S) or a embedded data URI in base64.
+    string first_image_uri = 1;
 
     // The mask should cover the entire area of the first image.
     schema.v1.Mask first_image_mask = 2;
 
-    // All subsequent images should have the same size as the first one.
-    repeated string subsequent_image_urls = 3;
+    // The URIs of the subsquent images.
+    // They can be either remote URLs in HTTP(S) or embedded data URIs in base64.
+    repeated string subsequent_image_uris = 3;
 }
 
 message TrackResponse {

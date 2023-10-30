@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 
 	"github.com/google/uuid"
@@ -75,8 +77,8 @@ func (s *mServer) prepareTask(ctx context.Context, req *servicev1.TrackRequest) 
 	if err := os.MkdirAll(saveDir, 0755); err != nil {
 		return "", errors.WithStack(err)
 	}
-	imUrls := append(req.SubsequentImageUrls, req.FirstImageUrl)
-	imPaths, err := s.downloadImages(ctx, saveDir, imUrls)
+	imUris := append(req.SubsequentImageUris, req.FirstImageUri)
+	imPaths, err := s.prepareImages(ctx, saveDir, imUris)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
@@ -119,7 +121,7 @@ func (s *mServer) createTask(ctx context.Context, imPaths []string, req *service
 	return taskPath, nil
 }
 
-func (s *mServer) downloadImages(ctx context.Context, saveDir string, imUrls []string) ([]string, error) {
+func (s *mServer) prepareImages(ctx context.Context, saveDir string, imUris []string) ([]string, error) {
 	nj := runtime.NumCPU()
 
 	var wg sync.WaitGroup
@@ -130,12 +132,12 @@ func (s *mServer) downloadImages(ctx context.Context, saveDir string, imUrls []s
 		Err   error
 	}
 
-	resChan := make(chan Result, len(imUrls))
+	resChan := make(chan Result, len(imUris))
 	semaphore := make(chan struct{}, nj)
 
-	for idx, imUrl := range imUrls {
+	for idx, imUri := range imUris {
 		wg.Add(1)
-		go func(idx int, imUrl string) {
+		go func(idx int, imUri string) {
 			defer wg.Done()
 
 			select {
@@ -151,13 +153,13 @@ func (s *mServer) downloadImages(ctx context.Context, saveDir string, imUrls []s
 				<-semaphore
 			}()
 
-			l := zap.L().With(zap.String("url", imUrl))
-			l.Info("downloading image")
-			imPath, err := s.downloadImage(ctx, saveDir, imUrl)
+			l := zap.L().With(zap.Int("idx", idx))
+			im := &mImage{uri: imUri, ctx: ctx, l: l}
+			imPath, err := im.prepare(saveDir)
 			if err != nil {
-				l.Info("downloaded image", zap.Error(err))
+				l.Error("failed to prepare image", zap.Error(err))
 			} else {
-				l.Info("downloaded image", zap.String("path", imPath))
+				l.Info("prepared image", zap.String("path", imPath))
 			}
 
 			resChan <- Result{
@@ -165,14 +167,14 @@ func (s *mServer) downloadImages(ctx context.Context, saveDir string, imUrls []s
 				Path:  imPath,
 				Err:   err,
 			}
-		}(idx, imUrl)
+		}(idx, imUri)
 	}
 
 	wg.Wait()
 	close(resChan)
 	close(semaphore)
 
-	paths := make([]string, len(imUrls))
+	paths := make([]string, len(imUris))
 	for res := range resChan {
 		if res.Err != nil {
 			return nil, res.Err
@@ -183,10 +185,23 @@ func (s *mServer) downloadImages(ctx context.Context, saveDir string, imUrls []s
 	return paths, nil
 }
 
-func (s *mServer) downloadImage(ctx context.Context, saveDir string, imUrl string) (string, error) {
-	hash := md5.Sum([]byte(imUrl))
+const (
+	base64JpegPrefix = "data:image/jpeg;base64,"
+	base64PngPrefix  = "data:image/png;base64,"
+)
+
+type mImage struct {
+	ctx context.Context
+	uri string
+	l   *zap.Logger
+}
+
+func (m *mImage) prepare(saveDir string) (string, error) {
+	m.l.Info("preparing image")
+
+	hash := md5.Sum([]byte(m.uri))
 	name := fmt.Sprintf("%x", hash)
-	path := filepath.Join(saveDir, name) + filepath.Ext(imUrl)
+	path := filepath.Join(saveDir, name) + m.ext()
 
 	if _, err := os.Stat(path); err == nil {
 		return path, nil
@@ -194,31 +209,77 @@ func (s *mServer) downloadImage(ctx context.Context, saveDir string, imUrl strin
 		return "", errors.WithStack(err)
 	}
 
-	req, err := http.NewRequest("GET", imUrl, nil)
-	if err != nil {
-		return "", errors.WithStack(err)
+	for _, prefix := range []string{base64JpegPrefix, base64PngPrefix} {
+		if !strings.HasPrefix(m.uri, prefix) {
+			continue
+		}
+
+		imBase64 := m.uri[len(prefix):]
+		if err := m.saveBase64(path, imBase64); err != nil {
+			return "", err
+		}
+		return path, nil
 	}
-	req = req.WithContext(ctx)
+
+	if err := m.download(path); err != nil {
+		return "", err
+	}
+
+	return path, nil
+}
+
+func (m *mImage) ext() string {
+	if strings.HasPrefix(m.uri, base64JpegPrefix) {
+		return ".jpg"
+	}
+	if strings.HasPrefix(m.uri, base64PngPrefix) {
+		return ".png"
+	}
+	return filepath.Ext(m.uri)
+}
+
+func (m *mImage) saveBase64(savePath string, imBase64 string) error {
+	m.l.Info("saving base64 image", zap.String("path", savePath))
+
+	im, err := base64.StdEncoding.DecodeString(imBase64)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if err := os.WriteFile(savePath, im, 0644); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func (m *mImage) download(savePath string) error {
+	m.l.Info("downloading image", zap.String("url", m.uri), zap.String("path", savePath))
+
+	req, err := http.NewRequest("GET", m.uri, nil)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	req = req.WithContext(m.ctx)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", errors.Errorf("failed to download %s, status code: %d", imUrl, resp.StatusCode)
+		return errors.Errorf("failed to download %s, status code: %d", m.uri, resp.StatusCode)
 	}
 
-	f, err := os.Create(path)
+	f, err := os.Create(savePath)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 	defer f.Close()
 
 	if _, err := io.Copy(f, resp.Body); err != nil {
-		return "", errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 
-	return path, nil
+	return nil
 }

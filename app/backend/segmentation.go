@@ -206,10 +206,9 @@ func (s *mServer) onlineSegmentationEmbed(ctx context.Context, request nutshapi.
 }
 
 func (s *mServer) loadImage(ctx context.Context, url string) ([]byte, error) {
-	dataPrefix := "data://"
-	if strings.HasPrefix(url, dataPrefix) {
+	if strings.HasPrefix(url, dataProtocol) {
 		// the image should be loaded from data dir
-		relPath := strings.TrimPrefix(url, dataPrefix)
+		relPath := strings.TrimPrefix(url, dataProtocol)
 		dir := s.options.dataDir
 		if dir == "" {
 			return nil, errors.Errorf("missing data dir to load local image [%s]", relPath)

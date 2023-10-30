@@ -60,6 +60,12 @@ func main() {
 						Value:   cli.NewIntSlice(0),
 						EnvVars: []string{"NUTSH_TRACK_GPUS"},
 					},
+					&cli.IntFlag{
+						Name:    "grpc-max-recv-msg-size",
+						Usage:   "the max message size in bytes the server can receive",
+						Value:   1024 * 1024 * 1024, // allows 1K images each being of 1MB
+						EnvVars: []string{"NUTSH_GRPC_MAX_RECV_MSG_SIZE"},
+					},
 				},
 				Action: runStart,
 			},
@@ -85,7 +91,7 @@ func runStart(ctx *cli.Context) error {
 
 	// start the server
 	grpcServer := grpc.NewServer(
-		grpc.MaxRecvMsgSize((16 * 1024 * 1024 /* 16M */)),
+		grpc.MaxRecvMsgSize(ctx.Int("grpc-max-recv-msg-size")),
 	)
 	servicev1.RegisterTrackServiceServer(grpcServer, ser)
 

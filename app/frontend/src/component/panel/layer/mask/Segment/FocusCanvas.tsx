@@ -17,12 +17,13 @@ import {NutshClientContext} from 'common/context';
 import {useGetOnlineSegmentationEmbedding} from 'state/server/segmentation';
 import {SizedContainer} from 'component/SizedContainer';
 
-import {Decoder, downloadTensor, correctSliceUrl} from './common';
+import {Decoder, downloadTensor} from './common';
 import {LocalEmbedding, PredictContainer} from './PredictContainer';
 import {ColorPalette} from 'component/panel/entity/display';
 import {SegmentationSample} from 'proto/schema/v1/train_pb';
 import {emitter} from 'event';
 import {useHotkeys} from 'react-hotkeys-hook';
+import {correctSliceUrl} from 'common/route';
 
 type MaskProps = {
   decoder: Decoder;

@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const dataProtocol = "data://"
+
 type Server interface {
 	nutshapi.StrictServerInterface
 

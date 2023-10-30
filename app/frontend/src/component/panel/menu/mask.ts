@@ -9,6 +9,7 @@ import {useCallback, useContext} from 'react';
 import {ConfigContext} from 'common/context';
 import {expand, rleCountsFromStringCOCO, rleCountsToStringCOCO, shrink} from 'common/algorithm/rle';
 import {Mask, TrackReq} from 'openapi/nutsh';
+import {correctSliceUrl} from 'common/route';
 
 export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
   const config = useContext(ConfigContext);
@@ -19,8 +20,8 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
 
   const sliceSize = useRenderStore(s => s.sliceSize);
   const currentSliceIndex = useRenderStore(s => s.sliceIndex);
-  const currentSliceUrl = useRenderStore(s => normalizeUrl(s.sliceUrls[s.sliceIndex]));
-  const subsequentSliceUrls = useRenderStore(s => s.sliceUrls.slice(s.sliceIndex + 1).map(normalizeUrl));
+  const currentSliceUrl = useRenderStore(s => correctSliceUrl(s.sliceUrls[s.sliceIndex]));
+  const subsequentSliceUrls = useRenderStore(s => s.sliceUrls.slice(s.sliceIndex + 1).map(correctSliceUrl));
   const addComponents = useAnnoStore(s => s.addComponents);
 
   const track = useCallback(
@@ -144,14 +145,6 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
         : undefined,
     },
   ];
-}
-
-// TODO(hxu): this will be deprecated after rebasing master.
-function normalizeUrl(str: string): string {
-  if (str.startsWith('/')) {
-    return `${window.location.protocol}//${window.location.host}${str}`;
-  }
-  return str;
 }
 
 function splitJSONs(str: string): string[] {
