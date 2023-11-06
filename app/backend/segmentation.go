@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"nutsh/openapi/gen/nutshapi"
-	schemav1 "nutsh/proto/gen/schema/v1"
-	servicev1 "nutsh/proto/gen/service/v1"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"nutsh/openapi/gen/nutshapi"
+	schemav1 "nutsh/proto/gen/go/schema/v1"
+	servicev1 "nutsh/proto/gen/go/service/v1"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"

@@ -19,8 +19,8 @@ import (
 	"go.uber.org/zap"
 
 	"nutsh/module/common"
-	schemav1 "nutsh/proto/gen/schema/v1"
-	servicev1 "nutsh/proto/gen/service/v1"
+	schemav1 "nutsh/proto/gen/go/schema/v1"
+	servicev1 "nutsh/proto/gen/go/service/v1"
 )
 
 func (s *mServer) Track(ctx context.Context, req *servicev1.TrackRequest) (*servicev1.TrackResponse, error) {

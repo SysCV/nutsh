@@ -1,7 +1,7 @@
 package server
 
 import (
-	servicev1 "nutsh/proto/gen/service/v1"
+	servicev1 "nutsh/proto/gen/go/service/v1"
 )
 
 func New(opts ...Option) (servicev1.TrackServiceServer, func()) {

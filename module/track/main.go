@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc"
 
 	"nutsh/module/track/server"
-	servicev1 "nutsh/proto/gen/service/v1"
+	servicev1 "nutsh/proto/gen/go/service/v1"
 )
 
 func main() {

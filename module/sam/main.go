@@ -14,7 +14,7 @@ import (
 
 	"nutsh/module/common"
 	"nutsh/module/sam/server"
-	servicev1 "nutsh/proto/gen/service/v1"
+	servicev1 "nutsh/proto/gen/go/service/v1"
 )
 
 //go:embed script/*

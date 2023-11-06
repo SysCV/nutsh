@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 
 	"nutsh/module/common"
-	servicev1 "nutsh/proto/gen/service/v1"
+	servicev1 "nutsh/proto/gen/go/service/v1"
 )
 
 func (s *mServer) EmbedImage(ctx context.Context, req *servicev1.EmbedImageRequest) (*servicev1.EmbedImageResponse, error) {
