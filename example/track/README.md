@@ -1,4 +1,4 @@
-An example implementation of a tracking service using nutsh Python SDK.
+An example implementation of a tracking service using nutsh Python SDK. The code is based on the [AOTTracker](https://github.com/z-x-yang/Segment-and-Track-Anything/blob/77354b586c8d24a116c76d7b80d55d3a0ae44927/aot_tracker.py) from [Segment-and-Track-Anything](https://github.com/z-x-yang/Segment-and-Track-Anything).
 
 # Prepare
 
@@ -62,6 +62,7 @@ pip install nutsh
 # Start
 
 Run the following command in the same folder of its README to start the server:
+
 ```
 python -m src.main
 ```

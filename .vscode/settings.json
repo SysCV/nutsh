@@ -1,22 +1,19 @@
 {
-    "editor.formatOnSave": true,
-    "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.rulers": [120]
-    },
-    "[typescriptreact]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.rulers": [120]
-    },
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.analysis.typeCheckingMode": "strict",
-    "python.formatting.provider": "none",
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.rulers": [120]
-    },
-    "[proto3]": {
-        "editor.rulers": [120]
-    },
+  "editor.formatOnSave": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.rulers": [120]
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.rulers": [120]
+  },
+  "python.analysis.typeCheckingMode": "strict",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.rulers": [120]
+  },
+  "[proto3]": {
+    "editor.rulers": [120]
+  }
 }
