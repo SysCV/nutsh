@@ -1,0 +1,4 @@
+opencv-python==4.8.1.78
+pycocotools==2.0.7
+scikit-image==0.22.0
+gdown==4.7.1
