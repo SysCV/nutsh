@@ -1,17 +1,26 @@
 An example implementation of a tracking service using nutsh Python SDK.
 
-# Runtime Environment
+# Prepare
 
 Take the following steps as an example to setup the runtim environment.
 
 1. Prepare a conda virtual environment.
 
 ```
-conda create --name nutsh-track python=3.10 -y && \
+conda create --name nutsh-track python=3.10
+```
+
+Activate it.
+
+```
 conda activate nutsh-track
 ```
 
-2. Install `torch` and `torchvision` following [the official guide](https://pytorch.org/get-started/locally/).
+2. Install `torch` and `torchvision` following [the official guide](https://pytorch.org/get-started/locally/). For example, use the following command to install PyTorch CUDA 11.8 version on Linux.
+
+```
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```
 
 3. Install other dependencies.
 
@@ -49,3 +58,13 @@ gdown --id '1QoChMkTVxdYZ_eBlZhK2acq9KMQZccPJ' --output local/ckpt/R50_DeAOTL_PR
 ```
 pip install nutsh
 ```
+
+# Start
+
+Run the following command in the same folder of its README to start the server:
+```
+python -m src.main
+```
+
+With the default setting the server will use GPU 0 and start listenning on port 12348.
+Now start your nutsh core with `--track` flag set to `${TRACK_SERVER_ADDR}:12348` to connect to your track server and enjoy auto tracking! (Replace `TRACK_SERVER_ADDR` to the machine deploying this server.)

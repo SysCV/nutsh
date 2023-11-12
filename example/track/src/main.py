@@ -1,17 +1,14 @@
 import argparse
-import cv2
 import gc
-import json
-import logging
+import cv2
 import numpy as np
-import os
-import sys
 import torch
 from pycocotools import mask as coco_mask
-from tracker_nutsh import NutshTracker
 
 from nutsh.track import Service, Tracker
 from nutsh.proto.schema.v1.train_pb2 import Mask
+
+from .tracker_nutsh import NutshTracker
 
 class TrackerImpl(Tracker):
     def __init__(self, tracker):
@@ -36,9 +33,9 @@ class TrackerImpl(Tracker):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gpu', type=int, default=6)
-    parser.add_argument('--model-path', type=str, default="local/ckpt/R50_DeAOTL_PRE_YTB_DAV.pth")
-    parser.add_argument('--workspace', type=str, default="local/workspace")
+    parser.add_argument('--gpu', type=int, default=0)
+    parser.add_argument('--model-path', type=str, default="./local/ckpt/R50_DeAOTL_PRE_YTB_DAV.pth")
+    parser.add_argument('--workspace', type=str, default="./local/workspace")
     parser.add_argument('--port', type=int, default=12348)
     args = parser.parse_args()
 
