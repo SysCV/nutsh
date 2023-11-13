@@ -68,4 +68,4 @@ python -m src.main
 ```
 
 With the default setting the server will use GPU 0 and start listenning on port 12348.
-Now start your nutsh core with `--track` flag set to `${TRACK_SERVER_ADDR}:12348` to connect to your track server and enjoy auto tracking! (Replace `TRACK_SERVER_ADDR` to the machine deploying this server.)
+Now start your nutsh core with `--track` flag set to `localhost:12348` to connect to your track server and enjoy auto tracking! (Replace `localhost` to the actual address of the machine deploying this server if necessary.)
