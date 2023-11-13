@@ -134,7 +134,7 @@ Consult [the documentation](https://nutsh.ai/docs/) for further information, inc
 - [Usage Guidelines](https://nutsh.ai/docs/Usage/Project)
 - [Project Serialization](https://nutsh.ai/docs/Serialization)
 - [The SAM Module](https://nutsh.ai/docs/SAM%20Module)
-- [Custom Tracking Model Integration](https://nutsh.ai/docs/Custom%20Model%20Integration/Tracking
+- [Custom Tracking Model Integration](https://nutsh.ai/docs/Custom%20Model%20Integration/Tracking)
 - [Contribution Guidelines](https://nutsh.ai/docs/Contribution/Build)
 
 and more!
