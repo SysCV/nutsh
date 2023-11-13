@@ -124,6 +124,8 @@ Nutsh offers a Python SDK, enabling the quick and easy integration of your custo
 Additionally, our gRPC interfaces are available for a more low-level but flexible approach to integrating your ideas.
 As an example, check the [auto-tracking feature](/Usage/Video/Auto%20Tracking) for videos to see how [integrated tracking models](https://nutsh.ai/docs/Custom%20Model%20Integration/Tracking) can enhance your annotation workflows.
 
+https://github.com/SysCV/nutsh/assets/1113875/aa498d08-d7f0-4869-983a-6249d98befdf
+
 # Next Steps
 
 Consult [the documentation](https://nutsh.ai/docs/) for further information, including:
