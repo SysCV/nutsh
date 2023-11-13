@@ -9,68 +9,30 @@ Rather than laboriously annotating each frame manually, nutsh's auto-tracking fe
 
 <VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/track.mp4" />
 
-As a versatile platform, nutsh defines an interface that enables the integration of any tracking model to aid your work.
-Additionally, nutsh offers an officially maintained tracking implementation for out-of-the-box use.
+Before using auto tracking, first make sure the nutsh core is connected to a [track module](/Quick%20Start#track-module). Once ready, take the following steps to initiate an auto tracking:
 
-<Image src={useBaseUrl("img/track_arch.png")} />
+- Draw the mask on the starting frame for the object you want to track.
+- Once you have the initial mask in hand, right-click on it.
+- Select the "*Auto Track*" option to start auto tracking.
+- Once started, a loading indicator will appear in the entity card, which will later become a progress bar.
+- The process is finished when the progress bar reaches its end.
 
-The interface is defined using gRPC and can be found at [proto/definition/service/v1/track.proto](https://github.com/SysCV/nutsh/blob/main/proto/definition/service/v1/segmentation.proto).
-This documentation will not delve into this definition, as it is intended for advanced usage when our Python SDK can not meet your needs, in which case you may need to implement a gRPC tracking service on your own.
+:::tip
 
-## Python Integration
+Nothing is blocked when auto trackings are underway. You can continue working on the canvas, e.g. draw other annotations or start examine the tracking results in real-time.
 
-Nutsh provides a [Python SDK](https://pypi.org/project/nutsh/) to assist in integrating your tracking model into the platform more quickly and user-friendly.
-You can take the example implementation at [example/track-aot](https://github.com/SysCV/nutsh/tree/main/example/track-aot) utilizing [Segment-and-Track-Anything](https://github.com/z-x-yang/Segment-and-Track-Anything) as a reference.
-Besides, there is also a minimal mocking implementation in [example/track-mock](https://github.com/SysCV/nutsh/tree/main/example/track-mock) which does nothing but to demonstrate how to use the SDK.
+:::
 
-To start, install the nutsh Python SDK.
-```
-pip install nutsh
-```
+:::tip
 
-Next, follow these steps to implement a tracking server using the SDK.
-1. Implement a `nutsh.track.Tracker` which is an abstract class requires only one method:
-    ```python
-    from nutsh.track import Tracker
+You can initiate as many auto trackings as you want, as long as your GPU memory allows.
 
-    class TrackerImpl(Tracker):
-        def predict(self, im_path: str) -> Mask:
-            # to be implemented
-    ```
-    This method will be called sequentially on each subsequent images to be predicted.
+:::
 
-2. Implement an initialization function:
-    ```python
-    def new_tracker(first_image_path: str, first_image_mask: Mask) -> Tracker:
-        # to be implemented
-    ```
-    This function will be called upon an new incoming request with the local path and segmentation mask of the first image.
+:::caution
 
-3. Finally, create a tracking service and start it:
-    ```python
-    from nutsh.track import service
+The platform is agnostic to the tracking model and the tracking results may be good or bad depending on the actual model used.
+In case of our officially maintained demonstrative [AOT Tracker](https://github.com/SysCV/nutsh/tree/main/example/track-aot) utilizing [Segment-and-Track-Anything](https://github.com/z-x-yang/Segment-and-Track-Anything), there can be false positives on unexpected frames.
+As a result, further manual examinations and corrections might be necessary. Check other features nutsh offers, e.g. [truncating entities](/Usage/Video/Entity#truncating-entities), to see how such work can be facilitated.
+:::
 
-    ser = Service(workspace="/path/to/some/folder", on_reqeust=new_tracker)
-    ser.start(port=12348)
-    ```
-
-To put everything together looks like:
-```python
-from nutsh.track import Service, Tracker
-from nutsh.proto.schema.v1.train_pb2 import Mask
-
-class TrackerImpl(Tracker):
-    def predict(self, im_path: str) -> Mask:
-        # to be implemented
-        raise Exception("not implemented")
-
-def new_tracker(first_image_path: str, first_image_mask: Mask) -> Tracker:
-    # to be implemented
-    raise Exception("not implemented")
-
-ser = Service(workspace="/path/to/some/folder", on_reqeust=new_tracker)
-ser.start(port=12348)
-```
-
-Check [example/track-aot](https://github.com/SysCV/nutsh/tree/main/example/track-aot) for a real-world ready-to-use example which utilizes [Segment-and-Track-Anything](https://github.com/z-x-yang/Segment-and-Track-Anything).
-Also check [example/track-mock](https://github.com/SysCV/nutsh/tree/main/example/track-mock) which can serve as a starting point for your own implementation and integration.
