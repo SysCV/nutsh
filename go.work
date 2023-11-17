@@ -3,7 +3,6 @@ go 1.19
 use (
 	./
 	./module/sam
-	./module/track
 	./cmd/sam
 	./cmd/convert
 )
