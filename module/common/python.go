@@ -19,11 +19,15 @@ func RunPython(ctx context.Context, bin string, args ...string) error {
 
 type PythonRuntime struct {
 	Env []string
+	Dir string
 }
 
 func (r *PythonRuntime) RunPython(ctx context.Context, bin string, args ...string) error {
 	cmd := exec.Command(bin, args...)
 	cmd.Env = r.Env
+	if r.Dir != "" {
+		cmd.Dir = r.Dir
+	}
 	zap.L().Debug("running Python script", zap.String("cmd", cmd.String()), zap.Strings("envs", cmd.Env))
 
 	// redirect and monitor stderr of the subprocess

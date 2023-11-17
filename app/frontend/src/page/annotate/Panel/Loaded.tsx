@@ -43,6 +43,7 @@ export const PanelLoaded: FC<{
         background: 'black',
         width: winWidth,
         height: winHeight - UI.navbarHeight,
+        position: 'relative',
       }}
     >
       <div style={{display: 'flex', flexDirection: 'row', height: '100%'}}>

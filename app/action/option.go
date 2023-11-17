@@ -10,10 +10,11 @@ var StartOption struct {
 	Frontend fs.FS
 	Doc      fs.FS
 
-	Port               int
-	Readonly           bool
-	OnlineSegmentation string
-	DataDir            string
+	Port                   int
+	Readonly               bool
+	DataDir                string
+	OnlineSegmentationAddr string
+	TrackAddr              string
 }
 
 var ImportOption struct {

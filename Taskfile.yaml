@@ -21,7 +21,9 @@ includes:
   deploy: task/deploy.yaml
   proto: task/proto.yaml
   docs: task/docs.yaml
+  python: task/python.yaml
   sam: task/sam
+  track: task/track
 
 tasks:
   openapi:
@@ -38,6 +40,8 @@ tasks:
       - rm -rf app/frontend/src/proto
       - task: proto:schema
       - task: proto:service
+      # move to the Python SDK folder
+      - task: python:proto
 
   build:
     cmds:

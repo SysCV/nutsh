@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"nutsh/openapi/gen/nutshapi"
-	schemav1 "nutsh/proto/gen/schema/v1"
-	servicev1 "nutsh/proto/gen/service/v1"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"nutsh/openapi/gen/nutshapi"
+	schemav1 "nutsh/proto/gen/go/schema/v1"
+	servicev1 "nutsh/proto/gen/go/service/v1"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
@@ -206,10 +207,9 @@ func (s *mServer) onlineSegmentationEmbed(ctx context.Context, request nutshapi.
 }
 
 func (s *mServer) loadImage(ctx context.Context, url string) ([]byte, error) {
-	dataPrefix := "data://"
-	if strings.HasPrefix(url, dataPrefix) {
+	if strings.HasPrefix(url, dataProtocol) {
 		// the image should be loaded from data dir
-		relPath := strings.TrimPrefix(url, dataPrefix)
+		relPath := strings.TrimPrefix(url, dataProtocol)
 		dir := s.options.dataDir
 		if dir == "" {
 			return nil, errors.Errorf("missing data dir to load local image [%s]", relPath)

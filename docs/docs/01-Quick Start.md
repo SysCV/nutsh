@@ -122,3 +122,95 @@ nutsh --online-segmentation localhost:12345 # ... other flags
 Replace `localhost` with the actual IP address if the SAM module is deployed on a different machine.
 
 If all processes run smoothly, the [Smart Segmentation](/Usage/Video/Smart%20Segmentation) tool will be enabled on the frontend. For further details about the SAM module, see the [SAM Module documentation](/SAM%20Module).
+
+## Track Module
+
+The SAM module offers a great help in segmentation within a single image. In a video segmentation scenario, however, it further requires identifying masks across frames, when SAM along is incapable of.
+It is where the track module can join the game.
+
+Essentially the track module allows [integrating any custom models or implementations](/Custom%20Model%20Integration/Tracking). For the quick start purpose, we will launch our example [AOT Tracker](https://github.com/SysCV/nutsh/tree/main/example/track-aot) based on codes from [Segment-and-Track-Anything](https://github.com/z-x-yang/Segment-and-Track-Anything).
+
+:::info
+
+Run the following commands in the folder `example/track-aot`. Take the `README.md` there as the canonical reference.
+:::
+
+1. Prepare a conda virtual environment and activate it.
+
+   ```
+   conda create --name nutsh-track -y python=3.10 && \
+   conda activate nutsh-track
+   ```
+
+2. Install `torch` and `torchvision` following [the official guide](https://pytorch.org/get-started/locally/). For example, use the following command to install PyTorch CUDA 11.8 version on Linux.
+
+   ```
+   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+   ```
+
+3. Install other dependencies.
+
+   ```
+   pip install -r requirements.txt
+   ```
+
+4. Download the [Segment-and-Track-Anything](https://github.com/z-x-yang/Segment-and-Track-Anything.git) model and extract the useful part for us.
+
+   ```
+   git clone https://github.com/z-x-yang/Segment-and-Track-Anything.git vendor/Segment-and-Track-Anything && \
+   cd vendor/Segment-and-Track-Anything && git checkout 77354b5 && cd - && \
+   mv vendor/Segment-and-Track-Anything/aot vendor/aot && \
+   rm -rf vendor/Segment-and-Track-Anything
+   ```
+
+5. Install [Pytorch-Correlation-extension](https://github.com/ClementPinard/Pytorch-Correlation-extension.git) from its source code.
+
+   ```
+   git clone https://github.com/ClementPinard/Pytorch-Correlation-extension.git vendor/Pytorch-Correlation-extension && \
+   cd vendor/Pytorch-Correlation-extension && \
+   git checkout 14a159e && \
+   python setup.py install && cd -
+   ```
+
+6. Download the model checkpoints.
+
+   ```
+   mkdir -p local/ckpt && \
+   gdown --id '1QoChMkTVxdYZ_eBlZhK2acq9KMQZccPJ' --output local/ckpt/R50_DeAOTL_PRE_YTB_DAV.pth
+   ```
+
+7. Install nutsh Python SDK.
+
+   ```
+   pip install nutsh
+   ```
+
+8. Start the server.
+
+   ```
+   python -m src.main
+   ```
+
+   :::caution
+
+   On an Apple Silicon computer you may run into an error saying
+
+   ```
+   symbol not found in flat namespace '_CFDataGetBytes'
+   ```
+
+   It is because the `CoreFoudnation` framework, which is required by gRPC that nutsh uses behind the scene, is [not available](https://dev.to/ankitsahu/installing-ml-agents-on-macos-m1-a-troubleshooting-guide-793) on Apple Silicon Macs by default.
+   To solve this, run the following command:
+
+   ```
+   pip uninstall grpcio && \
+   GRPC_PYTHON_LDFLAGS=" -framework CoreFoundation" pip install grpcio --no-binary :all:
+   ```
+
+   :::
+
+If everything goes well, you will see a log saying the server is listenning on the default port `12348`. Now you can start the core and connect it to the track module by providing the module's address using the `--track` flag:
+
+```bash
+nutsh --track localhost:12348 # ... other flags
+```

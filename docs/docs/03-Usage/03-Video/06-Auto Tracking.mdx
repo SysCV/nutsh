@@ -1,0 +1,38 @@
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import Image from "@site/src/components/Image";
+import VideoPlayer from "@site/src/components/VideoPlayer";
+
+
+[Smart Segmentation](/Usage/Video/Smart%20Segmentation) is an excellent feature for automatically segmenting objects within a single frame.
+However, in video annotation, it's often necessary to track an object across multiple frames.
+Rather than laboriously annotating each frame manually, nutsh's auto-tracking feature can streamline this task, offering a more efficient and precise approach.
+
+<VideoPlayer url="https://nutsh-public.s3.eu-central-1.amazonaws.com/doc/video/track.mp4" />
+
+Before using auto tracking, first make sure the nutsh core is connected to a [track module](/Quick%20Start#track-module). Once ready, take the following steps to initiate an auto tracking:
+
+- Draw the mask on the starting frame for the object you want to track.
+- Once you have the initial mask in hand, right-click on it.
+- Select the "*Auto Track*" option to start auto tracking.
+- Once started, a loading indicator will appear in the entity card, which will later become a progress bar.
+- The process is finished when the progress bar reaches its end.
+
+:::tip
+
+Nothing is blocked when auto trackings are underway. You can continue working on the canvas, e.g. draw other annotations or start examine the tracking results in real-time.
+
+:::
+
+:::tip
+
+You can initiate as many auto trackings as you want, as long as your GPU memory allows.
+
+:::
+
+:::caution
+
+The platform is agnostic to the tracking model and the tracking results may be good or bad depending on the actual model used.
+In case of our officially maintained demonstrative [AOT Tracker](https://github.com/SysCV/nutsh/tree/main/example/track-aot) utilizing [Segment-and-Track-Anything](https://github.com/z-x-yang/Segment-and-Track-Anything), there can be false positives on unexpected frames.
+As a result, further manual examinations and corrections might be necessary. Check other features nutsh offers, e.g. [truncating entities](/Usage/Video/Entity#truncating-entities), to see how such work can be facilitated.
+:::
+

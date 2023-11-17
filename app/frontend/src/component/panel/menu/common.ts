@@ -73,6 +73,7 @@ export function useEntityActions(): Action[] {
 
   const deleteComponents = useAnnoStore(s => s.deleteComponents);
   const deleteEntities = useAnnoStore(s => s.deleteEntities);
+  const truncateEntities = useAnnoStore(s => s.truncateEntities);
 
   // copy
   const copy = useRenderStore(s => s.copy);
@@ -111,6 +112,8 @@ export function useEntityActions(): Action[] {
 
   const ec = selectIds.size;
   if (ec > 0) {
+    const entityIds = Array.from(selectIds.values());
+
     actions.push({
       title: intl.get('menu.selected_entities_title', {count: ec}),
       children: [
@@ -123,16 +126,23 @@ export function useEntityActions(): Action[] {
           },
         },
         {
-          title: intl.get('menu.delete_selected_entities_in_current_frame'),
+          title: intl.get('menu.delete_selected_components_in_current_frame'),
           fn: () => {
             deleteComponents({sliceIndex, components});
           },
-          warning: intl.get('menu.warn.delete_selected_entities_in_current_frame', {count: ec}),
+          warning: intl.get('menu.warn.delete_selected_components_in_current_frame', {count: ec}),
+        },
+        {
+          title: intl.get('menu.truncate_selected_entities'),
+          fn: () => {
+            truncateEntities({entityIds, sinceSliceIndex: sliceIndex});
+          },
+          warning: intl.get('menu.warn.truncate_selected_entities', {count: ec}),
         },
         {
           title: intl.get('menu.delete_selected_entities'),
           fn: () => {
-            deleteEntities({entityIds: Array.from(selectIds.values())});
+            deleteEntities({entityIds});
           },
           warning: intl.get('menu.warn.delete_selected_entities', {count: ec}),
         },

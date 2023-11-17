@@ -1,0 +1,23 @@
+version: "3"
+
+tasks:
+  stub:
+    cmds:
+      - stubgen nutsh/track.py -o .
+    dir: python
+
+  proto:
+    cmds:
+      - rm -rf python/nutsh/proto
+      - cp -r proto/gen/python python/nutsh/proto
+      - find python/nutsh/proto -type d -exec touch {}/__init__.py \;
+
+  dist:
+    cmds:
+      - task: proto
+      - task: stub
+      - rm -rf dist
+      - python3 -m build --sdist
+      - twine check dist/*
+      - twine upload dist/*
+    dir: python

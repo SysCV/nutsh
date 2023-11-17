@@ -60,7 +60,13 @@ func main() {
 				Name:        "online-segmentation",
 				Usage:       "address to a online segmenation server",
 				EnvVars:     []string{"NUTSH_ONLINE_SEGMENTATION"},
-				Destination: &action.StartOption.OnlineSegmentation,
+				Destination: &action.StartOption.OnlineSegmentationAddr,
+			},
+			&cli.StringFlag{
+				Name:        "track",
+				Usage:       "address to a track server",
+				EnvVars:     []string{"NUTSH_TRACK"},
+				Destination: &action.StartOption.TrackAddr,
 			},
 			&cli.StringFlag{
 				Name:        "data-dir",

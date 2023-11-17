@@ -144,13 +144,18 @@
     "turn_to_normal_vertex": "Turn to Normal Vertex",
     "delete_point": "Delete Vertex",
 
+    "auto_track": "Auto Track",
+    "auto_track_disabled": "Auto tracking is not enabled",
+    "auto_track_unapplicable_last_slice": "Can not auto tracking objects on the last slice",
+
     "form_new_entity": "Detach",
     "transfer_component": "Transfer",
     "delete_hovering_component": "Delete",
 
     "selected_entities_title": "Selected {count, plural, one {{count} entity} other {{count} entities}}",
     "copy_selected_entities": "Copy",
-    "delete_selected_entities_in_current_frame": "Clear",
+    "delete_selected_components_in_current_frame": "Clear",
+    "truncate_selected_entities": "Truncate",
     "delete_selected_entities": "Purge",
 
     "warn": {
@@ -161,7 +166,8 @@
       "it_is_the_only_component_of_its_entity": "It is the only component of its entity",
       "clipboard_is_empty": "Clipboard is empty",
       "delete_hovering_component": "This component will be deleted. All other components of this entity will remain unaffected.",
-      "delete_selected_entities_in_current_frame": "All components of the selected {count, plural, one {{count} entity} other {{count} entities}} will be removed from this frame. {count, plural, one {Its} other {Their}} components in other frames are untouched.",
+      "delete_selected_components_in_current_frame": "All components of the selected {count, plural, one {{count} entity} other {{count} entities}} will be removed from this frame. {count, plural, one {Its} other {Their}} components in other frames are untouched.",
+      "truncate_selected_entities": "The selected {count, plural, one {{count} entity} other {{count} entities}} will be removed completely from this and all later frames.",
       "delete_selected_entities": "The selected {count, plural, one {{count} entity} other {{count} entities}} will be removed completely."
     }
   },

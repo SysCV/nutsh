@@ -24,7 +24,8 @@ func Start(ctx context.Context) error {
 		zap.String("workspace", StorageOption.Workspace),
 		zap.Int("port", StartOption.Port),
 		zap.Bool("readonly", StartOption.Readonly),
-		zap.String("online_segmentation", StartOption.OnlineSegmentation),
+		zap.String("online_segmentation", StartOption.OnlineSegmentationAddr),
+		zap.String("track", StartOption.TrackAddr),
 	)
 
 	// server
@@ -79,7 +80,14 @@ func Start(ctx context.Context) error {
 		return err
 	}
 	defer teardown()
-	nutshapi.RegisterHandlers(e.Group("/api"), s)
+
+	// normal api
+	apiRouter := e.Group("/api")
+	nutshapi.RegisterHandlers(apiRouter, nutshapi.NewStrictHandler(s, nil))
+
+	// stream api
+	streamRouter := apiRouter.Group("/stream")
+	streamRouter.POST("/track", s.TrackStream)
 
 	// public
 	e.Static(publicUrlPrefix, publicDir())
@@ -97,7 +105,7 @@ func Start(ctx context.Context) error {
 	return e.Start(lisAddr)
 }
 
-func createServer() (nutshapi.ServerInterface, func(), error) {
+func createServer() (backend.Server, func(), error) {
 	var opts []backend.Option
 
 	// storage
@@ -111,11 +119,13 @@ func createServer() (nutshapi.ServerInterface, func(), error) {
 		backend.WithVideoStorage(db.VideoStorage()),
 		backend.WithPublicStorage(localfs.NewPublic(publicDir(), publicUrlPrefix)),
 		backend.WithSampleStorage(localfs.NewSample(sampleDir())),
-		backend.WithOnlineSegmentationServerAddr(StartOption.OnlineSegmentation),
 		backend.WithDataDir(StartOption.DataDir),
+		backend.WithOnlineSegmentationServerAddr(StartOption.OnlineSegmentationAddr),
+		backend.WithTrackServerAddr(StartOption.TrackAddr),
 		backend.WithConfig(&nutshapi.Config{
 			Readonly:                  StartOption.Readonly,
-			OnlineSegmentationEnabled: StartOption.OnlineSegmentation != "",
+			OnlineSegmentationEnabled: StartOption.OnlineSegmentationAddr != "",
+			TrackEnabled:              StartOption.TrackAddr != "",
 		}),
 	)
 
@@ -125,7 +135,7 @@ func createServer() (nutshapi.ServerInterface, func(), error) {
 		return nil, nil, err
 	}
 
-	return nutshapi.NewStrictHandler(s, nil), func() { db.Close() }, nil
+	return s, func() { db.Close() }, nil
 }
 
 // Enable using `SharedArrayBuffer` to speed up ONNX model inference.

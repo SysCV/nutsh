@@ -5,11 +5,12 @@ import intl from 'react-intl-universal';
 import shallow from 'zustand/shallow';
 import {css} from '@emotion/react';
 
-import {Space, Card, Typography, Button, Popconfirm} from 'antd';
+import {Space, Card, Typography, Button, Popconfirm, Progress, Spin} from 'antd';
 import {EditOutlined, DeleteOutlined} from '@ant-design/icons';
 
 import {useStore as useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
+import {useStore as useUIStore} from 'state/annotate/ui';
 
 import {EditColor} from 'common/constant';
 import {convertRGBA2Hex} from 'common/color';
@@ -146,6 +147,7 @@ export const EntityCard: FC<{
         </Popconfirm>,
       ]}
     >
+      <TrackingProgress eid={entityId} />
       <Paragraph style={{marginBottom: 0}}>
         <Text strong style={{marginRight: 4}}>
           {intl.get('frame')}
@@ -175,5 +177,14 @@ export const EntityCard: FC<{
         );
       })}
     </Card>
+  );
+};
+
+const TrackingProgress: FC<{eid: string}> = ({eid}) => {
+  const progress = useUIStore(s => s.tracking[eid]);
+  return progress === undefined ? null : progress > 0 ? (
+    <Progress percent={progress * 100} showInfo={false} />
+  ) : (
+    <Spin size="small" style={{margin: '8px 0'}} />
   );
 };

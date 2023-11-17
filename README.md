@@ -10,12 +10,8 @@
     <a href="https://github.com/SysCV/nutsh/discussions">Discussion</a>
   </p>
 
-
-
 https://github.com/SysCV/nutsh/assets/1063562/3e453f9a-df79-42fd-b629-cdc76fe8249d
 
-
-  
 `nutsh` is a platform designed for visual learning through human feedback. With a user-friendly interface and API, it supports a range of visual modalities, diverse human input methods, and learning mechanisms based on human feedback.
 
 The project is currently in its early stages and under active development. Your feedback is highly appreciated.
@@ -24,7 +20,7 @@ The project is currently in its early stages and under active development. Your 
 
 - ✅ Intuitive Interface
   - ✅ Modern frontend design
-  - ⬜ Easy custom model integration (coming)
+  - ✅ Easy custom model integration
 - ✅ Multiple Visual Modalities
   - ✅ Images
   - ✅ Videos
@@ -101,7 +97,7 @@ https://github.com/SysCV/nutsh/assets/1113875/6d625d24-b824-4107-9e70-4685c8dc38
 
 We offer an API that seamlessly integrates the human labeling interface with deep learning models. Our server facilitates model inference and tuning based on user input. Calculations can be executed on both CPU and GPU platforms.
 
-For instance, our [SAM module](https://nutsh.ai/docs/sam) taps into the [Segment Anything Model](https://segment-anything.com/) from Meta AI to enhance segmentation speed and efficiency. While the SAM models are openly accessible to the public, their labeling interface remains proprietary. We also offer advanced features, such as local prediction, to ensure top-notch segmentation results. For a detailed guide, please refer to our documentation.
+For instance, our [SAM module](https://nutsh.ai/docs/SAM%20Module) taps into the [Segment Anything Model](https://segment-anything.com/) from Meta AI to enhance segmentation speed and efficiency. While the SAM models are openly accessible to the public, their labeling interface remains proprietary. We also offer advanced features, such as local prediction, to ensure top-notch segmentation results. For a detailed guide, please refer to our documentation.
 
 ## Global Smart Segmentation
 
@@ -122,6 +118,14 @@ In addition to utilizing prompts for refining predictions, users can make subseq
 
 https://github.com/SysCV/nutsh/assets/1113875/2f9c8765-e1bf-4c6d-8e64-91724ac088a3
 
+# Custom Model Integration
+
+Nutsh offers a Python SDK, enabling the quick and easy integration of your custom models in Python into the platform.
+Additionally, our gRPC interfaces are available for a more low-level but flexible approach to integrating your ideas.
+As an example, check the [auto-tracking feature](/Usage/Video/Auto%20Tracking) for videos to see how [integrated tracking models](https://nutsh.ai/docs/Custom%20Model%20Integration/Tracking) can enhance your annotation workflows.
+
+https://github.com/SysCV/nutsh/assets/1113875/aa498d08-d7f0-4869-983a-6249d98befdf
+
 # Next Steps
 
 Consult [the documentation](https://nutsh.ai/docs/) for further information, including:
@@ -130,6 +134,7 @@ Consult [the documentation](https://nutsh.ai/docs/) for further information, inc
 - [Usage Guidelines](https://nutsh.ai/docs/Usage/Project)
 - [Project Serialization](https://nutsh.ai/docs/Serialization)
 - [The SAM Module](https://nutsh.ai/docs/SAM%20Module)
+- [Custom Tracking Model Integration](https://nutsh.ai/docs/Custom%20Model%20Integration/Tracking)
 - [Contribution Guidelines](https://nutsh.ai/docs/Contribution/Build)
 
 and more!

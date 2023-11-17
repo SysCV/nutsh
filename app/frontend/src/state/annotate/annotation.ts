@@ -23,11 +23,13 @@ export type State = {
   setEntityCategory: (input: SetEntityCategoryInput) => void;
   clearEntityCategory: (input: ClearEntityCategoryInput) => void;
   deleteEntities: (input: DeleteEntitiesInput) => void;
+  truncateEntities: (input: TruncateEntitiesInput) => void;
   addComponent: (input: AddComponentInput) => void;
   addComponents: (input: AddComponentsInput) => void;
   transferComponent: (input: TransferComponentInput) => void;
   deleteComponents: (input: DeleteComponentsInput) => void;
   seperateComponent: (input: SeperateComponentInput) => void;
+  commitDraftComponents: () => void;
   updatePolychainVertices: (input: UpdatePolychainVerticesInput) => void;
   deletePolychainVertex: (input: DeletePolychainVertexInput) => void;
   setPolychainVertexBezier: (input: SetPolychainVertexBezierInput) => void;
@@ -51,6 +53,11 @@ export type ClearEntityCategoryInput = {
 };
 
 export type DeleteEntitiesInput = {
+  entityIds: EntityId[];
+};
+
+export type TruncateEntitiesInput = {
+  sinceSliceIndex: SliceIndex;
   entityIds: EntityId[];
 };
 
@@ -288,12 +295,40 @@ export const useStore = create<State>()(
           });
         },
 
+        truncateEntities: (input: TruncateEntitiesInput) => {
+          set(s => {
+            const {entityIds, sinceSliceIndex} = input;
+
+            entityIds.forEach(eid => {
+              const slices = s.annotation.entities[eid].geometry.slices;
+              const sidxs = Object.keys(slices).map(s => parseInt(s));
+              for (const sidx of sidxs) {
+                if (sidx >= sinceSliceIndex) {
+                  delete slices[sidx];
+                }
+              }
+            });
+          });
+        },
+
         deleteComponents: (input: DeleteComponentsInput) => {
           set(s => {
             const {sliceIndex, components} = input;
 
             components.forEach(([eid, cid]) => {
               deleteComponent(s, sliceIndex, eid, cid);
+            });
+          });
+        },
+
+        commitDraftComponents: () => {
+          set(s => {
+            Object.values(s.annotation.entities).forEach(entity => {
+              Object.values(entity.geometry.slices).forEach(sliceComponents => {
+                Object.values(sliceComponents).forEach(component => {
+                  delete component.draft;
+                });
+              });
             });
           });
         },
@@ -447,7 +482,25 @@ function deleteComponent(
   entityId: EntityId,
   componentId: ComponentId
 ): Component | undefined {
-  const entity = s.annotation.entities[entityId];
+  return deleteAnnotationComponent(s.annotation, sliceIndex, entityId, componentId);
+}
+
+export function getComponent(s: State, sidx: number, eid: EntityId, cid: ComponentId): Component | undefined {
+  const slice = getSlice(s, sidx, eid);
+  return slice?.[cid];
+}
+
+export function getSlice(s: State, sidx: number, eid: EntityId): ComponentMap | undefined {
+  return s.annotation.entities[eid]?.geometry.slices[sidx];
+}
+
+export function deleteAnnotationComponent(
+  annotation: Annotation,
+  sliceIndex: SliceIndex,
+  entityId: EntityId,
+  componentId: ComponentId
+): Component | undefined {
+  const entity = annotation.entities[entityId];
   if (!entity) return;
 
   const slice = entity.geometry.slices[sliceIndex];
@@ -460,17 +513,8 @@ function deleteComponent(
     delete entity.geometry.slices[sliceIndex];
   }
   if (Object.keys(entity.geometry.slices).length === 0) {
-    delete s.annotation.entities[entityId];
+    delete annotation.entities[entityId];
   }
 
   return component;
-}
-
-export function getComponent(s: State, sidx: number, eid: EntityId, cid: ComponentId): Component | undefined {
-  const slice = getSlice(s, sidx, eid);
-  return slice?.[cid];
-}
-
-export function getSlice(s: State, sidx: number, eid: EntityId): ComponentMap | undefined {
-  return s.annotation.entities[eid]?.geometry.slices[sidx];
 }

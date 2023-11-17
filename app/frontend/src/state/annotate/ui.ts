@@ -9,6 +9,10 @@ export type State = {
 
   mouseClient: [number, number] | undefined;
   setMouseClient: (mouseClient: [number, number] | undefined) => void;
+
+  tracking: {[key: string /* entity id */]: number /* progress in [0, 1] */};
+  setTracking: (entityId: string, progress: number) => void;
+  deleteTracking: (entityId: string) => void;
 };
 
 export const useStore = create<State>()(
@@ -24,6 +28,18 @@ export const useStore = create<State>()(
     setMouseClient: (mouseClient: [number, number] | undefined) => {
       set(s => {
         s.mouseClient = mouseClient;
+      });
+    },
+
+    tracking: {},
+    setTracking: (entityId: string, progress: number) => {
+      set(s => {
+        s.tracking[entityId] = progress;
+      });
+    },
+    deleteTracking: (entityId: string) => {
+      set(s => {
+        delete s.tracking[entityId];
       });
     },
   }))

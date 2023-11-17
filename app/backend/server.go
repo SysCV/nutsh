@@ -5,9 +5,20 @@ import (
 
 	"nutsh/app/buildtime"
 	"nutsh/openapi/gen/nutshapi"
+
+	"github.com/labstack/echo/v4"
 )
 
-func New(opts ...Option) (nutshapi.StrictServerInterface, error) {
+const dataProtocol = "data://"
+
+type Server interface {
+	nutshapi.StrictServerInterface
+
+	// stream
+	TrackStream(c echo.Context) error
+}
+
+func New(opts ...Option) (Server, error) {
 	o := &Options{}
 	for _, opt := range opts {
 		opt(o)

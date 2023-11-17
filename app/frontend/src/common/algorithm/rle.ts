@@ -149,7 +149,7 @@ export function shrink(rle: RunLengthEncoding): {rle: RunLengthEncoding; offset:
     yMax = Math.max(y, yMax);
   });
 
-  if (xMin < 0 || yMin < 0) {
+  if (xMax < 0 || yMax < 0) {
     // empty mask
     return undefined;
   }

@@ -242,6 +242,17 @@ func NewNutsh() *openapi3.T {
 					},
 				},
 			},
+
+			// Track
+			"/track": &openapi3.PathItem{
+				Post: &openapi3.Operation{
+					OperationID: "Track",
+					RequestBody: builder.Request("TrackReq"),
+					Responses: openapi3.Responses{
+						"200": builder.OK("TrackResp"),
+					},
+				},
+			},
 		},
 		Components: openapi3.Components{
 			Parameters: openapi3.ParametersMap{
@@ -268,10 +279,11 @@ func NewNutsh() *openapi3.T {
 				"Config": &openapi3.SchemaRef{
 					Value: &openapi3.Schema{
 						Type:     openapi3.TypeObject,
-						Required: []string{"readonly", "online_segmentation_enabled"},
+						Required: []string{"readonly", "online_segmentation_enabled", "track_enabled"},
 						Properties: openapi3.Schemas{
 							"readonly":                    builder.PrimitiveSchemaRef(openapi3.TypeBoolean),
 							"online_segmentation_enabled": builder.PrimitiveSchemaRef(openapi3.TypeBoolean),
+							"track_enabled":               builder.PrimitiveSchemaRef(openapi3.TypeBoolean),
 						},
 					},
 				},
@@ -651,6 +663,54 @@ func NewNutsh() *openapi3.T {
 						Required: []string{"embedding_url"},
 						Properties: openapi3.Schemas{
 							"embedding_url": builder.PrimitiveSchemaRef(openapi3.TypeString),
+						},
+					},
+				},
+
+				// Track
+
+				"TrackReq": &openapi3.SchemaRef{
+					Value: &openapi3.Schema{
+						Type:     openapi3.TypeObject,
+						Required: []string{"first_frame_url", "subsequent_frame_urls", "first_frame_mask"},
+						Properties: openapi3.Schemas{
+							"first_frame_url": builder.PrimitiveSchemaRef(openapi3.TypeString),
+							"subsequent_frame_urls": &openapi3.SchemaRef{
+								Value: &openapi3.Schema{
+									Type:  openapi3.TypeArray,
+									Items: builder.PrimitiveSchemaRef(openapi3.TypeString),
+								},
+							},
+							"first_frame_mask": builder.SchemaRef("Mask"),
+						},
+					},
+				},
+
+				"TrackResp": &openapi3.SchemaRef{
+					Value: &openapi3.Schema{
+						Type:     openapi3.TypeObject,
+						Required: []string{"subsequent_frame_masks"},
+						Properties: openapi3.Schemas{
+							"subsequent_frame_masks": &openapi3.SchemaRef{
+								Value: &openapi3.Schema{
+									Type:  openapi3.TypeArray,
+									Items: builder.SchemaRef("Mask"),
+								},
+							},
+						},
+					},
+				},
+
+				// Annotation
+
+				"Mask": &openapi3.SchemaRef{
+					Value: &openapi3.Schema{
+						Type:     openapi3.TypeObject,
+						Required: []string{"coco_encoded_rle", "width", "height"},
+						Properties: openapi3.Schemas{
+							"coco_encoded_rle": builder.PrimitiveSchemaRef(openapi3.TypeString),
+							"width":            builder.PrimitiveSchemaRef(openapi3.TypeInteger),
+							"height":           builder.PrimitiveSchemaRef(openapi3.TypeInteger),
 						},
 					},
 				},

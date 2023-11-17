@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "schema/v1/train.proto";
+
+package service.v1;
+
+service TrackService {
+    rpc Track(TrackRequest) returns (TrackResponse) {}
+    rpc TrackStream(TrackRequest) returns (stream FrameMask) {}
+}
+
+message TrackRequest {
+    // The URI of the first image.
+    // It can be either a remote URL in HTTP(S) or a embedded data URI in base64.
+    string first_image_uri = 1;
+
+    // The mask should cover the entire area of the first image.
+    schema.v1.Mask first_image_mask = 2;
+
+    // The URIs of the subsquent images.
+    // They can be either remote URLs in HTTP(S) or embedded data URIs in base64.
+    repeated string subsequent_image_uris = 3;
+}
+
+message TrackResponse {
+    repeated schema.v1.Mask subsequent_image_masks = 1;
+}
+
+message FrameMask {
+    uint32 frame_index = 1;
+    schema.v1.Mask mask = 2;
+}
