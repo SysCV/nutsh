@@ -122,7 +122,7 @@ https://github.com/SysCV/nutsh/assets/1113875/2f9c8765-e1bf-4c6d-8e64-91724ac088
 
 Nutsh offers a Python SDK, enabling the quick and easy integration of your custom models in Python into the platform.
 Additionally, our gRPC interfaces are available for a more low-level but flexible approach to integrating your ideas.
-As an example, check the [auto-tracking feature](/Usage/Video/Auto%20Tracking) for videos to see how [integrated tracking models](https://nutsh.ai/docs/Custom%20Model%20Integration/Tracking) can enhance your annotation workflows.
+As an example, check the [auto-tracking feature](https://nutsh.ai/docs/Usage/Video/Auto%20Tracking) for videos to see how [integrated tracking models](https://nutsh.ai/docs/Custom%20Model%20Integration/Tracking) can enhance your annotation workflows.
 
 https://github.com/SysCV/nutsh/assets/1113875/aa498d08-d7f0-4869-983a-6249d98befdf
 
