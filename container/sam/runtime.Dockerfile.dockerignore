@@ -7,6 +7,7 @@
 !/go.work
 !/go.work.sum
 !/module/sam
+!/module/common
 !/proto
 !/task
 !/Taskfile.yaml

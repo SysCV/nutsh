@@ -25,7 +25,6 @@ tasks:
       - |
         docker build \
           --rm \
-          --network=none \
           -t {{ .REGISTRY_HOST }}/{{ .REGISTRY_REPO }}:runtime-{{ .BUILD_COMMIT_IDENTIFIER }} \
           --build-arg REGISTRY_HOST="{{ .REGISTRY_HOST }}" \
           --build-arg REGISTRY_REPO="{{ .REGISTRY_REPO }}" \

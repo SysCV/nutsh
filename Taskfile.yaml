@@ -23,7 +23,6 @@ includes:
   docs: task/docs.yaml
   python: task/python.yaml
   sam: task/sam
-  track: task/track
 
 tasks:
   openapi:
