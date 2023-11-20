@@ -159,6 +159,15 @@ func readonlyMiddleware() echo.MiddlewareFunc {
 				// fine
 				return next(c)
 			}
+
+			// certain POST requests should also be allowed
+			if method == "POST" {
+				path := c.Request().URL.Path
+				if path == "/api/stream/track" {
+					return next(c)
+				}
+			}
+
 			return echo.NewHTTPError(http.StatusMethodNotAllowed)
 		}
 	}
