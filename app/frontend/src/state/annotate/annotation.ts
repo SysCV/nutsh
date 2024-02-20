@@ -26,7 +26,7 @@ export type StateManipulation = {
   addComponents: (input: AddComponentsInput) => void;
   transferComponent: (input: TransferComponentInput) => void;
   deleteComponents: (input: DeleteComponentsInput) => void;
-  seperateComponent: (input: SeperateComponentInput) => void; // TODO(xu): correct typo
+  separateComponent: (input: SeparateComponentInput) => void;
   updatePolychainVertices: (input: UpdatePolychainVerticesInput) => void;
   deletePolychainVertex: (input: DeletePolychainVertexInput) => void;
   setPolychainVertexBezier: (input: SetPolychainVertexBezierInput) => void;
@@ -94,7 +94,7 @@ export type DeleteComponentsInput = {
   components: [EntityId, ComponentId][];
 };
 
-export type SeperateComponentInput = {
+export type SeparateComponentInput = {
   sliceIndex: SliceIndex;
   entityId: EntityId;
   componentId: ComponentId;
@@ -210,7 +210,7 @@ export const useStore = create<State>()(
           });
         },
 
-        seperateComponent: (input: SeperateComponentInput) => {
+        separateComponent: (input: SeparateComponentInput) => {
           set(s => {
             const {sliceIndex, entityId, componentId, newEntityId, newComponentId} = input;
 

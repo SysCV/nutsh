@@ -16,7 +16,7 @@ import {
   DeleteEntitiesInput,
   DeletePolychainVertexInput,
   PasteInput,
-  SeperateComponentInput,
+  SeparateComponentInput,
   SetEntityCategoryInput,
   SetPolychainVertexBezierInput,
   StateManipulation,
@@ -70,7 +70,7 @@ function useAnnoBroadcast(): StateManipulation {
       cats.delete(key);
     },
 
-    seperateComponent: (input: SeperateComponentInput) => {
+    separateComponent: (input: SeparateComponentInput) => {
       const {sliceIndex: sidx, entityId: eid, componentId: cid, newEntityId, newComponentId} = input;
 
       const comp = comps.get(cid);

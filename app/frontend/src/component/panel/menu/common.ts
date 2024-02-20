@@ -22,7 +22,7 @@ export type Action = {
 export function useComponentActions(entityId: EntityId, componentId: ComponentId): Action[] {
   const sliceIndex = useRenderStore(s => s.sliceIndex);
 
-  const seperateComponent = useAnnoStore(s => s.seperateComponent);
+  const separateComponent = useAnnoStore(s => s.separateComponent);
   const deleteComponents = useAnnoStore(s => s.deleteComponents);
   const startManipulation = useRenderStore(s => s.manipulate.start);
 
@@ -47,7 +47,7 @@ export function useComponentActions(entityId: EntityId, componentId: ComponentId
       fn: () => {
         const eid = uuidv4();
         const cid = uuidv4();
-        seperateComponent({sliceIndex, entityId, componentId, newEntityId: eid, newComponentId: cid});
+        separateComponent({sliceIndex, entityId, componentId, newEntityId: eid, newComponentId: cid});
       },
     },
     {
