@@ -15,12 +15,9 @@ import type {
   ComponentMap,
 } from 'type/annotation';
 import {newComponentAdapter} from 'common/adapter';
-import {addAnnotationComponent, setEntityCategory} from 'common/annotation';
+import {addAnnotationComponent, initialVertexBezier, setEntityCategory} from 'common/annotation';
 
-export type State = {
-  annotation: Annotation;
-  setAnnotation: (annotation: Annotation | undefined) => void;
-
+export type StateManipulation = {
   setEntityCategory: (input: SetEntityCategoryInput) => void;
   clearEntityCategory: (input: ClearEntityCategoryInput) => void;
   deleteEntities: (input: DeleteEntitiesInput) => void;
@@ -29,8 +26,7 @@ export type State = {
   addComponents: (input: AddComponentsInput) => void;
   transferComponent: (input: TransferComponentInput) => void;
   deleteComponents: (input: DeleteComponentsInput) => void;
-  seperateComponent: (input: SeperateComponentInput) => void;
-  commitDraftComponents: () => void;
+  seperateComponent: (input: SeperateComponentInput) => void; // TODO(xu): correct typo
   updatePolychainVertices: (input: UpdatePolychainVerticesInput) => void;
   deletePolychainVertex: (input: DeletePolychainVertexInput) => void;
   setPolychainVertexBezier: (input: SetPolychainVertexBezierInput) => void;
@@ -38,6 +34,16 @@ export type State = {
   updateRectangleAnchors: (input: UpdateRectangleAnchorsInput) => void;
   paste: (input: PasteInput) => void;
   translate: (input: TranslateInput) => void;
+};
+
+export type State = StateManipulation & {
+  annotation: Annotation;
+  setAnnotation: (annotation: Annotation | undefined) => void;
+
+  /**
+   * @deprecated It is relevant to sync-ing annotation to the backend, and will be deprecated after migrating to Yjs.
+   */
+  commitDraftComponents: () => void;
 };
 
 export type SetEntityCategoryInput = {
@@ -342,31 +348,9 @@ export const useStore = create<State>()(
             const c = getComponent(s, sliceIndex, entityId, componentId);
             if (c?.type !== 'polychain') return;
 
-            const n = c.vertices.length;
-            const i = vertexIndex;
-            const j = (vertexIndex + n - 1) % n;
-            const curr = c.vertices[i];
+            const curr = c.vertices[vertexIndex];
             if (isBezier) {
-              const {x: x1, y: y1} = c.vertices[i].coordinates;
-              const {x: x2, y: y2} = c.vertices[j].coordinates;
-              const [cx1, cy1] = [(x1 * 3) / 4 + (x2 * 1) / 4, (y1 * 3) / 4 + (y2 * 1) / 4];
-              const [cx2, cy2] = [(x1 * 1) / 4 + (x2 * 3) / 4, (y1 * 1) / 4 + (y2 * 3) / 4];
-
-              const dx = x2 - x1;
-              const dy = y2 - y1;
-              const l = Math.hypot(dx, dy);
-              const d = l / 4;
-
-              curr.bezier = {
-                control1: {
-                  x: cx2 + (d * dy) / l,
-                  y: cy2 - (d * dx) / l,
-                },
-                control2: {
-                  x: cx1 - (d * dy) / l,
-                  y: cy1 + (d * dx) / l,
-                },
-              };
+              curr.bezier = initialVertexBezier(vertexIndex, c.vertices);
             } else {
               delete curr.bezier;
             }

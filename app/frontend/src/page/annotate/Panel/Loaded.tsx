@@ -5,7 +5,6 @@ import shallow from 'zustand/shallow';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {prefetchImages} from 'state/image/store';
 import {UI} from 'common/constant';
-import {MonitorAnnotation} from 'component/panel/AnnotationMonitor';
 import type {Project, Video} from 'openapi/nutsh';
 import type {ProjectSpec} from 'type/project_spec';
 import {FrameSlider} from 'component/panel/FrameSlider';
@@ -58,7 +57,6 @@ export const PanelLoaded: FC<{
               <FrameSlider style={{width: '100%'}} />
             </div>
           )}
-          <SyncingDisableInteractionMask />
         </div>
         <EntityBar
           projectSpec={projectSpec}
@@ -71,13 +69,6 @@ export const PanelLoaded: FC<{
           }}
         />
       </div>
-      <SyncingDisableInteractionMask />
-      <MonitorAnnotation videoId={video.id} />
     </div>
   );
-};
-
-const SyncingDisableInteractionMask: FC = () => {
-  const isSyncing = useRenderStore(s => s.isSyncing);
-  return isSyncing ? <div style={{position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}} /> : null;
 };
