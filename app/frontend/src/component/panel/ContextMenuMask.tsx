@@ -5,7 +5,7 @@ import intl from 'react-intl-universal';
 import {Dropdown, DropdownProps, App, Space, Tag, MenuProps} from 'antd';
 import {ExclamationCircleOutlined} from '@ant-design/icons';
 import {css} from '@emotion/react';
-import {getComponent, useStore as useAnnoStore} from 'state/annotate/annotation';
+import {getComponent, useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {ComponentId, EntityId, MaskComponent, PolychainComponent} from 'type/annotation';
 

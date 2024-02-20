@@ -1,7 +1,7 @@
 import intl from 'react-intl-universal';
 import shallow from 'zustand/shallow';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation';
 import {PolychainComponent} from 'type/annotation';
 
 import {Action} from './common';

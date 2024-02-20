@@ -2,7 +2,7 @@ import {FC} from 'react';
 import intl from 'react-intl-universal';
 import {Form, TreeSelect, TreeSelectProps, Space, Tag} from 'antd';
 
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 
 import {CategoryAbbreviation} from 'component/panel/entity/display';

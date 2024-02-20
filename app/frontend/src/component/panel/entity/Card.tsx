@@ -8,7 +8,7 @@ import {css} from '@emotion/react';
 import {Space, Card, Typography, Button, Popconfirm, Progress, Spin} from 'antd';
 import {EditOutlined, DeleteOutlined} from '@ant-design/icons';
 
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
 

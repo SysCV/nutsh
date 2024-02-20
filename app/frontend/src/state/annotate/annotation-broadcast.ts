@@ -26,7 +26,7 @@ import {
   UpdatePolychainVerticesInput,
   UpdateRectangleAnchorsInput,
   UpdateSliceMasksInput,
-  useStore,
+  useAnnoStore,
 } from './annotation';
 import {encodeEntityCategoryMapKey, yjsEntityCategoriesMap} from 'common/yjs/docs/entity';
 import {useYjsContext} from 'common/yjs/context';
@@ -36,7 +36,7 @@ import {yjsPolychainVerticesMap} from 'common/yjs/docs/polychain';
 import {yjsMaskMap} from 'common/yjs/docs/mask';
 
 export function useAnnoBroadcastStore<K extends keyof StateManipulation>(key: K): StateManipulation[K] {
-  const fn1 = useStore(s => s[key]);
+  const fn1 = useAnnoStore(s => s[key]);
   const fn2 = useAnnoBroadcast()[key];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the input is indeed known byt ts fails to infer

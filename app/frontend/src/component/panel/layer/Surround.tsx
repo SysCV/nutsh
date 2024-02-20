@@ -1,6 +1,6 @@
 import {FC, CanvasHTMLAttributes, useCallback} from 'react';
 
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 
 import {useKeyPressed} from 'common/keyboard';

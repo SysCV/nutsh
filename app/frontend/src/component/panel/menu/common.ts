@@ -3,7 +3,7 @@ import {App} from 'antd';
 import intl from 'react-intl-universal';
 import {v4 as uuidv4} from 'uuid';
 
-import {getSlice, useStore as useAnnoStore} from 'state/annotate/annotation';
+import {getSlice, useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 
 import type {EntityId, ComponentId} from 'type/annotation';

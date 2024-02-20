@@ -1,7 +1,7 @@
 import {FC, useCallback, CanvasHTMLAttributes, useState} from 'react';
 import shallow from 'zustand/shallow';
 
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useEditStore} from 'state/annotate/polychain/edit';
 

@@ -7,7 +7,7 @@ import intl from 'react-intl-universal';
 import shallow from 'zustand/shallow';
 import {v4 as uuidv4} from 'uuid';
 
-import {getComponent, useStore as useAnnoStore} from 'state/annotate/annotation';
+import {getComponent, useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useUIStore} from 'state/annotate/ui';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useDrawStore, useTemporalStore as useTemporalDrawStore} from 'state/annotate/polychain/draw';

@@ -6,7 +6,7 @@ import shallow from 'zustand/shallow';
 import {Key} from 'ts-key-enum';
 import {isHotkeyPressed, useHotkeys} from 'react-hotkeys-hook';
 
-import {useStore as useAnnoStore, getComponent} from 'state/annotate/annotation';
+import {useAnnoStore, getComponent} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
 

@@ -2,7 +2,7 @@ import {FC, useEffect, CSSProperties, useState, HTMLAttributes, useContext} from
 import shallow from 'zustand/shallow';
 import intl from 'react-intl-universal';
 
-import {useTemporalStore as useTemporalAnnoStore} from 'state/annotate/annotation';
+import {useTemporalAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
 

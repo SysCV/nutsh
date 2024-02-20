@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
 
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {ViewportTransform} from 'state/annotate/render/viewport';
 

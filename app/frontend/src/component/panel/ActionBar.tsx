@@ -23,7 +23,7 @@ import {
   faChessBoard,
 } from '@fortawesome/free-solid-svg-icons';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {useTemporalStore as useTemporalAnnoStore} from 'state/annotate/annotation';
+import {useTemporalAnnoStore} from 'state/annotate/annotation';
 import {useStore as useUIStore} from 'state/annotate/ui';
 import {ConfigContext} from 'common/context';
 import {rectFitTransform} from 'common/geometry';

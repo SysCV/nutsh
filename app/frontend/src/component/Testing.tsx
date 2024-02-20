@@ -1,7 +1,7 @@
 import {FC, useEffect} from 'react';
 
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation';
 export const Testing: FC = () => {
   useEffect(() => {
     const annoState = useAnnoStore.getState();

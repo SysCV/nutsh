@@ -4,10 +4,10 @@ import intl from 'react-intl-universal';
 import {v4 as uuidv4} from 'uuid';
 import {message} from 'antd';
 
-import {useTemporalStore as useTemporalAnnoStore} from 'state/annotate/annotation';
+import {useTemporalAnnoStore} from 'state/annotate/annotation';
 import {EntityComponentId, useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useEditPolyStore} from 'state/annotate/polychain/edit';
 import {useStore as useEditRectStore} from 'state/annotate/rectangle/edit';
 

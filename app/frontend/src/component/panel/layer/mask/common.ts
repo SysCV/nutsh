@@ -4,7 +4,7 @@ import shallow from 'zustand/shallow';
 import {coordinatesImageToCanvas} from 'common/geometry';
 import {ViewportTransform} from 'state/annotate/render/viewport';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {UpdateSliceMasksInput, useStore as useAnnoStore} from 'state/annotate/annotation';
+import {UpdateSliceMasksInput, useAnnoStore} from 'state/annotate/annotation';
 import {ComponentId, EntityId, MaskComponent} from 'type/annotation';
 import {editStyle} from 'common/constant';
 import {ColorPalette} from 'component/panel/entity/display';

@@ -6,7 +6,7 @@ import {useDrawRect} from 'common/render';
 import {editStyle} from 'common/constant';
 import {coordinatesCanvasToImage, limitCoordinates} from 'common/geometry';
 
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useEditStore, Data} from 'state/annotate/rectangle/edit';
 import {ColorPalette} from 'component/panel/entity/display';

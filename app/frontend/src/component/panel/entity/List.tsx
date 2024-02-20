@@ -5,7 +5,7 @@ import {produce} from 'immer';
 
 import {Alert, Empty, Space, Tag, Tooltip} from 'antd';
 
-import {useStore as useAnnoStore, State} from 'state/annotate/annotation';
+import {useAnnoStore, State} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 
 import {deepEqual} from 'common/util';

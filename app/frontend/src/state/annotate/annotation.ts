@@ -166,7 +166,7 @@ export type UpdateSliceMasksInput = {
 
 const emptyAnnotation: Annotation = {entities: {}};
 
-export const useStore = create<State>()(
+export const useAnnoStore = create<State>()(
   temporal(
     subscribeWithSelector(
       immer(set => ({
@@ -418,7 +418,7 @@ export const useStore = create<State>()(
   )
 );
 
-export const useTemporalStore = create(useStore.temporal);
+export const useTemporalAnnoStore = create(useAnnoStore.temporal);
 
 function addComponent(s: State, sliceIndex: SliceIndex, entityId: EntityId, component: Component) {
   addAnnotationComponent(s.annotation, sliceIndex, entityId, component);

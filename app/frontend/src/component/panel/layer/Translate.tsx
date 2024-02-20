@@ -1,7 +1,7 @@
 import {FC, useCallback, useState, HTMLAttributes, useMemo, useRef} from 'react';
 import shallow from 'zustand/shallow';
 
-import {getComponent, useStore as useAnnoStore} from 'state/annotate/annotation';
+import {getComponent, useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {TranslateData} from 'state/annotate/render/translate';
 
