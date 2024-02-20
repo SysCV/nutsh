@@ -1,5 +1,6 @@
 import {FC} from 'react';
 import {useParams} from 'react-router-dom';
+import {YjsProvider} from 'common/yjs/context';
 import {PanelLoad} from './Load';
 
 const Panel: FC = () => {
@@ -8,7 +9,11 @@ const Panel: FC = () => {
     return <div />;
   }
 
-  return <PanelLoad id={id} />;
+  return (
+    <YjsProvider>
+      <PanelLoad id={id} />
+    </YjsProvider>
+  );
 };
 
 export default Panel;

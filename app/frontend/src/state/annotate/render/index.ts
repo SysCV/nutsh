@@ -1,7 +1,7 @@
 import create from 'zustand';
 import {immer} from 'zustand/middleware/immer';
 
-import type {EntityId, ComponentId, SliceIndex} from 'type/annotation';
+import type {EntityId, ComponentId, SliceIndex, Annotation} from 'type/annotation';
 
 import {createSelectSlice, SelectSlice} from './select';
 import {createSurroundSlice, SurroundSlice} from './surround';
@@ -70,7 +70,7 @@ export interface State {
   manipulate: ManipulateSlice;
 }
 
-export const emptyAnnotation = () => ({entities: {}});
+export const emptyAnnotation = (): Annotation => ({entities: {}});
 
 export const useStore = create<State>()(
   immer<State>((set, ...a) => ({

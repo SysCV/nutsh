@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import {Alert} from 'antd';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useAnnoStore} from 'state/annotate/annotation';
-import {useGetVideoAnnotation} from 'state/server/annotation';
+import {useGetVideoAnnotationYjs} from 'state/server/annotation';
 import {useGetVideo} from 'state/server/video';
 import {NutshClientContext} from 'common/context';
 import PageLayout from 'page/Layout';
@@ -21,7 +21,7 @@ export const PanelLoad: FC<{id: Video['id']}> = ({id}) => {
 
   // server state
   const {isFetching: isFetchingVideo, data: getVideoData} = useGetVideo(client, id);
-  const {isFetching: isFetchingAnno, data: getVideoAnnotationData} = useGetVideoAnnotation(client, id);
+  const {isFetching: isFetchingAnno, data: getVideoAnnotationData} = useGetVideoAnnotationYjs(id);
 
   // local state
   const [errorCode, setErrorCode] = useState<string | undefined>(undefined);

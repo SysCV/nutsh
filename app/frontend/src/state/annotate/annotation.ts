@@ -15,6 +15,7 @@ import type {
   ComponentMap,
 } from 'type/annotation';
 import {newComponentAdapter} from 'common/adapter';
+import {addAnnotationComponent, setEntityCategory} from 'common/annotation';
 
 export type State = {
   annotation: Annotation;
@@ -174,27 +175,7 @@ export const useStore = create<State>()(
           set(s => {
             const {sliceIndex, entityId, category, entries} = input;
             const e = s.annotation.entities[entityId];
-
-            if (sliceIndex !== undefined) {
-              if (!e.sliceCategories) {
-                e.sliceCategories = {};
-              }
-              if (!e.sliceCategories[sliceIndex]) {
-                e.sliceCategories[sliceIndex] = {};
-              }
-              if (!e.sliceCategories[sliceIndex][category]) {
-                e.sliceCategories[sliceIndex][category] = {};
-              }
-              e.sliceCategories[sliceIndex][category] = Object.fromEntries(entries.map(e => [e, true]));
-            } else {
-              if (!e.globalCategories) {
-                e.globalCategories = {};
-              }
-              if (!e.globalCategories[category]) {
-                e.globalCategories[category] = {};
-              }
-              e.globalCategories[category] = Object.fromEntries(entries.map(e => [e, true]));
-            }
+            setEntityCategory(e, category, entries, sliceIndex);
           });
         },
 
@@ -456,24 +437,7 @@ export const useStore = create<State>()(
 export const useTemporalStore = create(useStore.temporal);
 
 function addComponent(s: State, sliceIndex: SliceIndex, entityId: EntityId, component: Component) {
-  if (entityId in s.annotation.entities) {
-    const slices = s.annotation.entities[entityId].geometry.slices;
-    if (!(sliceIndex in slices)) {
-      slices[sliceIndex] = {};
-    }
-    slices[sliceIndex][component.id] = deepClone(component);
-  } else {
-    s.annotation.entities[entityId] = {
-      id: entityId,
-      geometry: {
-        slices: {
-          [sliceIndex]: {
-            [component.id]: deepClone(component),
-          },
-        },
-      },
-    };
-  }
+  addAnnotationComponent(s.annotation, sliceIndex, entityId, component);
 }
 
 function deleteComponent(
