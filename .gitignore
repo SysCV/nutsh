@@ -7,3 +7,4 @@ build
 local
 *.local
 __pycache__
+bin
