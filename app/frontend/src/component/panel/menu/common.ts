@@ -7,6 +7,7 @@ import {getSlice, useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 
 import type {EntityId, ComponentId} from 'type/annotation';
+import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
 
 export type Action = {
   title: string;
@@ -22,8 +23,8 @@ export type Action = {
 export function useComponentActions(entityId: EntityId, componentId: ComponentId): Action[] {
   const sliceIndex = useRenderStore(s => s.sliceIndex);
 
-  const separateComponent = useAnnoStore(s => s.separateComponent);
-  const deleteComponents = useAnnoStore(s => s.deleteComponents);
+  const separateComponent = useAnnoBroadcastStore('separateComponent');
+  const deleteComponents = useAnnoBroadcastStore('deleteComponents');
   const startManipulation = useRenderStore(s => s.manipulate.start);
 
   const nc = useAnnoStore(
@@ -71,9 +72,9 @@ export function useEntityActions(): Action[] {
   const selectIds = useRenderStore(s => s.select.ids);
   const sliceIndex = useRenderStore(s => s.sliceIndex);
 
-  const deleteComponents = useAnnoStore(s => s.deleteComponents);
-  const deleteEntities = useAnnoStore(s => s.deleteEntities);
-  const truncateEntities = useAnnoStore(s => s.truncateEntities);
+  const deleteComponents = useAnnoBroadcastStore('deleteComponents');
+  const deleteEntities = useAnnoBroadcastStore('deleteEntities');
+  const truncateEntities = useAnnoBroadcastStore('truncateEntities');
 
   // copy
   const copy = useRenderStore(s => s.copy);
@@ -90,7 +91,7 @@ export function useEntityActions(): Action[] {
   }, [entities, sliceIndex, selectIds]);
 
   // paste
-  const paste = useAnnoStore(s => s.paste);
+  const paste = useAnnoBroadcastStore('paste');
   const actions: Action[] = [
     {
       title: intl.get('paste'),

@@ -19,6 +19,7 @@ import type {EntityId} from 'type/annotation';
 import type {ProjectSpec} from 'type/project_spec';
 import {ColorPalette} from './display';
 import {useEntityCategories} from 'common/hook';
+import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
 
 const {Paragraph, Text} = Typography;
 
@@ -73,7 +74,7 @@ export const EntityCard: FC<{
     return Object.keys(g.slices).map(s => parseInt(s));
   }, shallow);
 
-  const deleteEntities = useAnnoStore(s => s.deleteEntities);
+  const deleteEntities = useAnnoBroadcastStore('deleteEntities');
 
   const isSelected = useRenderStore(s => s.select.ids.has(entityId));
   const isHovered = useRenderStore(s => s.mouse.hover?.entityId === entityId);

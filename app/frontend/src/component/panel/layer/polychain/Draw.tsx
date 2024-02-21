@@ -22,6 +22,7 @@ import type {ComponentId, Coordinates, EntityId, Vertex} from 'type/annotation';
 import {ColorPalette} from 'component/panel/entity/display';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {useKeyPressed} from 'common/keyboard';
+import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
 
 type Props = HTMLAttributes<HTMLDivElement> & {
   width: number;
@@ -87,7 +88,7 @@ const LayerWithEntityId: FC<Props & {entityId: EntityId}> = ({entityId, width, h
     )
   );
 
-  const addComponent = useAnnoStore(s => s.addComponent);
+  const addComponent = useAnnoBroadcastStore('addComponent');
 
   const drawPolychain = useDrawPolychain(transform);
   const drawAnnoVertex = useDrawVertex(transform);

@@ -7,7 +7,6 @@ import {editStyle} from 'common/constant';
 import {useDrawRect} from 'common/render';
 import {coordinatesCanvasToImage, limitCoordinates} from 'common/geometry';
 
-import {useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useDrawStore} from 'state/annotate/rectangle/draw';
 import {ColorPalette} from 'component/panel/entity/display';
@@ -15,6 +14,7 @@ import {EntityId} from 'type/annotation';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {Button, Space, Tag, Tooltip} from 'antd';
 import {ClearOutlined} from '@ant-design/icons';
+import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
 
 type Props = HTMLAttributes<HTMLDivElement> & {
   width: number;
@@ -50,7 +50,7 @@ const LayerWithEntityId: FC<Props & {entityId: EntityId}> = ({entityId, width, h
     )
   );
 
-  const addComponent = useAnnoStore(s => s.addComponent);
+  const addComponent = useAnnoBroadcastStore('addComponent');
   useHotkeys(
     'esc',
     useCallback(() => finish(), [finish])

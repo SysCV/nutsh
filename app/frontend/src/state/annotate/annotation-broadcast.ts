@@ -39,7 +39,7 @@ export function useAnnoBroadcastStore<K extends keyof StateManipulation>(key: K)
   const fn1 = useAnnoStore(s => s[key]);
   const fn2 = useAnnoBroadcast()[key];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the input is indeed known byt ts fails to infer
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fn: StateManipulation[K] = (input: any) => {
     fn1(input);
     fn2(input);
@@ -93,7 +93,7 @@ function useAnnoBroadcast(): StateManipulation {
             comps.delete(cid);
             anchors.delete(cid);
             anchors.set(newComponentId, as);
-            comps.set(newComponentId, {...comp, entityId: newEntityId});
+            comps.set(newComponentId, {...comp, eid: newEntityId});
           });
           break;
         }
@@ -107,7 +107,7 @@ function useAnnoBroadcast(): StateManipulation {
             comps.delete(cid);
             verts.delete(cid);
             verts.set(newComponentId, vs.clone());
-            comps.set(newComponentId, {...comp, entityId: newEntityId});
+            comps.set(newComponentId, {...comp, eid: newEntityId});
           });
           break;
         }
@@ -121,7 +121,7 @@ function useAnnoBroadcast(): StateManipulation {
             comps.delete(cid);
             masks.delete(cid);
             masks.set(newComponentId, mask);
-            comps.set(newComponentId, {...comp, entityId: newEntityId});
+            comps.set(newComponentId, {...comp, eid: newEntityId});
           });
           break;
         }

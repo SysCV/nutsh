@@ -7,7 +7,6 @@ import {message} from 'antd';
 import {useTemporalAnnoStore} from 'state/annotate/annotation';
 import {EntityComponentId, useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
-import {useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useEditPolyStore} from 'state/annotate/polychain/edit';
 import {useStore as useEditRectStore} from 'state/annotate/rectangle/edit';
 
@@ -22,6 +21,7 @@ import {editStyle, idleStyle} from 'common/constant';
 import {convertRGBA2Hex, isLightBackground} from 'common/color';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {coordinatesImageToCanvas} from 'common/geometry';
+import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
 
 export const IdleLayer: FC<HTMLAttributes<HTMLDivElement>> = ({...divProps}) => {
   console.debug('render IdleLayer');
@@ -88,7 +88,7 @@ const PasteLoaded: FC<{copying: {ecids: EntityComponentId[]; sliceIndex: SliceIn
   copying: {ecids, sliceIndex},
 }) => {
   const sidx = useRenderStore(s => s.sliceIndex);
-  const paste = useAnnoStore(s => s.paste);
+  const paste = useAnnoBroadcastStore('paste');
 
   useHotkeys(
     'ctrl+v, meta+v',

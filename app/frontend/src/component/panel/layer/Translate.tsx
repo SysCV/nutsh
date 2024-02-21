@@ -12,6 +12,7 @@ import {newComponentAdapter} from 'common/adapter';
 import {createComponentSVG} from 'common/svg';
 import {editStyle} from 'common/constant';
 import {ColorPalette} from '../entity/display';
+import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
 
 type Props = HTMLAttributes<HTMLDivElement> & {
   data: TranslateData;
@@ -30,7 +31,7 @@ export const TranslateLayer: FC<Props> = ({data, ...divProps}) => {
 
   const clearSelect = useRenderStore(s => s.select.clear);
   const finish = useRenderStore(s => s.translate.finish);
-  const translate = useAnnoStore(s => s.translate);
+  const translate = useAnnoBroadcastStore('translate');
 
   const ecs = useAnnoStore(
     useCallback(

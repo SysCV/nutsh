@@ -3,13 +3,13 @@ import {v4 as uuidv4} from 'uuid';
 import {Component, EntityId, MaskComponent, SliceIndex} from 'type/annotation';
 import {useStore as useUIStore} from 'state/annotate/ui';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {useAnnoStore} from 'state/annotate/annotation';
 import {Action} from './common';
 import {useCallback, useContext} from 'react';
 import {ConfigContext} from 'common/context';
 import {expand, rleCountsFromStringCOCO, rleCountsToStringCOCO, shrink} from 'common/algorithm/rle';
 import {Mask, TrackReq} from 'openapi/nutsh';
 import {correctSliceUrl} from 'common/route';
+import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
 
 export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
   const config = useContext(ConfigContext);
@@ -22,7 +22,7 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
   const currentSliceIndex = useRenderStore(s => s.sliceIndex);
   const currentSliceUrl = useRenderStore(s => correctSliceUrl(s.sliceUrls[s.sliceIndex]));
   const subsequentSliceUrls = useRenderStore(s => s.sliceUrls.slice(s.sliceIndex + 1).map(correctSliceUrl));
-  const addComponents = useAnnoStore(s => s.addComponents);
+  const addComponents = useAnnoBroadcastStore('addComponents');
 
   const track = useCallback(
     (mask: MaskComponent) => {

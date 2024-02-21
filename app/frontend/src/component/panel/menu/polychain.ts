@@ -1,14 +1,14 @@
 import intl from 'react-intl-universal';
 import shallow from 'zustand/shallow';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {useAnnoStore} from 'state/annotate/annotation';
 import {PolychainComponent} from 'type/annotation';
 
 import {Action} from './common';
+import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
 
 export function useActions(component: PolychainComponent): Action[] {
-  const setPolychainVertexBezier = useAnnoStore(s => s.setPolychainVertexBezier);
-  const deletePolychainVertex = useAnnoStore(s => s.deletePolychainVertex);
+  const setPolychainVertexBezier = useAnnoBroadcastStore('setPolychainVertexBezier');
+  const deletePolychainVertex = useAnnoBroadcastStore('deletePolychainVertex');
 
   const sidx = useRenderStore(s => s.sliceIndex);
   const hover = useRenderStore(s => s.mouse.hover, shallow);

@@ -1,11 +1,15 @@
 {
-  "extends": [
-    "./node_modules/gts/",
-    "plugin:react/jsx-runtime"
-  ],
+  "extends": ["./node_modules/gts/", "plugin:react/jsx-runtime"],
   "plugins": ["react-hooks"],
   "rules": {
-    "react-hooks/rules-of-hooks": "error", 
+    "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn"
-  }
+  },
+  "overrides": [
+    {
+      // I don't know why `eslint-disable-next-line` does not work for webpack, so I configure here as a workaround.
+      "files": ["src/state/annotate/annotation-broadcast.ts"],
+      "rules": {"@typescript-eslint/no-explicit-any": "off"}
+    }
+  ]
 }
