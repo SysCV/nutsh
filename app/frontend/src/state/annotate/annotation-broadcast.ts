@@ -223,7 +223,31 @@ function useAnnoBroadcast(): StateManipulation {
 
     deletePolychainVertex: (input: DeletePolychainVertexInput) => {
       const {componentId: cid, vertexIndex} = input;
-      verts.get(cid)?.delete(vertexIndex, 1);
+
+      const comp = comps.get(cid);
+      const vs = verts.get(cid);
+      if (!vs || comp?.type !== 'polychain') {
+        return;
+      }
+      const n = vs.length;
+      if ((comp.closed && n <= 3) || (!comp.closed && n <= 2)) {
+        deleteComponent(doc, cid, comp.type);
+        return;
+      }
+
+      doc.transact(() => {
+        if (vertexIndex > 0 || comp.closed) {
+          vs.delete(vertexIndex, 1);
+        } else {
+          // The first vertex of a polyline can NOT be bezier.
+          if (vs.get(1).bezier) {
+            const v = vs.get(1);
+            vs.delete(1, 1);
+            vs.insert(1, [{...v, bezier: undefined}]);
+          }
+          vs.delete(0, 1);
+        }
+      });
     },
 
     setPolychainVertexBezier: (input: SetPolychainVertexBezierInput) => {

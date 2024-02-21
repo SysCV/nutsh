@@ -74,7 +74,7 @@ export function writeAnnotationToYjs(anno: Annotation, doc: Y.Doc): void {
   return;
 }
 
-function readComponent(doc: Y.Doc, cid: ComponentId, info: YjsComponent): Component | undefined {
+export function readComponent(doc: Y.Doc, cid: ComponentId, info: YjsComponent): Component | undefined {
   const comps = yjsComponentMap(doc);
   const anchors = yjsRectangleAnchorsMap(doc);
   const verts = yjsPolychainVerticesMap(doc);
