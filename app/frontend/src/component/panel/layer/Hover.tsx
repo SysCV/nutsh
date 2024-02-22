@@ -28,6 +28,7 @@ import {ComponentProximity} from 'state/annotate/render/mouse';
 import {ColorPalette} from '../entity/display';
 import {editStyle} from 'common/constant';
 import {getComponent} from 'state/annotate/annotation';
+import {useAnnoBroadcast} from 'state/annotate/annotation-broadcast';
 
 const FullSize: CSSProperties = {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'};
 
@@ -173,8 +174,7 @@ const TopLevelHover: FC<HTMLAttributes<HTMLDivElement>> = ({...divProps}) => {
       [manipulation]
     )
   );
-  const transferComponent = useAnnoStore(s => s.transferComponent);
-  const addComponents = useAnnoStore(s => s.addComponents);
+  const {addComponents, transferComponent} = useAnnoBroadcast();
 
   const {isControlOrMetaPressed, isShiftPressed} = useControlMetaShiftPressed();
 

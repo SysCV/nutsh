@@ -4,7 +4,6 @@ import intl from 'react-intl-universal';
 import {v4 as uuidv4} from 'uuid';
 import {message} from 'antd';
 
-import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useTemporalAnnoStore} from 'state/annotate/annotation-temporal';
 import {EntityComponentId, useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
@@ -22,6 +21,7 @@ import {editStyle, idleStyle} from 'common/constant';
 import {convertRGBA2Hex, isLightBackground} from 'common/color';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {coordinatesImageToCanvas} from 'common/geometry';
+import {useAnnoBroadcast} from 'state/annotate/annotation-broadcast';
 
 export const IdleLayer: FC<HTMLAttributes<HTMLDivElement>> = ({...divProps}) => {
   console.debug('render IdleLayer');
@@ -88,7 +88,7 @@ const PasteLoaded: FC<{copying: {ecids: EntityComponentId[]; sliceIndex: SliceIn
   copying: {ecids, sliceIndex},
 }) => {
   const sidx = useRenderStore(s => s.sliceIndex);
-  const paste = useAnnoStore(s => s.paste);
+  const {paste} = useAnnoBroadcast();
 
   useHotkeys(
     'ctrl+v, meta+v',

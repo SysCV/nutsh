@@ -28,10 +28,6 @@ function useComponentsListener() {
 
   useEffect(() => {
     const fn = (e: Y.YMapEvent<ComponentYjs>) => {
-      if (e.transaction.local) {
-        return;
-      }
-
       for (const [cid, cc] of e.changes.keys) {
         switch (cc.action) {
           case 'add': {
@@ -84,10 +80,6 @@ function useRectangleAnchorsListener() {
 
   useEffect(() => {
     const fn = (e: Y.YMapEvent<RectangleAnchors>) => {
-      if (e.transaction.local) {
-        return;
-      }
-
       for (const cid of e.keysChanged) {
         const info = comps.get(cid);
         if (info) {
@@ -116,10 +108,6 @@ function usePolychainVerticesListener() {
 
   useEffect(() => {
     const fn = (e: Y.YMapEvent<Y.Array<Vertex>>) => {
-      if (e.transaction.local) {
-        return;
-      }
-
       for (const cid of e.keysChanged) {
         const info = comps.get(cid);
         if (!info) {
@@ -143,9 +131,6 @@ function usePolychainVerticesListener() {
   useEffect(() => {
     const fn = (es: Y.YEvent<Y.Array<Vertex>>[]) => {
       for (const e of es) {
-        if (e.transaction.local) {
-          continue;
-        }
         if (e.path.length !== 1) {
           continue;
         }
