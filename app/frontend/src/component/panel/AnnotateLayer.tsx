@@ -2,10 +2,10 @@ import {FC, useEffect, CSSProperties, useState, HTMLAttributes, useContext} from
 import shallow from 'zustand/shallow';
 import intl from 'react-intl-universal';
 
-import {useTemporalAnnoStore} from 'state/annotate/annotation';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
 
+import {useTemporalAnnoStore} from 'state/annotate/annotation-temporal';
 import {useStore as useDrawPolyStore} from 'state/annotate/polychain/draw';
 import {useStore as useEditPolyStore} from 'state/annotate/polychain/edit';
 import {useStore as useDrawRectStore} from 'state/annotate/rectangle/draw';

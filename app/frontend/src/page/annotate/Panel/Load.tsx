@@ -2,7 +2,7 @@ import {FC, useContext, useEffect, useState} from 'react';
 import intl from 'react-intl-universal';
 import {Alert} from 'antd';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useGetVideoAnnotationYjs} from 'state/server/annotation';
 import {useGetVideo} from 'state/server/video';
 import {NutshClientContext} from 'common/context';

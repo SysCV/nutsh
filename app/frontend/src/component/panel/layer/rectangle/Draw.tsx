@@ -14,7 +14,7 @@ import {EntityId} from 'type/annotation';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {Button, Space, Tag, Tooltip} from 'antd';
 import {ClearOutlined} from '@ant-design/icons';
-import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 
 type Props = HTMLAttributes<HTMLDivElement> & {
   width: number;
@@ -50,7 +50,7 @@ const LayerWithEntityId: FC<Props & {entityId: EntityId}> = ({entityId, width, h
     )
   );
 
-  const addComponent = useAnnoBroadcastStore('addComponent');
+  const addComponent = useAnnoStore(s => s.addComponent);
   useHotkeys(
     'esc',
     useCallback(() => finish(), [finish])

@@ -4,14 +4,14 @@ import shallow from 'zustand/shallow';
 import {coordinatesImageToCanvas} from 'common/geometry';
 import {ViewportTransform} from 'state/annotate/render/viewport';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {UpdateSliceMasksInput} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {ComponentId, EntityId, MaskComponent} from 'type/annotation';
 import {editStyle} from 'common/constant';
 import {ColorPalette} from 'component/panel/entity/display';
 import {newComponentAdapter} from 'common/adapter';
 import {encodeRLE} from 'common/algorithm/rle';
 import {useVisibleEntities} from 'common/render';
-import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
+import {UpdateSliceMasksInput} from 'state/annotate/annotation';
 
 // WARN(hxu): consider re-drawing only the updated part when running into performance issue.
 export function updateImageRendering(
@@ -101,7 +101,7 @@ export function useImageContext(init?: (ctx: CanvasRenderingContext2D) => void) 
 
 export function useUpdateMask(imageContext: CanvasRenderingContext2D, prevMasks: EntityComponentMask[]) {
   const sliceIndex = useRenderStore(s => s.sliceIndex);
-  const updateSliceMasks = useAnnoBroadcastStore('updateSliceMasks');
+  const updateSliceMasks = useAnnoStore(s => s.updateSliceMasks);
 
   return useCallback(() => {
     const currMasks: EntityComponentMask[] = collectLocalMasks(imageContext).map(m => {

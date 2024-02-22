@@ -3,11 +3,11 @@ import {App} from 'antd';
 import intl from 'react-intl-universal';
 import {v4 as uuidv4} from 'uuid';
 
-import {getSlice, useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useStore as useRenderStore} from 'state/annotate/render';
 
 import type {EntityId, ComponentId} from 'type/annotation';
-import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
+import {getSlice} from 'state/annotate/annotation';
 
 export type Action = {
   title: string;
@@ -23,8 +23,8 @@ export type Action = {
 export function useComponentActions(entityId: EntityId, componentId: ComponentId): Action[] {
   const sliceIndex = useRenderStore(s => s.sliceIndex);
 
-  const separateComponent = useAnnoBroadcastStore('separateComponent');
-  const deleteComponents = useAnnoBroadcastStore('deleteComponents');
+  const separateComponent = useAnnoStore(s => s.separateComponent);
+  const deleteComponents = useAnnoStore(s => s.deleteComponents);
   const startManipulation = useRenderStore(s => s.manipulate.start);
 
   const nc = useAnnoStore(
@@ -72,9 +72,9 @@ export function useEntityActions(): Action[] {
   const selectIds = useRenderStore(s => s.select.ids);
   const sliceIndex = useRenderStore(s => s.sliceIndex);
 
-  const deleteComponents = useAnnoBroadcastStore('deleteComponents');
-  const deleteEntities = useAnnoBroadcastStore('deleteEntities');
-  const truncateEntities = useAnnoBroadcastStore('truncateEntities');
+  const deleteComponents = useAnnoStore(s => s.deleteComponents);
+  const deleteEntities = useAnnoStore(s => s.deleteEntities);
+  const truncateEntities = useAnnoStore(s => s.truncateEntities);
 
   // copy
   const copy = useRenderStore(s => s.copy);
@@ -91,7 +91,7 @@ export function useEntityActions(): Action[] {
   }, [entities, sliceIndex, selectIds]);
 
   // paste
-  const paste = useAnnoBroadcastStore('paste');
+  const paste = useAnnoStore(s => s.paste);
   const actions: Action[] = [
     {
       title: intl.get('paste'),

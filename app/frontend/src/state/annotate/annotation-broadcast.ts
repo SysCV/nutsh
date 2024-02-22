@@ -26,7 +26,6 @@ import {
   UpdatePolychainVerticesInput,
   UpdateRectangleAnchorsInput,
   UpdateSliceMasksInput,
-  useAnnoStore,
 } from './annotation';
 import {encodeEntityCategoryMapKey, yjsEntityCategoriesMap} from 'common/yjs/docs/entity';
 import {useYjsContext} from 'common/yjs/context';
@@ -35,20 +34,7 @@ import {yjsRectangleAnchorsMap} from 'common/yjs/docs/rectangle';
 import {yjsPolychainVerticesMap} from 'common/yjs/docs/polychain';
 import {yjsMaskMap} from 'common/yjs/docs/mask';
 
-export function useAnnoBroadcastStore<K extends keyof StateManipulation>(key: K): StateManipulation[K] {
-  const fn1 = useAnnoStore(s => s[key]);
-  const fn2 = useAnnoBroadcast()[key];
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const fn: StateManipulation[K] = (input: any) => {
-    fn1(input);
-    fn2(input);
-  };
-
-  return fn;
-}
-
-function useAnnoBroadcast(): StateManipulation {
+export function useAnnoBroadcast(): StateManipulation {
   const {doc} = useYjsContext();
 
   const comps = yjsComponentMap(doc);

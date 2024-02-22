@@ -9,7 +9,7 @@ import {CategoryAbbreviation} from 'component/panel/entity/display';
 import type {EntityId} from 'type/annotation';
 import type {ProjectSpec, Entry} from 'type/project_spec';
 import {useEntityCategories} from 'common/hook';
-import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 
 export function makeTreeNode(
   entry: Entry,
@@ -30,8 +30,8 @@ export function makeTreeNode(
 export const EntityForm: FC<{entityId: EntityId; projectSpec: ProjectSpec}> = ({entityId, projectSpec}) => {
   const sidx = useRenderStore(s => s.sliceIndex);
   const categories = useEntityCategories(entityId, sidx);
-  const setEntityCategory = useAnnoBroadcastStore('setEntityCategory');
-  const clearEntityCategory = useAnnoBroadcastStore('clearEntityCategory');
+  const setEntityCategory = useAnnoStore(s => s.setEntityCategory);
+  const clearEntityCategory = useAnnoStore(s => s.clearEntityCategory);
 
   return (
     <Form layout="vertical" style={{width: 200}}>

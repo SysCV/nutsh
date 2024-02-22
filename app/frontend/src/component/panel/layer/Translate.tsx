@@ -1,7 +1,7 @@
 import {FC, useCallback, useState, HTMLAttributes, useMemo, useRef} from 'react';
 import shallow from 'zustand/shallow';
 
-import {getComponent, useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {TranslateData} from 'state/annotate/render/translate';
 
@@ -12,7 +12,7 @@ import {newComponentAdapter} from 'common/adapter';
 import {createComponentSVG} from 'common/svg';
 import {editStyle} from 'common/constant';
 import {ColorPalette} from '../entity/display';
-import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
+import {getComponent} from 'state/annotate/annotation';
 
 type Props = HTMLAttributes<HTMLDivElement> & {
   data: TranslateData;
@@ -31,7 +31,7 @@ export const TranslateLayer: FC<Props> = ({data, ...divProps}) => {
 
   const clearSelect = useRenderStore(s => s.select.clear);
   const finish = useRenderStore(s => s.translate.finish);
-  const translate = useAnnoBroadcastStore('translate');
+  const translate = useAnnoStore(s => s.translate);
 
   const ecs = useAnnoStore(
     useCallback(

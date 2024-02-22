@@ -2,7 +2,7 @@ import {useEffect} from 'react';
 import * as Y from 'yjs';
 import {useYjsContext} from './context';
 import {Component as ComponentYjs, yjsComponentMap} from './docs/component';
-import {useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {readComponent} from './convert';
 import {RectangleAnchors, yjsRectangleAnchorsMap} from './docs/rectangle';
 import {yjsPolychainVerticesMap} from './docs/polychain';

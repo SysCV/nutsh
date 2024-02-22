@@ -6,7 +6,7 @@ import shallow from 'zustand/shallow';
 import {Key} from 'ts-key-enum';
 import {isHotkeyPressed, useHotkeys} from 'react-hotkeys-hook';
 
-import {useAnnoStore, getComponent} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
 
@@ -27,7 +27,7 @@ import {newComponentAdapter} from 'common/adapter';
 import {ComponentProximity} from 'state/annotate/render/mouse';
 import {ColorPalette} from '../entity/display';
 import {editStyle} from 'common/constant';
-import {useAnnoBroadcastStore} from 'state/annotate/annotation-broadcast';
+import {getComponent} from 'state/annotate/annotation';
 
 const FullSize: CSSProperties = {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'};
 
@@ -173,8 +173,8 @@ const TopLevelHover: FC<HTMLAttributes<HTMLDivElement>> = ({...divProps}) => {
       [manipulation]
     )
   );
-  const transferComponent = useAnnoBroadcastStore('transferComponent');
-  const addComponents = useAnnoBroadcastStore('addComponents');
+  const transferComponent = useAnnoStore(s => s.transferComponent);
+  const addComponents = useAnnoStore(s => s.addComponents);
 
   const {isControlOrMetaPressed, isShiftPressed} = useControlMetaShiftPressed();
 

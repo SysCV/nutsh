@@ -3,6 +3,7 @@ import {useParams} from 'react-router-dom';
 import {YjsProvider} from 'common/yjs/context';
 import {PanelLoad} from './Load';
 import {useYjsListener} from 'common/yjs/event';
+import {AnnoProvider} from 'state/annotate/annotation-provider';
 
 const Panel: FC = () => {
   const {videoId: id = ''} = useParams();
@@ -12,8 +13,10 @@ const Panel: FC = () => {
 
   return (
     <YjsProvider>
-      <PanelLoad id={id} />
-      <YjsListener />
+      <AnnoProvider>
+        <PanelLoad id={id} />
+        <YjsListener />
+      </AnnoProvider>
     </YjsProvider>
   );
 };

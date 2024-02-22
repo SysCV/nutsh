@@ -1,9 +1,8 @@
-import create from 'zustand';
-import {temporal} from 'zundo';
+import {createStore} from 'zustand';
 import {immer} from 'zustand/middleware/immer';
 import {subscribeWithSelector} from 'zustand/middleware';
 
-import {deepEqual, deepClone} from 'common/util';
+import {deepClone} from 'common/util';
 import type {
   Annotation,
   Component,
@@ -166,8 +165,8 @@ export type UpdateSliceMasksInput = {
 
 const emptyAnnotation: Annotation = {entities: {}};
 
-export const useAnnoStore = create<State>()(
-  temporal(
+export function createAnnoStore() {
+  return createStore<State>()(
     subscribeWithSelector(
       immer(set => ({
         annotation: emptyAnnotation,
@@ -407,18 +406,9 @@ export const useAnnoStore = create<State>()(
           });
         },
       }))
-    ),
-    {
-      partialize: state => {
-        const {annotation} = state;
-        return {annotation};
-      },
-      equality: (past, curr) => deepEqual(past, curr),
-    }
-  )
-);
-
-export const useTemporalAnnoStore = create(useAnnoStore.temporal);
+    )
+  );
+}
 
 function addComponent(s: State, sliceIndex: SliceIndex, entityId: EntityId, component: Component) {
   addAnnotationComponent(s.annotation, sliceIndex, entityId, component);
