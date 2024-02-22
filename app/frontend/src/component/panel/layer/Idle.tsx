@@ -21,7 +21,7 @@ import {editStyle, idleStyle} from 'common/constant';
 import {convertRGBA2Hex, isLightBackground} from 'common/color';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {coordinatesImageToCanvas} from 'common/geometry';
-import {useAnnoBroadcast} from 'state/annotate/annotation-broadcast';
+import {usePaste} from 'state/annotate/annotation-broadcast';
 
 export const IdleLayer: FC<HTMLAttributes<HTMLDivElement>> = ({...divProps}) => {
   console.debug('render IdleLayer');
@@ -88,7 +88,7 @@ const PasteLoaded: FC<{copying: {ecids: EntityComponentId[]; sliceIndex: SliceIn
   copying: {ecids, sliceIndex},
 }) => {
   const sidx = useRenderStore(s => s.sliceIndex);
-  const {paste} = useAnnoBroadcast();
+  const {paste} = usePaste();
 
   useHotkeys(
     'ctrl+v, meta+v',

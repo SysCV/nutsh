@@ -11,7 +11,7 @@ import {newComponentAdapter} from 'common/adapter';
 import {encodeRLE} from 'common/algorithm/rle';
 import {useVisibleEntities} from 'common/render';
 import {UpdateSliceMasksInput} from 'state/annotate/annotation';
-import {useAnnoBroadcast} from 'state/annotate/annotation-broadcast';
+import {useUpdateSliceMasks} from 'state/annotate/annotation-broadcast';
 
 // WARN(hxu): consider re-drawing only the updated part when running into performance issue.
 export function updateImageRendering(
@@ -101,7 +101,7 @@ export function useImageContext(init?: (ctx: CanvasRenderingContext2D) => void) 
 
 export function useUpdateMask(imageContext: CanvasRenderingContext2D, prevMasks: EntityComponentMask[]) {
   const sliceIndex = useRenderStore(s => s.sliceIndex);
-  const {updateSliceMasks} = useAnnoBroadcast();
+  const {updateSliceMasks} = useUpdateSliceMasks();
 
   return useCallback(() => {
     const currMasks: EntityComponentMask[] = collectLocalMasks(imageContext).map(m => {

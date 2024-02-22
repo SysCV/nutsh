@@ -13,7 +13,7 @@ import {useDrawPolychain, useDrawDashedLine, useDrawVertex} from 'common/render'
 import type {Data as EditData} from 'state/annotate/polychain/edit';
 import {ColorPalette} from 'component/panel/entity/display';
 import {editStyle} from 'common/constant';
-import {useAnnoBroadcast} from 'state/annotate/annotation-broadcast';
+import {useUpdatePolychainVertices} from 'state/annotate/annotation-broadcast';
 
 const Canvas: FC<CanvasHTMLAttributes<HTMLCanvasElement> & {data: EditData}> = ({data, ...canvasProps}) => {
   const {width: imw, height: imh} = useRenderStore(s => s.sliceSize!, shallow);
@@ -68,7 +68,7 @@ const Canvas: FC<CanvasHTMLAttributes<HTMLCanvasElement> & {data: EditData}> = (
     )
   );
 
-  const {updatePolychainVertices} = useAnnoBroadcast();
+  const {updatePolychainVertices} = useUpdatePolychainVertices();
   const finishEdit = useEditStore(s => s.finish);
   const finish = useCallback(() => {
     updatePolychainVertices({sliceIndex, entityId: eid, componentId: cid, vertices});

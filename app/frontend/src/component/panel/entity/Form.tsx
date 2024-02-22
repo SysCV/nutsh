@@ -3,13 +3,13 @@ import intl from 'react-intl-universal';
 import {Form, TreeSelect, TreeSelectProps, Space, Tag} from 'antd';
 
 import {useStore as useRenderStore} from 'state/annotate/render';
+import {useClearEntityCategory, useSetEntityCategory} from 'state/annotate/annotation-broadcast';
 
 import {CategoryAbbreviation} from 'component/panel/entity/display';
 
 import type {EntityId} from 'type/annotation';
 import type {ProjectSpec, Entry} from 'type/project_spec';
 import {useEntityCategories} from 'common/hook';
-import {useAnnoBroadcast} from 'state/annotate/annotation-broadcast';
 
 export function makeTreeNode(
   entry: Entry,
@@ -30,7 +30,8 @@ export function makeTreeNode(
 export const EntityForm: FC<{entityId: EntityId; projectSpec: ProjectSpec}> = ({entityId, projectSpec}) => {
   const sidx = useRenderStore(s => s.sliceIndex);
   const categories = useEntityCategories(entityId, sidx);
-  const {setEntityCategory, clearEntityCategory} = useAnnoBroadcast();
+  const {setEntityCategory} = useSetEntityCategory();
+  const {clearEntityCategory} = useClearEntityCategory();
 
   return (
     <Form layout="vertical" style={{width: 200}}>

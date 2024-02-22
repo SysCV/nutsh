@@ -9,7 +9,7 @@ import {coordinatesCanvasToImage, limitCoordinates} from 'common/geometry';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useEditStore, Data} from 'state/annotate/rectangle/edit';
 import {ColorPalette} from 'component/panel/entity/display';
-import {useAnnoBroadcast} from 'state/annotate/annotation-broadcast';
+import {useUpdateRectangleAnchors} from 'state/annotate/annotation-broadcast';
 
 const Canvas: FC<{data: Data} & CanvasHTMLAttributes<HTMLCanvasElement>> = ({data, ...canvasProps}) => {
   const {width: imw, height: imh} = useRenderStore(s => s.sliceSize!, shallow);
@@ -36,7 +36,7 @@ const Canvas: FC<{data: Data} & CanvasHTMLAttributes<HTMLCanvasElement>> = ({dat
   );
 
   const sliceIndex = useRenderStore(s => s.sliceIndex);
-  const {updateRectangleAnchors} = useAnnoBroadcast();
+  const {updateRectangleAnchors} = useUpdateRectangleAnchors();
   const finishEdit = useEditStore(s => s.finish);
   const finish = useCallback(() => {
     const {p, q} = anchors;

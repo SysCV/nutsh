@@ -4,10 +4,11 @@ import {useStore as useRenderStore} from 'state/annotate/render';
 import {PolychainComponent} from 'type/annotation';
 
 import {Action} from './common';
-import {useAnnoBroadcast} from 'state/annotate/annotation-broadcast';
+import {useDeletePolychainVertex, useSetPolychainVertexBezier} from 'state/annotate/annotation-broadcast';
 
 export function useActions(component: PolychainComponent): Action[] {
-  const {deletePolychainVertex, setPolychainVertexBezier} = useAnnoBroadcast();
+  const {deletePolychainVertex} = useDeletePolychainVertex();
+  const {setPolychainVertexBezier} = useSetPolychainVertexBezier();
 
   const sidx = useRenderStore(s => s.sliceIndex);
   const hover = useRenderStore(s => s.mouse.hover, shallow);
