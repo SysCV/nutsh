@@ -5,7 +5,7 @@ import intl from 'react-intl-universal';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
 
-import {useTemporalAnnoStore} from 'state/annotate/annotation-temporal';
+import {useAnnoHistoryStore} from 'state/annotate/annotation-provider';
 import {useStore as useDrawPolyStore} from 'state/annotate/polychain/draw';
 import {useStore as useEditPolyStore} from 'state/annotate/polychain/edit';
 import {useStore as useDrawRectStore} from 'state/annotate/rectangle/draw';
@@ -45,7 +45,7 @@ export const AnnotateLayer: FC<HTMLAttributes<HTMLDivElement>> = ({...divProps})
 
 const Loaded: FC<HTMLAttributes<HTMLDivElement>> = ({...divProps}) => {
   // Reset history when a new annotation is started.
-  const {clear} = useTemporalAnnoStore();
+  const clear = useAnnoHistoryStore(s => s.reset);
   useEffect(() => clear(), [clear]);
 
   const isDrawingPoly = useDrawPolyStore(s => s.vertices.length > 0);

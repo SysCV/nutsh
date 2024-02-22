@@ -5,6 +5,8 @@ import type {
   MaskComponent,
   PolychainComponent,
   RectangleComponent,
+  Entity,
+  SliceIndex,
 } from 'type/annotation';
 import {newComponentAdapter} from 'common/adapter';
 import {initialVertexBezier} from 'common/annotation';
@@ -26,6 +28,7 @@ import {
   UpdatePolychainVerticesInput,
   UpdateRectangleAnchorsInput,
   UpdateSliceMasksInput,
+  getComponent,
 } from './annotation';
 import {encodeEntityCategoryMapKey, yjsEntityCategoriesMap} from 'common/yjs/docs/entity';
 import {useYjsContext} from 'common/yjs/context';
@@ -33,15 +36,39 @@ import {yjsComponentMap, Component as YjsComponent} from 'common/yjs/docs/compon
 import {yjsRectangleAnchorsMap} from 'common/yjs/docs/rectangle';
 import {yjsPolychainVerticesMap} from 'common/yjs/docs/polychain';
 import {yjsMaskMap} from 'common/yjs/docs/mask';
+import {useAnnoHistoryStore, useAnnoStoreRaw} from './annotation-provider';
+import {deepClone} from 'common/util';
 
 export function useSetEntityCategory(): Pick<StateManipulation, 'setEntityCategory'> {
   const {doc} = useYjsContext();
   const cats = yjsEntityCategoriesMap(doc);
 
+  const annoStore = useAnnoStoreRaw();
+  const pushAction = useAnnoHistoryStore(s => s.pushAction);
   const setEntityCategory = (input: SetEntityCategoryInput) => {
     const {sliceIndex: sidx, entityId: eid, category, entries} = input;
+
+    // current
+    const entity = annoStore.getState().annotation.entities[eid];
+    const oldEntries = getEntityCategory(entity, category, sidx);
+
+    // update
     const key = encodeEntityCategoryMapKey({eid, sidx, category});
     cats.set(key, entries);
+
+    // history
+    const undo = () => {
+      setEntityCategory({
+        sliceIndex: sidx,
+        entityId: eid,
+        category,
+        entries: oldEntries,
+      });
+    };
+    const redo = () => {
+      setEntityCategory(input);
+    };
+    pushAction({undo, redo});
   };
 
   return {setEntityCategory};
@@ -51,10 +78,33 @@ export function useClearEntityCategory(): Pick<StateManipulation, 'clearEntityCa
   const {doc} = useYjsContext();
   const cats = yjsEntityCategoriesMap(doc);
 
+  const annoStore = useAnnoStoreRaw();
+  const pushAction = useAnnoHistoryStore(s => s.pushAction);
+  const {setEntityCategory} = useSetEntityCategory();
   const clearEntityCategory = (input: ClearEntityCategoryInput) => {
     const {sliceIndex: sidx, entityId: eid, category} = input;
+
+    // current
+    const entity = annoStore.getState().annotation.entities[eid];
+    const oldEntries = getEntityCategory(entity, category, sidx);
+
+    // update
     const key = encodeEntityCategoryMapKey({eid, sidx, category});
     cats.delete(key);
+
+    // history
+    const undo = () => {
+      setEntityCategory({
+        sliceIndex: sidx,
+        entityId: eid,
+        category,
+        entries: oldEntries,
+      });
+    };
+    const redo = () => {
+      clearEntityCategory(input);
+    };
+    pushAction({undo, redo});
   };
 
   return {clearEntityCategory};
@@ -68,6 +118,8 @@ export function useSeparateComponent(): Pick<StateManipulation, 'separateCompone
   const verts = yjsPolychainVerticesMap(doc);
   const masks = yjsMaskMap(doc);
 
+  const pushAction = useAnnoHistoryStore(s => s.pushAction);
+  const {transferComponent} = useTransferComponent();
   const separateComponent = (input: SeparateComponentInput) => {
     const {sliceIndex: sidx, entityId: eid, componentId: cid, newEntityId, newComponentId} = input;
 
@@ -127,6 +179,20 @@ export function useSeparateComponent(): Pick<StateManipulation, 'separateCompone
         console.error('unexpected input', input);
         break;
     }
+
+    const undo = () => {
+      transferComponent({
+        sliceIndex: sidx,
+        entityId: newEntityId,
+        componentId: newComponentId,
+        targetEntityId: eid,
+      });
+    };
+    const redo = () => {
+      // TODO(xu): check if this `newComponentId` indicates a bad design.
+      separateComponent({...input, componentId: newComponentId});
+    };
+    pushAction({undo, redo});
   };
 
   return {separateComponent};
@@ -135,8 +201,22 @@ export function useSeparateComponent(): Pick<StateManipulation, 'separateCompone
 export function useAddComponent(): Pick<StateManipulation, 'addComponent'> {
   const {doc} = useYjsContext();
 
+  const pushAction = useAnnoHistoryStore(s => s.pushAction);
+  const {deleteComponents} = useDeleteComponents();
   const addComponent = (input: AddComponentInput) => {
+    const {sliceIndex, entityId, component} = input;
     addComponentToDoc(doc, input);
+
+    const undo = () => {
+      deleteComponents({
+        sliceIndex,
+        components: [[entityId, component.id]],
+      });
+    };
+    const redo = () => {
+      addComponent(input);
+    };
+    pushAction({undo, redo});
   };
 
   return {addComponent};
@@ -145,11 +225,26 @@ export function useAddComponent(): Pick<StateManipulation, 'addComponent'> {
 export function useAddComponents(): Pick<StateManipulation, 'addComponents'> {
   const {doc} = useYjsContext();
 
+  const pushAction = useAnnoHistoryStore(s => s.pushAction);
+  const {deleteComponents} = useDeleteComponents();
   const addComponents = (input: AddComponentsInput) => {
     const {entityId, components} = input;
     doc.transact(() => {
       components.forEach(component => addComponentToDoc(doc, {entityId, ...component}));
     });
+
+    const undo = () => {
+      components.forEach(({sliceIndex, component}) => {
+        deleteComponents({
+          sliceIndex,
+          components: [[entityId, component.id]],
+        });
+      });
+    };
+    const redo = () => {
+      addComponents(input);
+    };
+    pushAction({undo, redo});
   };
 
   return {addComponents};
@@ -159,9 +254,30 @@ export function useUpdatePolychainVertices(): Pick<StateManipulation, 'updatePol
   const {doc} = useYjsContext();
   const verts = yjsPolychainVerticesMap(doc);
 
+  const annoStore = useAnnoStoreRaw();
+  const pushAction = useAnnoHistoryStore(s => s.pushAction);
   const updatePolychainVertices = (input: UpdatePolychainVerticesInput) => {
-    const {componentId: cid, vertices} = input;
+    const {componentId: cid, vertices, sliceIndex, entityId} = input;
+    const old = getComponent(annoStore.getState(), sliceIndex, entityId, cid);
+    if (old?.type !== 'polychain') {
+      return;
+    }
+    const oldVertices = deepClone(old.vertices);
+
     verts.set(cid, Y.Array.from(vertices));
+
+    const undo = () => {
+      updatePolychainVertices({
+        sliceIndex,
+        entityId,
+        componentId: cid,
+        vertices: oldVertices,
+      });
+    };
+    const redo = () => {
+      updatePolychainVertices(input);
+    };
+    pushAction({undo, redo});
   };
 
   return {updatePolychainVertices};
@@ -171,10 +287,20 @@ export function useTransferComponent(): Pick<StateManipulation, 'transferCompone
   const {doc} = useYjsContext();
   const comps = yjsComponentMap(doc);
 
+  const annoStore = useAnnoStoreRaw();
+  const pushAction = useAnnoHistoryStore(s => s.pushAction);
+  const {addComponent} = useAddComponent();
+  const {deleteComponents} = useDeleteComponents();
   const transferComponent = (input: TransferComponentInput) => {
     const {sliceIndex: sidx, entityId: eid, componentId: cid, targetEntityId} = input;
+
+    const c = deepClone(getComponent(annoStore.getState(), sidx, eid, cid));
+    if (!c) {
+      return;
+    }
+
     doc.transact(() => {
-      const old = comps.get(cid);
+      const old = deepClone(comps.get(cid));
       if (!old) {
         console.warn(`component ${cid} not found`);
         return;
@@ -186,6 +312,22 @@ export function useTransferComponent(): Pick<StateManipulation, 'transferCompone
       old.eid = targetEntityId;
       comps.set(cid, old);
     });
+
+    const undo = () => {
+      deleteComponents({
+        sliceIndex: sidx,
+        components: [[targetEntityId, cid]],
+      });
+      addComponent({
+        sliceIndex: sidx,
+        entityId: eid,
+        component: c,
+      });
+    };
+    const redo = () => {
+      transferComponent(input);
+    };
+    pushAction({undo, redo});
   };
 
   return {transferComponent};
@@ -195,6 +337,10 @@ export function useDeleteEntities(): Pick<StateManipulation, 'deleteEntities'> {
   const {doc} = useYjsContext();
   const comps = yjsComponentMap(doc);
 
+  const annoStore = useAnnoStoreRaw();
+  const {addComponents} = useAddComponents();
+  const {setEntityCategory} = useSetEntityCategory();
+  const pushAction = useAnnoHistoryStore(s => s.pushAction);
   const deleteEntities = (input: DeleteEntitiesInput) => {
     const {entityIds} = input;
     const eids = new Set(entityIds);
@@ -208,6 +354,52 @@ export function useDeleteEntities(): Pick<StateManipulation, 'deleteEntities'> {
       for (const [cid, comp] of victims.entries()) {
         deleteComponentFromDoc(doc, cid, comp.type);
       }
+
+      // history
+      const s = annoStore.getState();
+      const deleted = entityIds.map(eid => s.annotation.entities[eid]);
+      const entities = deepClone(deleted);
+      const undo = () => {
+        // add back components
+        const inputs: AddComponentsInput[] = [];
+        entities.forEach(e => {
+          Object.entries(e.geometry.slices).map(([sidx, sliceComponents]) => {
+            const components = Object.values(sliceComponents).map(component => ({
+              sliceIndex: parseInt(sidx),
+              component,
+            }));
+            inputs.push({entityId: e.id, components});
+          });
+        });
+        inputs.forEach(input => {
+          addComponents(input);
+        });
+
+        // add back categories
+        entities.forEach(e => {
+          Object.entries(e.globalCategories ?? {}).forEach(([category, es]) => {
+            setEntityCategory({
+              entityId: e.id,
+              category,
+              entries: Object.keys(es),
+            });
+          });
+          Object.entries(e.sliceCategories ?? {}).forEach(([sidx, sliceCategories]) => {
+            Object.entries(sliceCategories).forEach(([category, es]) => {
+              setEntityCategory({
+                entityId: e.id,
+                sliceIndex: parseInt(sidx),
+                category,
+                entries: Object.keys(es),
+              });
+            });
+          });
+        });
+      };
+      const redo = () => {
+        deleteEntities(input);
+      };
+      pushAction({undo, redo});
     });
   };
 
@@ -218,10 +410,18 @@ export function useTruncateEntities(): Pick<StateManipulation, 'truncateEntities
   const {doc} = useYjsContext();
   const comps = yjsComponentMap(doc);
 
+  const annoStore = useAnnoStoreRaw();
+  const {addComponents} = useAddComponents();
+  const {setEntityCategory} = useSetEntityCategory();
+  const pushAction = useAnnoHistoryStore(s => s.pushAction);
   const truncateEntities = (input: TruncateEntitiesInput) => {
     // TODO(xu): can be inefficient when there are too many components
     const {entityIds, sinceSliceIndex} = input;
 
+    const s = annoStore.getState();
+    const entities = deepClone(entityIds.map(eid => s.annotation.entities[eid]));
+
+    // update
     const cids: string[] = [];
     for (const [cid, comp] of comps.entries()) {
       if (!entityIds.includes(comp.eid)) {
@@ -243,6 +443,50 @@ export function useTruncateEntities(): Pick<StateManipulation, 'truncateEntities
         deleteComponentFromDoc(doc, cid, comp.type);
       });
     });
+
+    // history
+    const undo = () => {
+      // add back components
+      const inputs: AddComponentsInput[] = [];
+      entities.forEach(e => {
+        Object.entries(e.geometry.slices).map(([sidxStr, sliceComponents]) => {
+          const sidx = parseInt(sidxStr);
+          if (sidx < sinceSliceIndex) {
+            return;
+          }
+          const components = Object.values(sliceComponents).map(component => ({
+            sliceIndex: sidx,
+            component,
+          }));
+          inputs.push({entityId: e.id, components});
+        });
+      });
+      inputs.forEach(input => {
+        addComponents(input);
+      });
+
+      // add back categories
+      entities.forEach(e => {
+        Object.entries(e.sliceCategories ?? {}).forEach(([sidxStr, sliceCategories]) => {
+          const sidx = parseInt(sidxStr);
+          if (sidx < sinceSliceIndex) {
+            return;
+          }
+          Object.entries(sliceCategories).forEach(([category, es]) => {
+            setEntityCategory({
+              entityId: e.id,
+              sliceIndex: sidx,
+              category,
+              entries: Object.keys(es),
+            });
+          });
+        });
+      });
+    };
+    const redo = () => {
+      truncateEntities(input);
+    };
+    pushAction({undo, redo});
   };
 
   return {truncateEntities};
@@ -548,4 +792,14 @@ function deleteComponentFromDoc(doc: Y.Doc, cid: ComponentId, ctype: YjsComponen
       console.error('unexpected component type', ctype);
       break;
   }
+}
+
+export function getEntityCategory(e: Entity, category: string, sliceIndex?: SliceIndex): string[] {
+  if (sliceIndex !== undefined) {
+    const val = e.sliceCategories?.[sliceIndex]?.[category];
+    return Object.keys(val ?? {});
+  }
+
+  const val = e.globalCategories?.[category];
+  return Object.keys(val ?? {});
 }

@@ -28,6 +28,7 @@ function useComponentsListener() {
 
   useEffect(() => {
     const fn = (e: Y.YMapEvent<ComponentYjs>) => {
+      console.log(e);
       for (const [cid, cc] of e.changes.keys) {
         switch (cc.action) {
           case 'add': {
@@ -53,8 +54,8 @@ function useComponentsListener() {
               return;
             }
 
-            const {sliceIndex, entityId} = cc.oldValue;
-            transferComponent({sliceIndex, entityId, componentId: cid, targetEntityId: comp.eid});
+            const {sidx, eid} = cc.oldValue as ComponentYjs;
+            transferComponent({sliceIndex: sidx, entityId: eid, componentId: cid, targetEntityId: comp.eid});
             break;
           }
           case 'delete': {

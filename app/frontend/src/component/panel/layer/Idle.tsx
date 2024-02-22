@@ -4,7 +4,7 @@ import intl from 'react-intl-universal';
 import {v4 as uuidv4} from 'uuid';
 import {message} from 'antd';
 
-import {useTemporalAnnoStore} from 'state/annotate/annotation-temporal';
+import {useAnnoHistoryStore} from 'state/annotate/annotation-provider';
 import {EntityComponentId, useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
 import {useStore as useEditPolyStore} from 'state/annotate/polychain/edit';
@@ -160,7 +160,8 @@ function useRenderSettings(): RenderSetting[] {
 }
 
 const IdleLayerTemporal: FC = () => {
-  const {undo, redo} = useTemporalAnnoStore();
+  const undo = useAnnoHistoryStore(s => s.undo);
+  const redo = useAnnoHistoryStore(s => s.redo);
   useHotkeys('ctrl+z, meta+z', () => undo());
   useHotkeys('ctrl+shift+z, meta+shift+z', () => redo());
   return <></>;
