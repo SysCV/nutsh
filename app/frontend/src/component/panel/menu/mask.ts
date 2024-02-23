@@ -9,7 +9,7 @@ import {ConfigContext} from 'common/context';
 import {expand, rleCountsFromStringCOCO, rleCountsToStringCOCO, shrink} from 'common/algorithm/rle';
 import {Mask, TrackReq} from 'openapi/nutsh';
 import {correctSliceUrl} from 'common/route';
-import {useAddComponents} from 'state/annotate/annotation-broadcast';
+import {useAddDeleteComponents} from 'state/annotate/annotation-broadcast';
 
 export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
   const config = useContext(ConfigContext);
@@ -22,7 +22,7 @@ export function useActions(mask: MaskComponent, eid: EntityId): Action[] {
   const currentSliceIndex = useRenderStore(s => s.sliceIndex);
   const currentSliceUrl = useRenderStore(s => correctSliceUrl(s.sliceUrls[s.sliceIndex]));
   const subsequentSliceUrls = useRenderStore(s => s.sliceUrls.slice(s.sliceIndex + 1).map(correctSliceUrl));
-  const {addComponents} = useAddComponents();
+  const {addComponents} = useAddDeleteComponents();
 
   const track = useCallback(
     (mask: MaskComponent) => {

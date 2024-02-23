@@ -9,7 +9,7 @@ import {useStore as useRenderStore} from 'state/annotate/render';
 import type {EntityId, ComponentId} from 'type/annotation';
 import {getSlice} from 'state/annotate/annotation';
 import {
-  useDeleteComponents,
+  useAddDeleteComponents,
   useDeleteEntities,
   usePaste,
   useSeparateComponent,
@@ -31,7 +31,7 @@ export function useComponentActions(entityId: EntityId, componentId: ComponentId
   const sliceIndex = useRenderStore(s => s.sliceIndex);
 
   const {separateComponent} = useSeparateComponent();
-  const {deleteComponents} = useDeleteComponents();
+  const {deleteComponents} = useAddDeleteComponents();
   const startManipulation = useRenderStore(s => s.manipulate.start);
 
   const nc = useAnnoStore(
@@ -80,7 +80,7 @@ export function useEntityActions(): Action[] {
   const sliceIndex = useRenderStore(s => s.sliceIndex);
 
   const {deleteEntities} = useDeleteEntities();
-  const {deleteComponents} = useDeleteComponents();
+  const {deleteComponents} = useAddDeleteComponents();
   const {truncateEntities} = useTruncateEntities();
 
   // copy
