@@ -1,0 +1,25 @@
+{
+  "name": "yjs-server",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "lint": "eslint src/"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.20",
+    "@types/ws": "^8.5.10",
+    "@vercel/style-guide": "^5.2.0",
+    "eslint": "^8.57.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "dependencies": {
+    "nodemon": "^3.1.0",
+    "ws": "^8.16.0",
+    "y-websocket": "^1.5.4",
+    "yjs": "^13.6.12"
+  },
+  "engines": {
+    "node": ">=v20.10.0"
+  }
+}
