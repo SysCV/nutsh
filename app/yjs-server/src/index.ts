@@ -1,7 +1,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import * as Y from "yjs";
-import { WebSocket } from "ws";
+import { WebSocketServer } from "ws";
 import { setupWSConnection, setPersistence } from "y-websocket/bin/utils";
 
 const dataDir = process.env.DATA_DIR;
@@ -14,7 +14,9 @@ const server = http.createServer((_, response) => {
   response.end("ok");
 });
 
-const wss = new WebSocket.Server({ noServer: true });
+// Do not use `new WebSocket.Server` but `new WebSocketServer`. Otherwise, it will panic at runtime after bundling.
+// https://github.com/websockets/ws/issues/1538#issuecomment-944859160
+const wss = new WebSocketServer({ noServer: true });
 
 const urlPtn = /^\/video\/(?<id>[0-9a-zA-Z]+)$/;
 wss.on("connection", (ws, req) => {

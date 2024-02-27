@@ -3,18 +3,28 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "build": "cross-env TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack",
+    "bundle": "pkg --output bin/yjs-server dist/yjs-server.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.20",
+    "@types/webpack-node-externals": "^3.0.4",
     "@types/ws": "^8.5.10",
     "@vercel/style-guide": "^5.2.0",
+    "@yao-pkg/pkg": "^5.11.4",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
+    "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "bufferutil": "^4.0.8",
     "nodemon": "^3.1.0",
+    "utf-8-validate": "^6.0.3",
     "ws": "^8.16.0",
     "y-websocket": "^1.5.4",
     "yjs": "^13.6.12"
