@@ -1,11 +1,11 @@
 import {useQuery, useMutation} from '@tanstack/react-query';
-import {createYjsProvider} from '@y-sweet/client';
 import {NutshClientContext} from 'common/context';
 import {useYjsContext} from 'common/yjs/context';
 import {writeAnnotationToYjs, readAnnotationFromYjs} from 'common/yjs/convert';
 import type {NutshClient, DefaultService, Video} from 'openapi/nutsh';
 import {mustDecodeJsonStr as mustDecodeAnnotationJsonStr} from 'type/annotation';
 import {useContext} from 'react';
+import {WebsocketProvider} from 'y-websocket';
 
 /**
  * @deprecated Use `useGetVideoAnnotationYjs`.
@@ -32,17 +32,9 @@ export const useGetVideoAnnotationYjs = (id: Video['id']) => {
   return useQuery({
     queryKey: ['getVideoAnnotationV2', id],
     queryFn: async () => {
+      // connect to the yjs server
       const origin = wsOrigin();
-      const clientToken = {
-        url: `${origin}/ws/doc/ws`,
-        docId: `${id}`,
-      };
-
-      // connect the yjs doc to the Y-Sweet server
-      const provider = createYjsProvider(doc, clientToken, {
-        // disable cross-tab BroadcastChannel communication
-        disableBc: true,
-      });
+      const provider = new WebsocketProvider(origin, `ws/video/${id}`, doc);
 
       // reconstruct the initial annotation
       const annoJson = await new Promise<string>(resolve => {

@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -55,12 +54,10 @@ func Start(ctx context.Context) error {
 	}
 	e.Use(middlewares...)
 
-	// proxy y-sweet ws
-	ysweetPort := mustStartYSweetServer()
+	// proxy yjs-server ws
+	yjsPort := mustStartYJSServer()
 	e.Any("/ws/*", func(c echo.Context) error {
-		// y-sweet server hard-coded the listening host as `127.0.0.1`, which prevents remote machines to access.
-		// https://github.com/drifting-in-space/y-sweet/blob/0f5bcfd05dfc744c01bb06f202ce6c97a1aebb49/crates/y-sweet/src/main.rs#L158
-		target := fmt.Sprintf("http://127.0.0.1:%d", ysweetPort)
+		target := fmt.Sprintf("http://127.0.0.1:%d", yjsPort)
 		targetUrl, err := url.Parse(target)
 		if err != nil {
 			return err
@@ -220,13 +217,13 @@ func databaseDir() string {
 	return filepath.Join(StorageOption.Workspace, "database")
 }
 
-func mustStartYSweetServer() int {
+func mustStartYJSServer() int {
 	// create a temporary file
-	bin, err := os.CreateTemp("", "y-sweet-*")
+	bin, err := os.CreateTemp("", "nutsh-yjs-*")
 	mustOk(err)
 
 	// write the embedded binary to the temporary file
-	_, err = bin.Write(StartOption.YSweetBin)
+	_, err = bin.Write(StartOption.YJSServer)
 	mustOk(err)
 	mustOk(bin.Close())
 
@@ -238,8 +235,12 @@ func mustStartYSweetServer() int {
 	dir := filepath.Join(StorageOption.Workspace, "yjs")
 
 	// execute the binary in a new process
-	cmd := exec.Command(bin.Name(), "serve", "--port", strconv.Itoa(internalPort), dir)
-	zap.L().Info("start y-sweet server", zap.Int("port", internalPort), zap.String("dir", dir))
+	cmd := exec.Command(bin.Name())
+	cmd.Env = []string{
+		fmt.Sprintf("PORT=%d", internalPort),
+		fmt.Sprintf("DATA_DIR=%s", dir),
+	}
+	zap.L().Info("start yjs-server server", zap.Int("port", internalPort), zap.String("dir", dir))
 
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout

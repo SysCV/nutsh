@@ -17,7 +17,6 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@react-hook/window-size": "^3.1.1",
     "@tanstack/react-query": "^4.14.1",
-    "@y-sweet/client": "^0.1.0",
     "antd": "^5.7.3",
     "crypto-js": "^4.1.1",
     "deep-equal": "^2.1.0",
@@ -42,6 +41,7 @@
     "ts-key-enum": "^2.0.12",
     "typescript": "^5.1.6",
     "uuid": "^9.0.0",
+    "y-websocket": "^1.5.4",
     "yjs": "^13.6.12",
     "zundo": "^2.0.0-beta.5",
     "zustand": "^4.1.4"
