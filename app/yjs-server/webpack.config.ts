@@ -1,6 +1,5 @@
 import path from "node:path";
 import type { Configuration } from "webpack";
-// import nodeExternals from "webpack-node-externals";
 
 const config: Configuration = {
   target: "node",
@@ -13,6 +12,9 @@ const config: Configuration = {
   },
   resolve: {
     extensions: [".ts", ".js"],
+    alias: {
+      "@@frontend": path.resolve(__dirname, "../frontend/src/"),
+    },
   },
   module: {
     rules: [
@@ -23,7 +25,6 @@ const config: Configuration = {
       },
     ],
   },
-  // externals: [nodeExternals()],
 };
 
 // eslint-disable-next-line import/no-default-export -- fine

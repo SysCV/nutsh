@@ -4,7 +4,7 @@ import {Spin, Tag} from 'antd';
 import intl from 'react-intl-universal';
 import {Tensor} from 'onnxruntime-web';
 import shallow from 'zustand/shallow';
-import {relativeMousePosition} from 'common/util';
+import {relativeMousePosition} from 'common/mouse';
 import {coordinatesCanvasToImage, coordinatesImageToCanvas, limitGrid} from 'common/geometry';
 import {drawRect} from 'common/draw';
 import {SurroundStyle} from 'common/constant';

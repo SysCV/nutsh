@@ -1,4 +1,4 @@
-import {EntityId, SliceIndex} from 'type/annotation';
+import type {EntityId, SliceIndex} from '@@frontend/type/annotation';
 import * as Y from 'yjs';
 
 export type CategoryList = string[];

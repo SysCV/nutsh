@@ -1,8 +1,12 @@
 // eslint-disable-next-line node/no-unpublished-require
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
 
 module.exports = {
   webpack: {
+    alias: {
+      '@@frontend': path.resolve(__dirname, 'src/'),
+    },
     configure: config => {
       config.plugins.push(
         new CopyWebpackPlugin({

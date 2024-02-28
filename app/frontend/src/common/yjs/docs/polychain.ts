@@ -1,5 +1,5 @@
 import * as Y from 'yjs';
-import {Vertex} from 'type/annotation';
+import type {Vertex} from '@@frontend/type/annotation';
 
 export type PolychainVertices = Y.Array<Vertex>;
 

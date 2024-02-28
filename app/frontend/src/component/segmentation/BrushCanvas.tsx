@@ -6,7 +6,7 @@ import {coordinatesCanvasToImage, coordinatesImageToCanvas, distance} from 'comm
 import {FocusOpacity} from 'common/constant';
 import {convertRGBA2Hex} from 'common/color';
 import {Coordinates} from 'type/annotation';
-import {relativeMousePosition} from 'common/util';
+import {relativeMousePosition} from 'common/mouse';
 import {updateImageRendering, useCanvasContext} from '../panel/layer/mask/common';
 import {ViewportTransform} from 'state/annotate/render/viewport';
 import {Alert, Button, Popover, Slider, Space, Tag, Tooltip, Typography, theme} from 'antd';

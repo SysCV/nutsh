@@ -1,5 +1,5 @@
 import * as Y from 'yjs';
-import {RectangleComponent} from 'type/annotation';
+import type {RectangleComponent} from '@@frontend/type/annotation';
 
 export type RectangleAnchors = Pick<RectangleComponent, 'topLeft' | 'bottomRight'>;
 

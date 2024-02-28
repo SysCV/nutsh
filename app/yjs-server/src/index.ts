@@ -1,13 +1,18 @@
 import http from "node:http";
-import fs from "node:fs";
-import * as Y from "yjs";
 import { WebSocketServer } from "ws";
 import { setupWSConnection, setPersistence } from "y-websocket/bin/utils";
+import { verbose, Database } from "sqlite3";
+// TODO(xu): introduce workspace to mute relative import warning
+import { writeAnnotationToYjs, readAnnotationFromYjs } from "../../frontend/src/common/yjs/convert";
+import { mustDecodeJsonStr as mustDecodeAnnotationJsonStr } from "../../frontend/src/type/annotation";
 
-const dataDir = process.env.DATA_DIR;
-if (!dataDir) {
-  throw new Error("missing DATA_DIR");
+const databasePath = process.env.DATABASE_PATH;
+if (!databasePath) {
+  throw new Error("missing DATABASE_PATH");
 }
+
+verbose();
+const db = new Database(databasePath);
 
 const server = http.createServer((_, response) => {
   response.writeHead(200, { "Content-Type": "text/plain" });
@@ -39,23 +44,47 @@ server.on("upgrade", (request, socket, head) => {
 // https://github.com/yjs/y-websocket/blob/1638374702d694e5b58ea89d291fdf9d41faa09a/bin/utils.js#L34
 // https://github.com/yjs/y-websocket/issues/76
 setPersistence({
-  bindState: async (docName, doc): Promise<void> => {
-    console.log("bindState", docName);
-
-    try {
-      const persisted = fs.readFileSync(`${dataDir}/${docName}.yjs`);
-      Y.applyUpdate(doc, persisted);
-    } catch (e) {
-      console.log(`initializing a new document for ${docName}`);
-    }
-
-    doc.on("update", () => {
-      // persist
-      fs.writeFileSync(`${dataDir}/${docName}.yjs`, Y.encodeStateAsUpdate(doc));
-    });
-
+  bindState: async (videoId, doc): Promise<void> => {
     return new Promise<void>((resolve) => {
-      resolve();
+      doc.on("update", () => {
+        const anno = readAnnotationFromYjs(doc);
+        db.run("UPDATE videos SET annotation_json = ? WHERE id = ?", [JSON.stringify(anno), videoId], (err) => {
+          if (err) {
+            console.error(`failed to save annotation for video ${videoId}`, err.message);
+            return;
+          }
+          console.log(`persisted annotation for video ${videoId}`);
+        });
+      });
+
+      db.get<{ anno: string | null }>(
+        "SELECT annotation_json AS anno FROM videos WHERE id = ?",
+        [videoId],
+        (err, row) => {
+          if (err) {
+            console.error(`failed to fetch annotation for video ${videoId}`, err.message);
+            resolve();
+            return;
+          }
+          const annoJsonStr = row.anno;
+          if (annoJsonStr === null) {
+            // no annotation
+            console.log(`initializing a new document for ${videoId}`);
+            resolve();
+            return;
+          }
+
+          // convert annotation to yjs doc
+          try {
+            const anno = mustDecodeAnnotationJsonStr(annoJsonStr);
+            writeAnnotationToYjs(anno, doc);
+          } catch (e) {
+            console.log(`failed to decode annotation json for ${videoId}`, e);
+          }
+
+          resolve();
+        }
+      );
     });
   },
   writeState: async () => {
@@ -67,7 +96,17 @@ setPersistence({
   },
 });
 
+server.on("close", () => {
+  db.close((err) => {
+    if (err) {
+      console.error("failed to close sqlite3", err.message);
+      return;
+    }
+    console.log("Closed the database connection.");
+  });
+});
+
 const port = process.env.PORT || 7777;
 server.listen(port, () => {
-  console.log("running", { port, dataDir });
+  console.log("running", { port, databasePath });
 });

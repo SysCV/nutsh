@@ -1,4 +1,4 @@
-import {Annotation, Component, Entity, EntityId, SliceIndex, Vertex} from 'type/annotation';
+import type {Annotation, Component, Entity, EntityId, SliceIndex, Vertex} from '@@frontend/type/annotation';
 import {deepClone} from './util';
 
 export function addAnnotationComponent(

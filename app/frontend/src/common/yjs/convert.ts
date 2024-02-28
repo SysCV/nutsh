@@ -1,5 +1,5 @@
-import {emptyAnnotation} from 'state/annotate/render';
-import {
+import * as Y from 'yjs';
+import type {
   Annotation,
   Component,
   ComponentId,
@@ -7,17 +7,16 @@ import {
   PolychainComponent,
   RectangleComponent,
   SliceIndex,
-} from 'type/annotation';
-import * as Y from 'yjs';
+} from '@@frontend/type/annotation';
+import {addAnnotationComponent, setEntityCategory} from '@@frontend/common/annotation';
 import {yjsComponentMap, Component as YjsComponent} from './docs/component';
 import {yjsRectangleAnchorsMap} from './docs/rectangle';
 import {yjsPolychainVerticesMap} from './docs/polychain';
 import {yjsMaskMap} from './docs/mask';
 import {encodeEntityCategoryMapKey, decodeEntityCategoryMapKey, yjsEntityCategoriesMap} from './docs/entity';
-import {addAnnotationComponent, setEntityCategory} from 'common/annotation';
 
 export function readAnnotationFromYjs(doc: Y.Doc): Annotation {
-  const anno = emptyAnnotation();
+  const anno: Annotation = {entities: {}};
 
   // components
   const comps = yjsComponentMap(doc);

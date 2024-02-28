@@ -1,5 +1,5 @@
 import * as Y from 'yjs';
-import {MaskComponent} from 'type/annotation';
+import type {MaskComponent} from '@@frontend/type/annotation';
 
 export type Mask = MaskComponent;
 

@@ -24,6 +24,7 @@
   "dependencies": {
     "bufferutil": "^4.0.8",
     "nodemon": "^3.1.0",
+    "sqlite3": "^5.1.7",
     "utf-8-validate": "^6.0.3",
     "ws": "^8.16.0",
     "y-websocket": "^1.5.4",

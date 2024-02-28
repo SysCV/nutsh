@@ -135,7 +135,7 @@ func createServer() (backend.Server, func(), error) {
 	var opts []backend.Option
 
 	// storage
-	db, err := sqlite3.New(filepath.Join(databaseDir(), "db.sqlite3"))
+	db, err := sqlite3.New(databasePath())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -217,6 +217,10 @@ func databaseDir() string {
 	return filepath.Join(StorageOption.Workspace, "database")
 }
 
+func databasePath() string {
+	return filepath.Join(databaseDir(), "db.sqlite3")
+}
+
 func mustStartYJSServer() int {
 	// create a temporary file
 	bin, err := os.CreateTemp("", "nutsh-yjs-*")
@@ -232,15 +236,14 @@ func mustStartYJSServer() int {
 
 	// prepare arguments
 	internalPort := mustFindFreePort()
-	dir := filepath.Join(StorageOption.Workspace, "yjs")
 
 	// execute the binary in a new process
 	cmd := exec.Command(bin.Name())
 	cmd.Env = []string{
 		fmt.Sprintf("PORT=%d", internalPort),
-		fmt.Sprintf("DATA_DIR=%s", dir),
+		fmt.Sprintf("DATABASE_PATH=%s", databasePath()),
 	}
-	zap.L().Info("start yjs-server server", zap.Int("port", internalPort), zap.String("dir", dir))
+	zap.L().Info("start yjs-server server", zap.Int("port", internalPort))
 
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
