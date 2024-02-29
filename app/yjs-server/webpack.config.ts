@@ -25,6 +25,12 @@ const config: Configuration = {
       },
     ],
   },
+  externals: {
+    // Node native addons need to be packed specially. Also check `pkg.json`
+    // https://stackoverflow.com/questions/46465037/how-to-package-sqlite3-in-node-js-executable-packages
+    // https://github.com/TryGhost/node-sqlite3/issues/698#issuecomment-354129269
+    sqlite3: "commonjs sqlite3",
+  },
 };
 
 // eslint-disable-next-line import/no-default-export -- fine

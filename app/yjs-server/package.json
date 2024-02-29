@@ -5,7 +5,7 @@
     "dev": "nodemon src/index.ts",
     "lint": "eslint src/",
     "build": "cross-env TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack",
-    "bundle": "pkg --output bin/yjs-server dist/yjs-server.js"
+    "bundle": "pkg -c pkg.json --output bin/yjs-server dist/yjs-server.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.20",
