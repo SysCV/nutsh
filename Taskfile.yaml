@@ -16,6 +16,7 @@ vars:
 includes:
   frontend: task/frontend.yaml
   backend: task/backend.yaml
+  yjs: task/yjs.yaml
   e2e: task/e2e.yaml
   container: task/container.yaml
   deploy: task/deploy.yaml
@@ -45,6 +46,7 @@ tasks:
   build:
     cmds:
       - rm -f build/nutsh
+      - task: yjs:build
       - task: frontend:build
       - task: docs:build
       - task: backend:build

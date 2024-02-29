@@ -1,0 +1,18 @@
+version: "3"
+
+tasks:
+  start:
+    cmds:
+      - npm run dev
+    dir: app/yjs-server
+
+  pack:
+    cmds:
+      - npm run pack
+    dir: app/yjs-server
+
+  build:
+    deps: [pack]
+    cmds:
+      - npm run build
+    dir: app/yjs-server
