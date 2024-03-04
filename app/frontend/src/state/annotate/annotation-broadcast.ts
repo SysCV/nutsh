@@ -669,9 +669,9 @@ export function useUpdateSliceMasks(): Pick<StateManipulation, 'updateSliceMasks
     ]);
 
     doc.transact(() => {
-      adds.forEach(({entityId: eid, component: c}) => {
-        masks.set(c.id, c);
-        comps.set(c.id, {type: 'mask', sidx, eid});
+      adds.forEach(({entityId: eid, component: {id, ...mask}}) => {
+        masks.set(id, mask);
+        comps.set(id, {type: 'mask', sidx, eid});
       });
       removes.forEach(({componentId: cid}) => {
         deleteComponentFromDoc(doc, cid, 'mask');
@@ -874,9 +874,9 @@ function addComponentToDoc(doc: Y.Doc, input: AddComponentInput) {
       break;
     }
     case 'mask': {
-      const {id: cid, type} = component;
+      const {id: cid, type, ...rest} = component;
       doc.transact(() => {
-        masks.set(cid, component);
+        masks.set(cid, {type, ...rest});
         comps.set(cid, {type, sidx, eid});
       });
       break;

@@ -28,12 +28,16 @@ function useComponentsListener() {
 
   useEffect(() => {
     const fn = (e: Y.YMapEvent<ComponentYjs>) => {
-      console.log(e);
       for (const [cid, cc] of e.changes.keys) {
         switch (cc.action) {
           case 'add': {
             const info = comps.get(cid);
             if (!info) {
+              break;
+            }
+
+            if (info.type === 'mask') {
+              // adding mask will be handled in `useMasksListener`
               break;
             }
 

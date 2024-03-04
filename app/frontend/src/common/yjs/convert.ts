@@ -89,7 +89,7 @@ export function readComponent(doc: Y.Doc, cid: ComponentId, info: YjsComponent):
       }
       const {topLeft, bottomRight} = rect;
       const comp: RectangleComponent = {type: 'rectangle', topLeft, bottomRight};
-      return {id: cid, ...comp};
+      return {...comp, id: cid};
     }
     case 'polychain': {
       const vs = verts.get(cid);
@@ -100,7 +100,7 @@ export function readComponent(doc: Y.Doc, cid: ComponentId, info: YjsComponent):
       }
       const {closed} = info;
       const comp: PolychainComponent = {type: 'polychain', vertices: vs.toArray(), closed};
-      return {id: cid, ...comp};
+      return {...comp, id: cid};
     }
     case 'mask': {
       const mask = masks.get(cid);
@@ -109,7 +109,7 @@ export function readComponent(doc: Y.Doc, cid: ComponentId, info: YjsComponent):
         comps.delete(cid);
         break;
       }
-      return {id: cid, ...mask};
+      return {...mask, id: cid};
     }
     default:
       console.warn('unexpected');
@@ -126,8 +126,8 @@ function writeComponent(doc: Y.Doc, comp: Component, eid: EntityId, sidx: SliceI
   switch (comp.type) {
     case 'mask':
       doc.transact(() => {
-        const {id: cid, type} = comp;
-        masks.set(cid, comp);
+        const {id: cid, type, ...rest} = comp;
+        masks.set(cid, {type, ...rest});
         comps.set(cid, {type, sidx, eid});
       });
       break;
