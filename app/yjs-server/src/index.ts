@@ -57,7 +57,7 @@ setPersistence({
         });
       });
 
-      db.get<{ anno: string | null }>(
+      db.get<{ anno: string | null } | undefined>(
         "SELECT annotation_json AS anno FROM videos WHERE id = ?",
         [videoId],
         (err, row) => {
@@ -66,6 +66,11 @@ setPersistence({
             resolve();
             return;
           }
+          if (!row) {
+            resolve();
+            return;
+          }
+
           const annoJsonStr = row.anno;
           if (annoJsonStr === null) {
             // no annotation

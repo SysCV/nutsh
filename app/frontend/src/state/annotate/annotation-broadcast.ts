@@ -150,7 +150,7 @@ export function useSeparateComponent(): Pick<StateManipulation, 'separateCompone
         break;
       }
       case 'polychain': {
-        const vs = verts.get(cid);
+        const vs = verts.get(cid)?.clone();
         if (!vs) {
           console.warn(`polychain vertices for ${cid} not found`);
           return;
@@ -158,7 +158,7 @@ export function useSeparateComponent(): Pick<StateManipulation, 'separateCompone
         doc.transact(() => {
           comps.delete(cid);
           verts.delete(cid);
-          verts.set(newComponentId, vs.clone());
+          verts.set(newComponentId, vs);
           comps.set(newComponentId, {...comp, eid: newEntityId});
         });
         break;
