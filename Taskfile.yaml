@@ -54,6 +54,7 @@ tasks:
   build-dev:
     cmds:
       - rm -f build/nutsh-dev
+      - task: yjs:build
       - task: frontend:build-dev
       - task: backend:build
       - mv build/nutsh build/nutsh-dev
