@@ -38,10 +38,10 @@ jobs:
               task frontend:build && \
               task docs:build
             RUN \
-              GOOS=linux GOARCH=amd64 task backend:build && mv build/nutsh build/nutsh-Linux-x86_64 && \
-              GOOS=linux GOARCH=arm64 task backend:build && mv build/nutsh build/nutsh-Linux-arm64 && \
-              GOOS=darwin GOARCH=amd64 task backend:build && mv build/nutsh build/nutsh-Darwin-x86_64 && \
-              GOOS=darwin GOARCH=arm64 task backend:build && mv build/nutsh build/nutsh-Darwin-arm64
+              GOOS=linux GOARCH=amd64 task yjs:build && task backend:build && mv build/nutsh build/nutsh-Linux-x86_64 && \
+              GOOS=linux GOARCH=arm64 task yjs:build && task backend:build && mv build/nutsh build/nutsh-Linux-arm64 && \
+              GOOS=darwin GOARCH=amd64 task yjs:build && task backend:build && mv build/nutsh build/nutsh-Darwin-x86_64 && \
+              GOOS=darwin GOARCH=arm64 task yjs:build && task backend:build && mv build/nutsh build/nutsh-Darwin-arm64
             RUN \
               GOOS=linux GOARCH=amd64 task sam:build && mv build/nutsh-sam build/nutsh-sam-Linux-x86_64 && \
               GOOS=linux GOARCH=arm64 task sam:build && mv build/nutsh-sam build/nutsh-sam-Linux-arm64 && \
