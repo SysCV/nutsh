@@ -1,8 +1,16 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference -- fine
+/// <reference path="../../frontend/src/common/yjs/y-websocket.d.ts" />
+
 import http from "node:http";
 import { WebSocketServer } from "ws";
-import { setupWSConnection, setPersistence } from "y-websocket/bin/utils";
 import { verbose, Database } from "sqlite3";
-// TODO(xu): introduce workspace to mute relative import warning
+// If I install and import `yjs` directly from this package, a warning will show:
+// - Yjs was already imported. This breaks constructor checks and will lead to issues!
+// - https://github.com/yjs/yjs/issues/438
+// To resolve it, we import the yjs from the `frontend` package.
+// It is not elegant, but only as a temporary workaround.
+// TODO(xu): introduce workspace to better organize projects.
+import { setupWSConnection, setPersistence } from "../../frontend/src/common/yjs";
 import { writeAnnotationToYjs, readAnnotationFromYjs } from "../../frontend/src/common/yjs/convert";
 import { mustDecodeJsonStr as mustDecodeAnnotationJsonStr } from "../../frontend/src/type/annotation";
 
