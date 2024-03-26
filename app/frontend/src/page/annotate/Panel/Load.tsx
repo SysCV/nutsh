@@ -3,13 +3,12 @@ import intl from 'react-intl-universal';
 import {Alert} from 'antd';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useAnnoStore} from 'state/annotate/annotation-provider';
-import {useGetVideoAnnotationYjs} from 'state/server/annotation';
 import {useGetVideo} from 'state/server/video';
 import {NutshClientContext} from 'common/context';
 import PageLayout from 'page/Layout';
-import {mustDecodeJsonStr as mustDecodeAnnotationJsonStr} from 'type/annotation';
 import type {Video} from 'openapi/nutsh';
 import {PanelLoadProject} from './LoadProject';
+import {useJoinYjs} from '@@frontend/state/server/annotation';
 
 export const PanelLoad: FC<{id: Video['id']}> = ({id}) => {
   const client = useContext(NutshClientContext);
@@ -20,41 +19,34 @@ export const PanelLoad: FC<{id: Video['id']}> = ({id}) => {
   const setAnnotation = useAnnoStore(s => s.setAnnotation);
 
   // server state
-  const {isFetching: isFetchingVideo, data: getVideoData} = useGetVideo(client, id);
-  const {isFetching: isFetchingAnno, data: getVideoAnnotationData} = useGetVideoAnnotationYjs(id);
+  const {isFetching: isFetchingVideo, data: videoData} = useGetVideo(client, id);
+
+  // yjs
+  useJoinYjs(id);
 
   // local state
   const [errorCode, setErrorCode] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    if (!getVideoAnnotationData) return;
-    if (!getVideoData) return;
+    if (!videoData) return;
 
     setErrorCode(undefined);
-    const {annotation_json: annoJson, annotation_version: annoVersion} = getVideoAnnotationData;
-    const {frame_urls: frameUrls} = getVideoData.video;
+    const {frame_urls: frameUrls} = videoData.video;
     if (!frameUrls || frameUrls.length === 0) {
       setErrorCode('error.missing_video_frames');
       return;
     }
 
-    try {
-      const annotation = annoJson ? mustDecodeAnnotationJsonStr(annoJson) : undefined;
-      setAnnotation(annotation);
-      startAnnotation(frameUrls, annoVersion);
-    } catch (e) {
-      console.error((e as Error).cause);
-      setErrorCode('error.invalid_annotation_json');
-    }
-  }, [getVideoData, getVideoAnnotationData, setAnnotation, startAnnotation]);
+    startAnnotation(frameUrls, '');
+  }, [videoData, setAnnotation, startAnnotation]);
 
-  if (!isLoaded || !getVideoData) {
+  if (!isLoaded || !videoData) {
     return (
-      <PageLayout loading={isFetchingAnno || isFetchingVideo}>
+      <PageLayout loading={isFetchingVideo}>
         {errorCode && <Alert showIcon={true} type="error" message={intl.get(errorCode)} />}
       </PageLayout>
     );
   }
 
-  return <PanelLoadProject video={getVideoData.video} />;
+  return <PanelLoadProject video={videoData.video} />;
 };

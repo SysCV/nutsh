@@ -1,7 +1,7 @@
 import {useQuery, useMutation} from '@tanstack/react-query';
 import {useYjsContext} from 'common/yjs/context';
-import {readAnnotationFromYjs} from 'common/yjs/convert';
 import type {NutshClient, DefaultService, Video} from 'openapi/nutsh';
+import {useEffect} from 'react';
 import {WebsocketProvider} from 'y-websocket';
 
 /**
@@ -23,31 +23,12 @@ export const usePatchVideoAnnotation = (client: NutshClient) => {
   });
 };
 
-export const useGetVideoAnnotationYjs = (id: Video['id']) => {
+export const useJoinYjs = (id: Video['id']) => {
   const {doc} = useYjsContext();
-  return useQuery({
-    queryKey: ['getVideoAnnotationV2', id],
-    queryFn: async () => {
-      // connect to the yjs server
-      const origin = wsOrigin();
-      const provider = new WebsocketProvider(origin, `ws/video/${id}`, doc);
-
-      // reconstruct the initial annotation
-      const annoJson = await new Promise<string>(resolve => {
-        provider.on('sync', async (isSynced: boolean) => {
-          if (!isSynced) {
-            return;
-          }
-          const anno = readAnnotationFromYjs(doc);
-
-          // stringify for backward-compatibility
-          resolve(JSON.stringify(anno));
-        });
-      });
-
-      return {annotation_json: annoJson, annotation_version: ''};
-    },
-  });
+  useEffect(() => {
+    const origin = wsOrigin();
+    new WebsocketProvider(origin, `ws/video/${id}`, doc);
+  }, [doc, id]);
 };
 
 function wsOrigin(): string {
