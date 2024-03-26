@@ -53,29 +53,18 @@ server.on("upgrade", (request, socket, head) => {
 // https://github.com/yjs/y-websocket/issues/76
 setPersistence({
   bindState: async (videoId, doc): Promise<void> => {
-    return new Promise<void>((resolve) => {
-      doc.on("update", () => {
-        const anno = readAnnotationFromYjs(doc);
-        db.run("UPDATE videos SET annotation_json = ? WHERE id = ?", [JSON.stringify(anno), videoId], (err) => {
-          if (err) {
-            console.error(`failed to save annotation for video ${videoId}`, err.message);
-            return;
-          }
-          console.log(`persisted annotation for video ${videoId}`);
-        });
-      });
-
+    return new Promise<void>((resolve, reject) => {
       db.get<{ anno: string | null } | undefined>(
         "SELECT annotation_json AS anno FROM videos WHERE id = ?",
         [videoId],
         (err, row) => {
           if (err) {
             console.error(`failed to fetch annotation for video ${videoId}`, err.message);
-            resolve();
+            reject(err);
             return;
           }
           if (!row) {
-            resolve();
+            reject(new Error("video not found"));
             return;
           }
 
@@ -93,7 +82,24 @@ setPersistence({
             writeAnnotationToYjs(anno, doc);
           } catch (e) {
             console.log(`failed to decode annotation json for ${videoId}`, e);
+            reject(new Error("failed to decode annotation json"));
+            return;
           }
+
+          // It is IMPORTANT to start listenning the `update` event AFTER the conversion,
+          // since the conversion itself will trigger the update event.
+          doc.on("update", () => {
+            console.log(`doc updated for video ${videoId}`);
+
+            const a = readAnnotationFromYjs(doc);
+            db.run("UPDATE videos SET annotation_json = ? WHERE id = ?", [JSON.stringify(a), videoId], (e) => {
+              if (e) {
+                console.error(`failed to save annotation for video ${videoId}`, e.message);
+              } else {
+                console.log(`persisted annotation for video ${videoId}`);
+              }
+            });
+          });
 
           resolve();
         }

@@ -32,7 +32,7 @@ func (s *mServer) GetOnlineSegmentation(ctx context.Context, request nutshapi.Ge
 	return resp, nil
 }
 
-func (s *mServer) getOnlineSegmentation(ctx context.Context, request nutshapi.GetOnlineSegmentationRequestObject) (nutshapi.GetOnlineSegmentationResponseObject, error) {
+func (s *mServer) getOnlineSegmentation(ctx context.Context, _ nutshapi.GetOnlineSegmentationRequestObject) (nutshapi.GetOnlineSegmentationResponseObject, error) {
 	opts := s.options
 	store := opts.storagePublic
 

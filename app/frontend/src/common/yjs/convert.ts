@@ -55,22 +55,25 @@ export function readAnnotationFromYjs(doc: Y.Doc): Annotation {
 }
 
 export function writeAnnotationToYjs(anno: Annotation, doc: Y.Doc): void {
-  Object.entries(anno.entities).forEach(([eid, entity]) => {
-    Object.entries(entity.geometry.slices).forEach(([sidx, slice]) => {
-      Object.values(slice).forEach(comp => {
-        writeComponent(doc, comp, eid, parseInt(sidx));
+  // Wrap the writing in a single transaction to make sure that only ONE `update` event is triggered.
+  // https://beta.yjs.dev/docs/api/transactions/#optimizing-bulk-changes
+  doc.transact(() => {
+    Object.entries(anno.entities).forEach(([eid, entity]) => {
+      Object.entries(entity.geometry.slices).forEach(([sidx, slice]) => {
+        Object.values(slice).forEach(comp => {
+          writeComponent(doc, comp, eid, parseInt(sidx));
+        });
       });
-    });
-    Object.entries(entity.globalCategories || {}).forEach(([cat, entries]) => {
-      writeEntityCategory(doc, Object.keys(entries), cat, eid);
-    });
-    Object.entries(entity.sliceCategories || {}).forEach(([sidx, scats]) => {
-      Object.entries(scats).forEach(([cat, entries]) => {
-        writeEntityCategory(doc, Object.keys(entries), cat, eid, parseInt(sidx));
+      Object.entries(entity.globalCategories || {}).forEach(([cat, entries]) => {
+        writeEntityCategory(doc, Object.keys(entries), cat, eid);
+      });
+      Object.entries(entity.sliceCategories || {}).forEach(([sidx, scats]) => {
+        Object.entries(scats).forEach(([cat, entries]) => {
+          writeEntityCategory(doc, Object.keys(entries), cat, eid, parseInt(sidx));
+        });
       });
     });
   });
-  return;
 }
 
 export function readComponent(doc: Y.Doc, cid: ComponentId, info: YjsComponent): Component | undefined {
@@ -124,27 +127,24 @@ function writeComponent(doc: Y.Doc, comp: Component, eid: EntityId, sidx: SliceI
   const masks = yjsMaskMap(doc);
 
   switch (comp.type) {
-    case 'mask':
-      doc.transact(() => {
-        const {id: cid, type, ...rest} = comp;
-        masks.set(cid, {type, ...rest});
-        comps.set(cid, {type, sidx, eid});
-      });
+    case 'mask': {
+      const {id: cid, type, ...rest} = comp;
+      masks.set(cid, {type, ...rest});
+      comps.set(cid, {type, sidx, eid});
       break;
-    case 'polychain':
-      doc.transact(() => {
-        const {id: cid, type, vertices, closed} = comp;
-        verts.set(cid, Y.Array.from(vertices));
-        comps.set(cid, {type, sidx, eid, closed});
-      });
+    }
+    case 'polychain': {
+      const {id: cid, type, vertices, closed} = comp;
+      verts.set(cid, Y.Array.from(vertices));
+      comps.set(cid, {type, sidx, eid, closed});
       break;
-    case 'rectangle':
-      doc.transact(() => {
-        const {id: cid, topLeft, bottomRight, type} = comp;
-        anchors.set(cid, {topLeft, bottomRight});
-        comps.set(cid, {type, sidx, eid});
-      });
+    }
+    case 'rectangle': {
+      const {id: cid, topLeft, bottomRight, type} = comp;
+      anchors.set(cid, {topLeft, bottomRight});
+      comps.set(cid, {type, sidx, eid});
       break;
+    }
   }
 }
 

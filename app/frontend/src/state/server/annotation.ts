@@ -1,10 +1,7 @@
 import {useQuery, useMutation} from '@tanstack/react-query';
-import {NutshClientContext} from 'common/context';
 import {useYjsContext} from 'common/yjs/context';
-import {writeAnnotationToYjs, readAnnotationFromYjs} from 'common/yjs/convert';
+import {readAnnotationFromYjs} from 'common/yjs/convert';
 import type {NutshClient, DefaultService, Video} from 'openapi/nutsh';
-import {mustDecodeJsonStr as mustDecodeAnnotationJsonStr} from 'type/annotation';
-import {useContext} from 'react';
 import {WebsocketProvider} from 'y-websocket';
 
 /**
@@ -28,7 +25,6 @@ export const usePatchVideoAnnotation = (client: NutshClient) => {
 
 export const useGetVideoAnnotationYjs = (id: Video['id']) => {
   const {doc} = useYjsContext();
-  const client = useContext(NutshClientContext);
   return useQuery({
     queryKey: ['getVideoAnnotationV2', id],
     queryFn: async () => {
@@ -38,24 +34,11 @@ export const useGetVideoAnnotationYjs = (id: Video['id']) => {
 
       // reconstruct the initial annotation
       const annoJson = await new Promise<string>(resolve => {
-        provider.on('synced', async (isSynced: boolean) => {
+        provider.on('sync', async (isSynced: boolean) => {
           if (!isSynced) {
             return;
           }
-          let anno = readAnnotationFromYjs(doc);
-
-          if (Object.keys(anno.entities).length === 0) {
-            console.warn('try to read and convert old annotation');
-
-            // For backward-compatibity, if the annotation is empty, we fetch using the old API and convert.
-            const {annotation_json: oldAnnoStr} = await client.default.getVideoAnnotation({videoId: id});
-            if (oldAnnoStr) {
-              anno = mustDecodeAnnotationJsonStr(oldAnnoStr);
-
-              // write back so next time will not fallback
-              writeAnnotationToYjs(anno, doc);
-            }
-          }
+          const anno = readAnnotationFromYjs(doc);
 
           // stringify for backward-compatibility
           resolve(JSON.stringify(anno));
