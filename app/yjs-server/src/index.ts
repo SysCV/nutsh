@@ -65,13 +65,9 @@ setPersistence({
             reject(err);
             return;
           }
-          if (!row) {
-            reject(new Error("video not found"));
-            return;
-          }
 
-          const annoJsonStr = row.anno;
-          if (annoJsonStr === null) {
+          const annoJsonStr = row?.anno;
+          if (!annoJsonStr) {
             // no annotation
             console.log(`initializing a new document for ${videoId}`);
             resolve();
