@@ -237,12 +237,18 @@ func mustStartYJSServer() int {
 	// prepare arguments
 	internalPort := mustFindFreePort()
 
-	// execute the binary in a new process
-	cmd := exec.Command(bin.Name())
-	cmd.Env = []string{
+	// set envs
+	envs := []string{
 		fmt.Sprintf("PORT=%d", internalPort),
 		fmt.Sprintf("DATABASE_PATH=%s", databasePath()),
 	}
+	if StartOption.Readonly {
+		envs = append(envs, "READ_ONLY=true")
+	}
+
+	// execute the binary in a new process
+	cmd := exec.Command(bin.Name())
+	cmd.Env = envs
 	zap.L().Info("start yjs-server server", zap.Int("port", internalPort))
 
 	cmd.Stderr = os.Stderr

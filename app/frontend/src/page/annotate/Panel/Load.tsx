@@ -8,7 +8,7 @@ import {NutshClientContext} from 'common/context';
 import PageLayout from 'page/Layout';
 import type {Video} from 'openapi/nutsh';
 import {PanelLoadProject} from './LoadProject';
-import {useJoinYjs} from '@@frontend/state/server/annotation';
+import {useAnnotationSync} from '@@frontend/state/server/annotation';
 
 export const PanelLoad: FC<{id: Video['id']}> = ({id}) => {
   const client = useContext(NutshClientContext);
@@ -16,13 +16,18 @@ export const PanelLoad: FC<{id: Video['id']}> = ({id}) => {
   // client state
   const isLoaded = useRenderStore(s => s.sliceUrls.length > 0);
   const startAnnotation = useRenderStore(s => s.startAnnotation);
-  const setAnnotation = useAnnoStore(s => s.setAnnotation);
 
   // server state
   const {isFetching: isFetchingVideo, data: videoData} = useGetVideo(client, id);
 
-  // yjs
-  useJoinYjs(id);
+  // sync
+  const {initial} = useAnnotationSync(id);
+  const setAnnotation = useAnnoStore(s => s.setAnnotation);
+  useEffect(() => {
+    if (initial) {
+      setAnnotation(initial);
+    }
+  }, [initial, setAnnotation]);
 
   // local state
   const [errorCode, setErrorCode] = useState<string | undefined>(undefined);
@@ -38,15 +43,17 @@ export const PanelLoad: FC<{id: Video['id']}> = ({id}) => {
     }
 
     startAnnotation(frameUrls, '');
-  }, [videoData, setAnnotation, startAnnotation]);
+  }, [videoData, startAnnotation]);
 
-  if (!isLoaded || !videoData) {
+  if (!isLoaded || !videoData || initial === undefined || errorCode) {
     return (
-      <PageLayout loading={isFetchingVideo}>
+      <PageLayout loading={isFetchingVideo || initial === undefined}>
         {errorCode && <Alert showIcon={true} type="error" message={intl.get(errorCode)} />}
       </PageLayout>
     );
   }
 
+  // Only AFTER the annotation is initialized should we render the panel, otherwise its yjs update listener will respond
+  // to the initialization, causing the page to re-render frequently and impossible to load heavy annotations.
   return <PanelLoadProject video={videoData.video} />;
 };

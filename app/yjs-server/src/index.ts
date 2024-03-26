@@ -19,6 +19,8 @@ if (!databasePath) {
   throw new Error("missing DATABASE_PATH");
 }
 
+const readOnly = process.env.READ_ONLY;
+
 verbose();
 const db = new Database(databasePath);
 
@@ -88,18 +90,22 @@ setPersistence({
 
           // It is IMPORTANT to start listenning the `update` event AFTER the conversion,
           // since the conversion itself will trigger the update event.
-          doc.on("update", () => {
-            console.log(`doc updated for video ${videoId}`);
+          if (readOnly) {
+            console.log("will NOT persist data in read-only mode");
+          } else {
+            doc.on("update", () => {
+              console.log(`doc updated for video ${videoId}`);
 
-            const a = readAnnotationFromYjs(doc);
-            db.run("UPDATE videos SET annotation_json = ? WHERE id = ?", [JSON.stringify(a), videoId], (e) => {
-              if (e) {
-                console.error(`failed to save annotation for video ${videoId}`, e.message);
-              } else {
-                console.log(`persisted annotation for video ${videoId}`);
-              }
+              const a = readAnnotationFromYjs(doc);
+              db.run("UPDATE videos SET annotation_json = ? WHERE id = ?", [JSON.stringify(a), videoId], (e) => {
+                if (e) {
+                  console.error(`failed to save annotation for video ${videoId}`, e.message);
+                } else {
+                  console.log(`persisted annotation for video ${videoId}`);
+                }
+              });
             });
-          });
+          }
 
           resolve();
         }
