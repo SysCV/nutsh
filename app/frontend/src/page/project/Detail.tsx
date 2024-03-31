@@ -97,6 +97,7 @@ const DetailReady: FC<{project: Project; spec: ProjectSpec}> = ({project, spec})
           />,
           config.readonly ? (
             <Button
+              key="delete"
               icon={<DeleteOutlined />}
               type="text"
               loading={isDeletingProject}

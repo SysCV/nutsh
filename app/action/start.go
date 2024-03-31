@@ -3,8 +3,12 @@ package action
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/labstack/echo/v4"
@@ -33,30 +37,12 @@ func Start(ctx context.Context) error {
 	e.HideBanner = true
 	middlewares := []echo.MiddlewareFunc{
 		middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-			LogURI:     true,
-			LogStatus:  true,
-			LogMethod:  true,
-			LogLatency: true,
-			LogError:   true,
-			LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-				// https://github.com/labstack/echo/issues/2015
-				status := v.Status
-				if v.Error != nil {
-					switch e := v.Error.(type) {
-					case *echo.HTTPError:
-						status = e.Code
-					default:
-						status = http.StatusInternalServerError
-					}
-				}
-				zap.L().Info("request",
-					zap.String("method", v.Method),
-					zap.String("uri", v.URI),
-					zap.Duration("latency", v.Latency),
-					zap.Int("status", status),
-				)
-				return nil
-			},
+			LogURI:        true,
+			LogStatus:     true,
+			LogMethod:     true,
+			LogLatency:    true,
+			LogError:      true,
+			LogValuesFunc: logValuesFunc,
 		}),
 		middleware.GzipWithConfig(middleware.GzipConfig{
 			Level: 9,
@@ -67,6 +53,26 @@ func Start(ctx context.Context) error {
 		middlewares = append(middlewares, readonlyMiddleware())
 	}
 	e.Use(middlewares...)
+
+	// proxy yjs-server ws
+	yjsPort := mustStartYJSServer()
+	e.Any("/ws/*", func(c echo.Context) error {
+		target := fmt.Sprintf("http://127.0.0.1:%d", yjsPort)
+		targetUrl, err := url.Parse(target)
+		if err != nil {
+			return err
+		}
+
+		proxy := httputil.NewSingleHostReverseProxy(targetUrl)
+		proxy.Director = func(req *http.Request) {
+			req.URL.Scheme = targetUrl.Scheme
+			req.URL.Host = targetUrl.Host
+			req.URL.Path = "/" + c.Param("*")
+		}
+
+		proxy.ServeHTTP(c.Response(), c.Request())
+		return nil
+	})
 
 	// local data
 	if StartOption.DataDir != "" {
@@ -105,11 +111,31 @@ func Start(ctx context.Context) error {
 	return e.Start(lisAddr)
 }
 
+func logValuesFunc(c echo.Context, v middleware.RequestLoggerValues) error {
+	// https://github.com/labstack/echo/issues/2015
+	status := v.Status
+	if v.Error != nil {
+		switch e := v.Error.(type) {
+		case *echo.HTTPError:
+			status = e.Code
+		default:
+			status = http.StatusInternalServerError
+		}
+	}
+	zap.L().Info("request",
+		zap.String("method", v.Method),
+		zap.String("uri", v.URI),
+		zap.Duration("latency", v.Latency),
+		zap.Int("status", status),
+	)
+	return nil
+}
+
 func createServer() (backend.Server, func(), error) {
 	var opts []backend.Option
 
 	// storage
-	db, err := sqlite3.New(filepath.Join(databaseDir(), "db.sqlite3"))
+	db, err := sqlite3.New(databasePath())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -189,4 +215,73 @@ func databaseDir() string {
 		return old
 	}
 	return filepath.Join(StorageOption.Workspace, "database")
+}
+
+func databasePath() string {
+	return filepath.Join(databaseDir(), "db.sqlite3")
+}
+
+func mustStartYJSServer() int {
+	// create a temporary file
+	bin, err := os.CreateTemp("", "nutsh-yjs-*")
+	mustOk(err)
+
+	// write the embedded binary to the temporary file
+	_, err = bin.Write(StartOption.YJSServer)
+	mustOk(err)
+	mustOk(bin.Close())
+
+	// make the file executable
+	mustOk(os.Chmod(bin.Name(), 0755))
+
+	// prepare arguments
+	internalPort := mustFindFreePort()
+
+	// set envs
+	envs := []string{
+		fmt.Sprintf("PORT=%d", internalPort),
+		fmt.Sprintf("DATABASE_PATH=%s", databasePath()),
+	}
+	if StartOption.Readonly {
+		envs = append(envs, "READ_ONLY=true")
+	}
+
+	// execute the binary in a new process
+	cmd := exec.Command(bin.Name())
+	cmd.Env = envs
+	zap.L().Info("start yjs-server server", zap.Int("port", internalPort))
+
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+
+	go func() {
+		defer os.Remove(bin.Name())
+		mustOk(cmd.Run())
+	}()
+
+	return internalPort
+}
+
+func mustFindFreePort() int {
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	mustOk(err)
+
+	l, err := net.ListenTCP("tcp", addr)
+	mustOk(err)
+	defer l.Close()
+
+	return l.Addr().(*net.TCPAddr).Port
+}
+
+func mustOk(err error) {
+	if err == nil {
+		return
+	}
+
+	if os.Getenv("DEBUG") != "" {
+		fmt.Printf("%+v\n", err)
+	} else {
+		fmt.Printf("%v\n", err)
+	}
+	os.Exit(1)
 }

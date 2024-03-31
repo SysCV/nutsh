@@ -1,9 +1,8 @@
-import create from 'zustand';
-import {temporal} from 'zundo';
+import {createStore} from 'zustand';
 import {immer} from 'zustand/middleware/immer';
 import {subscribeWithSelector} from 'zustand/middleware';
 
-import {deepEqual, deepClone} from 'common/util';
+import {deepClone} from 'common/util';
 import type {
   Annotation,
   Component,
@@ -15,11 +14,9 @@ import type {
   ComponentMap,
 } from 'type/annotation';
 import {newComponentAdapter} from 'common/adapter';
+import {addAnnotationComponent, initialVertexBezier, setEntityCategory} from 'common/annotation';
 
-export type State = {
-  annotation: Annotation;
-  setAnnotation: (annotation: Annotation | undefined) => void;
-
+export type StateManipulation = {
   setEntityCategory: (input: SetEntityCategoryInput) => void;
   clearEntityCategory: (input: ClearEntityCategoryInput) => void;
   deleteEntities: (input: DeleteEntitiesInput) => void;
@@ -28,8 +25,7 @@ export type State = {
   addComponents: (input: AddComponentsInput) => void;
   transferComponent: (input: TransferComponentInput) => void;
   deleteComponents: (input: DeleteComponentsInput) => void;
-  seperateComponent: (input: SeperateComponentInput) => void;
-  commitDraftComponents: () => void;
+  separateComponent: (input: SeparateComponentInput) => void;
   updatePolychainVertices: (input: UpdatePolychainVerticesInput) => void;
   deletePolychainVertex: (input: DeletePolychainVertexInput) => void;
   setPolychainVertexBezier: (input: SetPolychainVertexBezierInput) => void;
@@ -37,6 +33,16 @@ export type State = {
   updateRectangleAnchors: (input: UpdateRectangleAnchorsInput) => void;
   paste: (input: PasteInput) => void;
   translate: (input: TranslateInput) => void;
+};
+
+export type State = StateManipulation & {
+  annotation: Annotation;
+  setAnnotation: (annotation: Annotation | undefined) => void;
+
+  /**
+   * @deprecated It is relevant to sync-ing annotation to the backend, and will be deprecated after migrating to Yjs.
+   */
+  commitDraftComponents: () => void;
 };
 
 export type SetEntityCategoryInput = {
@@ -87,7 +93,7 @@ export type DeleteComponentsInput = {
   components: [EntityId, ComponentId][];
 };
 
-export type SeperateComponentInput = {
+export type SeparateComponentInput = {
   sliceIndex: SliceIndex;
   entityId: EntityId;
   componentId: ComponentId;
@@ -159,8 +165,8 @@ export type UpdateSliceMasksInput = {
 
 const emptyAnnotation: Annotation = {entities: {}};
 
-export const useStore = create<State>()(
-  temporal(
+export function createAnnoStore() {
+  return createStore<State>()(
     subscribeWithSelector(
       immer(set => ({
         annotation: emptyAnnotation,
@@ -174,27 +180,7 @@ export const useStore = create<State>()(
           set(s => {
             const {sliceIndex, entityId, category, entries} = input;
             const e = s.annotation.entities[entityId];
-
-            if (sliceIndex !== undefined) {
-              if (!e.sliceCategories) {
-                e.sliceCategories = {};
-              }
-              if (!e.sliceCategories[sliceIndex]) {
-                e.sliceCategories[sliceIndex] = {};
-              }
-              if (!e.sliceCategories[sliceIndex][category]) {
-                e.sliceCategories[sliceIndex][category] = {};
-              }
-              e.sliceCategories[sliceIndex][category] = Object.fromEntries(entries.map(e => [e, true]));
-            } else {
-              if (!e.globalCategories) {
-                e.globalCategories = {};
-              }
-              if (!e.globalCategories[category]) {
-                e.globalCategories[category] = {};
-              }
-              e.globalCategories[category] = Object.fromEntries(entries.map(e => [e, true]));
-            }
+            setEntityCategory(e, category, entries, sliceIndex);
           });
         },
 
@@ -223,7 +209,7 @@ export const useStore = create<State>()(
           });
         },
 
-        seperateComponent: (input: SeperateComponentInput) => {
+        separateComponent: (input: SeparateComponentInput) => {
           set(s => {
             const {sliceIndex, entityId, componentId, newEntityId, newComponentId} = input;
 
@@ -361,31 +347,9 @@ export const useStore = create<State>()(
             const c = getComponent(s, sliceIndex, entityId, componentId);
             if (c?.type !== 'polychain') return;
 
-            const n = c.vertices.length;
-            const i = vertexIndex;
-            const j = (vertexIndex + n - 1) % n;
-            const curr = c.vertices[i];
+            const curr = c.vertices[vertexIndex];
             if (isBezier) {
-              const {x: x1, y: y1} = c.vertices[i].coordinates;
-              const {x: x2, y: y2} = c.vertices[j].coordinates;
-              const [cx1, cy1] = [(x1 * 3) / 4 + (x2 * 1) / 4, (y1 * 3) / 4 + (y2 * 1) / 4];
-              const [cx2, cy2] = [(x1 * 1) / 4 + (x2 * 3) / 4, (y1 * 1) / 4 + (y2 * 3) / 4];
-
-              const dx = x2 - x1;
-              const dy = y2 - y1;
-              const l = Math.hypot(dx, dy);
-              const d = l / 4;
-
-              curr.bezier = {
-                control1: {
-                  x: cx2 + (d * dy) / l,
-                  y: cy2 - (d * dx) / l,
-                },
-                control2: {
-                  x: cx1 - (d * dy) / l,
-                  y: cy1 + (d * dx) / l,
-                },
-              };
+              curr.bezier = initialVertexBezier(vertexIndex, c.vertices);
             } else {
               delete curr.bezier;
             }
@@ -442,38 +406,12 @@ export const useStore = create<State>()(
           });
         },
       }))
-    ),
-    {
-      partialize: state => {
-        const {annotation} = state;
-        return {annotation};
-      },
-      equality: (past, curr) => deepEqual(past, curr),
-    }
-  )
-);
-
-export const useTemporalStore = create(useStore.temporal);
+    )
+  );
+}
 
 function addComponent(s: State, sliceIndex: SliceIndex, entityId: EntityId, component: Component) {
-  if (entityId in s.annotation.entities) {
-    const slices = s.annotation.entities[entityId].geometry.slices;
-    if (!(sliceIndex in slices)) {
-      slices[sliceIndex] = {};
-    }
-    slices[sliceIndex][component.id] = deepClone(component);
-  } else {
-    s.annotation.entities[entityId] = {
-      id: entityId,
-      geometry: {
-        slices: {
-          [sliceIndex]: {
-            [component.id]: deepClone(component),
-          },
-        },
-      },
-    };
-  }
+  addAnnotationComponent(s.annotation, sliceIndex, entityId, component);
 }
 
 function deleteComponent(

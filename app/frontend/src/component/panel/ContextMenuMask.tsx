@@ -5,13 +5,14 @@ import intl from 'react-intl-universal';
 import {Dropdown, DropdownProps, App, Space, Tag, MenuProps} from 'antd';
 import {ExclamationCircleOutlined} from '@ant-design/icons';
 import {css} from '@emotion/react';
-import {getComponent, useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {ComponentId, EntityId, MaskComponent, PolychainComponent} from 'type/annotation';
 
 import {Action, useComponentActions, useEntityActions} from './menu/common';
 import {useActions as usePolychainActions} from './menu/polychain';
 import {useActions as useMaskActions} from './menu/mask';
+import {getComponent} from 'state/annotate/annotation';
 
 export const ContextMenuMask: FC<{style?: CSSProperties}> = ({style}) => {
   const contextMenuClient = useRenderStore(s => s.mouse.contextMenuClient);

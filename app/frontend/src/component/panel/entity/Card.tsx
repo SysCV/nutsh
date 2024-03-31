@@ -8,7 +8,7 @@ import {css} from '@emotion/react';
 import {Space, Card, Typography, Button, Popconfirm, Progress, Spin} from 'antd';
 import {EditOutlined, DeleteOutlined} from '@ant-design/icons';
 
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
 
@@ -19,6 +19,7 @@ import type {EntityId} from 'type/annotation';
 import type {ProjectSpec} from 'type/project_spec';
 import {ColorPalette} from './display';
 import {useEntityCategories} from 'common/hook';
+import {useDeleteEntities} from 'state/annotate/annotation-broadcast';
 
 const {Paragraph, Text} = Typography;
 
@@ -73,7 +74,7 @@ export const EntityCard: FC<{
     return Object.keys(g.slices).map(s => parseInt(s));
   }, shallow);
 
-  const deleteEntities = useAnnoStore(s => s.deleteEntities);
+  const {deleteEntities} = useDeleteEntities();
 
   const isSelected = useRenderStore(s => s.select.ids.has(entityId));
   const isHovered = useRenderStore(s => s.mouse.hover?.entityId === entityId);

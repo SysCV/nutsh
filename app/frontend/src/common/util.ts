@@ -7,11 +7,3 @@ export function deepClone<T>(obj: T): T {
 export function deepEqual<T>(a: T, b: T): boolean {
   return deepCompare(a, b);
 }
-
-export function relativeMousePosition<T extends HTMLElement>(event: React.MouseEvent<T>, ele: T) {
-  const rect = ele.getBoundingClientRect();
-  return {
-    x: event.clientX - rect.left,
-    y: event.clientY - rect.top,
-  };
-}

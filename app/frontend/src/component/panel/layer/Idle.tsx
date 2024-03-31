@@ -4,10 +4,9 @@ import intl from 'react-intl-universal';
 import {v4 as uuidv4} from 'uuid';
 import {message} from 'antd';
 
-import {useTemporalStore as useTemporalAnnoStore} from 'state/annotate/annotation';
+import {useAnnoHistoryStore} from 'state/annotate/annotation-provider';
 import {EntityComponentId, useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
 import {useStore as useEditPolyStore} from 'state/annotate/polychain/edit';
 import {useStore as useEditRectStore} from 'state/annotate/rectangle/edit';
 
@@ -22,6 +21,7 @@ import {editStyle, idleStyle} from 'common/constant';
 import {convertRGBA2Hex, isLightBackground} from 'common/color';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {coordinatesImageToCanvas} from 'common/geometry';
+import {usePaste} from 'state/annotate/annotation-broadcast';
 
 export const IdleLayer: FC<HTMLAttributes<HTMLDivElement>> = ({...divProps}) => {
   console.debug('render IdleLayer');
@@ -88,7 +88,7 @@ const PasteLoaded: FC<{copying: {ecids: EntityComponentId[]; sliceIndex: SliceIn
   copying: {ecids, sliceIndex},
 }) => {
   const sidx = useRenderStore(s => s.sliceIndex);
-  const paste = useAnnoStore(s => s.paste);
+  const {paste} = usePaste();
 
   useHotkeys(
     'ctrl+v, meta+v',
@@ -160,7 +160,8 @@ function useRenderSettings(): RenderSetting[] {
 }
 
 const IdleLayerTemporal: FC = () => {
-  const {undo, redo} = useTemporalAnnoStore();
+  const undo = useAnnoHistoryStore(s => s.undo);
+  const redo = useAnnoHistoryStore(s => s.redo);
   useHotkeys('ctrl+z, meta+z', () => undo());
   useHotkeys('ctrl+shift+z, meta+shift+z', () => redo());
   return <></>;

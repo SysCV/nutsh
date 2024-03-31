@@ -3,10 +3,18 @@ import {App} from 'antd';
 import intl from 'react-intl-universal';
 import {v4 as uuidv4} from 'uuid';
 
-import {getSlice, useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useStore as useRenderStore} from 'state/annotate/render';
 
 import type {EntityId, ComponentId} from 'type/annotation';
+import {getSlice} from 'state/annotate/annotation';
+import {
+  useAddDeleteComponents,
+  useDeleteEntities,
+  usePaste,
+  useSeparateComponent,
+  useTruncateEntities,
+} from 'state/annotate/annotation-broadcast';
 
 export type Action = {
   title: string;
@@ -22,8 +30,8 @@ export type Action = {
 export function useComponentActions(entityId: EntityId, componentId: ComponentId): Action[] {
   const sliceIndex = useRenderStore(s => s.sliceIndex);
 
-  const seperateComponent = useAnnoStore(s => s.seperateComponent);
-  const deleteComponents = useAnnoStore(s => s.deleteComponents);
+  const {separateComponent} = useSeparateComponent();
+  const {deleteComponents} = useAddDeleteComponents();
   const startManipulation = useRenderStore(s => s.manipulate.start);
 
   const nc = useAnnoStore(
@@ -47,7 +55,7 @@ export function useComponentActions(entityId: EntityId, componentId: ComponentId
       fn: () => {
         const eid = uuidv4();
         const cid = uuidv4();
-        seperateComponent({sliceIndex, entityId, componentId, newEntityId: eid, newComponentId: cid});
+        separateComponent({sliceIndex, entityId, componentId, newEntityId: eid, newComponentId: cid});
       },
     },
     {
@@ -71,9 +79,9 @@ export function useEntityActions(): Action[] {
   const selectIds = useRenderStore(s => s.select.ids);
   const sliceIndex = useRenderStore(s => s.sliceIndex);
 
-  const deleteComponents = useAnnoStore(s => s.deleteComponents);
-  const deleteEntities = useAnnoStore(s => s.deleteEntities);
-  const truncateEntities = useAnnoStore(s => s.truncateEntities);
+  const {deleteEntities} = useDeleteEntities();
+  const {deleteComponents} = useAddDeleteComponents();
+  const {truncateEntities} = useTruncateEntities();
 
   // copy
   const copy = useRenderStore(s => s.copy);
@@ -90,7 +98,7 @@ export function useEntityActions(): Action[] {
   }, [entities, sliceIndex, selectIds]);
 
   // paste
-  const paste = useAnnoStore(s => s.paste);
+  const {paste} = usePaste();
   const actions: Action[] = [
     {
       title: intl.get('paste'),

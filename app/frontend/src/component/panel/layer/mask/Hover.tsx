@@ -3,7 +3,7 @@ import {ComponentProximity} from 'state/annotate/render/mouse';
 import {useStore as useBrushCanvasStore} from 'component/segmentation/BrushCanvas';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useUIStore} from 'state/annotate/ui';
-import {relativeMousePosition} from 'common/util';
+import {relativeMousePosition} from 'common/mouse';
 import {coordinatesCanvasToImage} from 'common/geometry';
 
 type Props = HTMLAttributes<HTMLDivElement> & {

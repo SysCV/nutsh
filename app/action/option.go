@@ -7,8 +7,9 @@ var StorageOption struct {
 }
 
 var StartOption struct {
-	Frontend fs.FS
-	Doc      fs.FS
+	Frontend  fs.FS
+	YJSServer []byte
+	Doc       fs.FS
 
 	Port                   int
 	Readonly               bool

@@ -7,7 +7,7 @@ import intl from 'react-intl-universal';
 import shallow from 'zustand/shallow';
 import {v4 as uuidv4} from 'uuid';
 
-import {getComponent, useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useStore as useUIStore} from 'state/annotate/ui';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useDrawStore, useTemporalStore as useTemporalDrawStore} from 'state/annotate/polychain/draw';
@@ -22,6 +22,8 @@ import type {ComponentId, Coordinates, EntityId, Vertex} from 'type/annotation';
 import {ColorPalette} from 'component/panel/entity/display';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {useKeyPressed} from 'common/keyboard';
+import {getComponent} from 'state/annotate/annotation';
+import {useAddDeleteComponents} from 'state/annotate/annotation-broadcast';
 
 type Props = HTMLAttributes<HTMLDivElement> & {
   width: number;
@@ -87,7 +89,7 @@ const LayerWithEntityId: FC<Props & {entityId: EntityId}> = ({entityId, width, h
     )
   );
 
-  const addComponent = useAnnoStore(s => s.addComponent);
+  const {addComponent} = useAddDeleteComponents();
 
   const drawPolychain = useDrawPolychain(transform);
   const drawAnnoVertex = useDrawVertex(transform);

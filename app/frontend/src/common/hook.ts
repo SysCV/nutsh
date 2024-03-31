@@ -3,7 +3,8 @@ import {v4 as uuidv4} from 'uuid';
 
 import {deepEqual} from 'common/util';
 import {EntityComponentId, useStore as useRenderStore} from 'state/annotate/render';
-import {useStore as useAnnoStore, getComponent, getSlice} from 'state/annotate/annotation';
+import {getComponent, getSlice} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useStore as useUIStore} from 'state/annotate/ui';
 import {useStore as useDrawPolyStore} from 'state/annotate/polychain/draw';
 import {useStore as useDrawRectStore} from 'state/annotate/rectangle/draw';

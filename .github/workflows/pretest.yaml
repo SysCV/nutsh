@@ -15,8 +15,15 @@ jobs:
             FROM project-dev
             ADD . /project
 
-            # create an empty file to make `go:embed` happy              
-            RUN cd /project && mkdir app/frontend/build && touch app/frontend/build/test && mkdir docs/build && touch docs/build/test
+            # create empty files to make `go:embed` happy              
+            RUN \
+              cd /project && \
+              mkdir app/frontend/build && \
+              touch app/frontend/build/test && \
+              mkdir docs/build && \
+              touch docs/build/test && \
+              mkdir app/yjs-server/bin && \
+              touch app/yjs-server/bin/yjs-server
 
             # generate code
             RUN cd /project && task openapi && task proto

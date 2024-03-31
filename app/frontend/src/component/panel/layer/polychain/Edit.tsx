@@ -1,7 +1,7 @@
 import {FC, useCallback, CanvasHTMLAttributes, useState} from 'react';
 import shallow from 'zustand/shallow';
 
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
+import {useAnnoStore} from 'state/annotate/annotation-provider';
 import {useStore as useRenderStore} from 'state/annotate/render';
 import {useStore as useEditStore} from 'state/annotate/polychain/edit';
 
@@ -13,6 +13,7 @@ import {useDrawPolychain, useDrawDashedLine, useDrawVertex} from 'common/render'
 import type {Data as EditData} from 'state/annotate/polychain/edit';
 import {ColorPalette} from 'component/panel/entity/display';
 import {editStyle} from 'common/constant';
+import {useUpdatePolychainVertices} from 'state/annotate/annotation-broadcast';
 
 const Canvas: FC<CanvasHTMLAttributes<HTMLCanvasElement> & {data: EditData}> = ({data, ...canvasProps}) => {
   const {width: imw, height: imh} = useRenderStore(s => s.sliceSize!, shallow);
@@ -67,12 +68,12 @@ const Canvas: FC<CanvasHTMLAttributes<HTMLCanvasElement> & {data: EditData}> = (
     )
   );
 
-  const updateVertices = useAnnoStore(s => s.updatePolychainVertices);
+  const {updatePolychainVertices} = useUpdatePolychainVertices();
   const finishEdit = useEditStore(s => s.finish);
   const finish = useCallback(() => {
-    updateVertices({sliceIndex, entityId: eid, componentId: cid, vertices});
+    updatePolychainVertices({sliceIndex, entityId: eid, componentId: cid, vertices});
     finishEdit();
-  }, [cid, eid, finishEdit, sliceIndex, updateVertices, vertices]);
+  }, [cid, eid, finishEdit, sliceIndex, updatePolychainVertices, vertices]);
 
   return (
     <canvas

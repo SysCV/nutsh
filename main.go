@@ -17,6 +17,9 @@ import (
 //go:embed app/frontend/build/*
 var frontend embed.FS
 
+//go:embed app/yjs-server/bin/yjs-server
+var yjsServer []byte
+
 //go:embed docs/build/*
 var docs embed.FS
 
@@ -105,6 +108,7 @@ func main() {
 func runStart(ctx *cli.Context) error {
 	action.StartOption.Frontend = echo.MustSubFS(frontend, "app/frontend/build")
 	action.StartOption.Doc = echo.MustSubFS(docs, "docs/build")
+	action.StartOption.YJSServer = yjsServer
 	return action.Start(ctx.Context)
 }
 

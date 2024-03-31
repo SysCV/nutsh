@@ -23,12 +23,12 @@ import {
   faChessBoard,
 } from '@fortawesome/free-solid-svg-icons';
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {useTemporalStore as useTemporalAnnoStore} from 'state/annotate/annotation';
 import {useStore as useUIStore} from 'state/annotate/ui';
 import {ConfigContext} from 'common/context';
 import {rectFitTransform} from 'common/geometry';
 import {useInvertSelection, useFocusAreas, useDrawing} from 'common/hook';
 import {useCanvasSize, leftSidebarWidth} from './layout';
+import {useAnnoHistoryStore} from 'state/annotate/annotation-provider';
 
 const ActionButton: FC<{helpCode: string; icon: React.ReactNode; hotKey?: string} & ButtonProps> = ({
   helpCode,
@@ -136,7 +136,10 @@ export const ActionBar: FC<Props> = ({...baseProps}) => {
   const focusAreas = useFocusAreas(canvasSize);
 
   // redo and undo
-  const {pastStates, futureStates, redo, undo} = useTemporalAnnoStore();
+  const redo = useAnnoHistoryStore(s => s.redo);
+  const undo = useAnnoHistoryStore(s => s.undo);
+  const undoCount = useAnnoHistoryStore(s => s.index);
+  const redoCount = useAnnoHistoryStore(s => s.actions.length - s.index - 1);
 
   return (
     <div {...baseProps}>
@@ -249,14 +252,14 @@ export const ActionBar: FC<Props> = ({...baseProps}) => {
         helpCode="action.undo"
         hotKey="⌘/⌃ + Z"
         icon={<FontAwesomeIcon icon={faRotateLeft} />}
-        disabled={isDrawing || pastStates.length === 0}
+        disabled={isDrawing || undoCount === 0}
         onClick={() => undo()}
       />
       <ActionButton
         helpCode="action.redo"
         hotKey="⌘/⌃ + ⇧ + Z"
         icon={<FontAwesomeIcon icon={faRotateRight} />}
-        disabled={isDrawing || futureStates.length === 0}
+        disabled={isDrawing || redoCount === 0}
         onClick={() => redo()}
       />
       <ActionButton

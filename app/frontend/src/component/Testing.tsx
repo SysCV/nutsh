@@ -1,20 +1,23 @@
-import {FC, useEffect} from 'react';
+import {useEffect} from 'react';
 
 import {useStore as useRenderStore} from 'state/annotate/render';
-import {useStore as useAnnoStore} from 'state/annotate/annotation';
-export const Testing: FC = () => {
+import {useAnnoStoreRaw} from 'state/annotate/annotation-provider';
+
+export function Testing(): JSX.Element {
+  const annoStore = useAnnoStoreRaw();
+
   useEffect(() => {
-    const annoState = useAnnoStore.getState();
+    const annoState = annoStore.getState();
     const renderState = useRenderStore.getState();
     window.testing = {annoState, renderState};
-  }, []);
+  }, [annoStore]);
 
   useEffect(
     () =>
-      useAnnoStore.subscribe(annoState => {
+      annoStore.subscribe(annoState => {
         window.testing = {...window.testing, annoState};
       }),
-    []
+    [annoStore]
   );
   useEffect(
     () =>
@@ -23,6 +26,5 @@ export const Testing: FC = () => {
       }),
     []
   );
-
   return <></>;
-};
+}

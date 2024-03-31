@@ -6,7 +6,7 @@ import {throttle} from 'lodash';
 import {Tensor} from 'onnxruntime-web';
 
 import {FocusOpacity} from 'common/constant';
-import {relativeMousePosition} from 'common/util';
+import {relativeMousePosition} from 'common/mouse';
 import {coordinatesCanvasToImage, coordinatesImageToCanvas, distance} from 'common/geometry';
 import {SizedContainer} from 'component/SizedContainer';
 import {Coordinates} from 'type/annotation';
